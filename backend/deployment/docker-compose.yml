@@ -37,6 +37,34 @@ services:
     networks:
       - vici-network
 
+  # Load Redis recommendation data
+  redis-init:
+    image: redis:7-alpine
+    container_name: vici-redis-init
+    restart: "no"
+    depends_on:
+      - redis
+    volumes:
+      - ./init-scripts/redis:/scripts
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    entrypoint: /scripts/load-data.sh
+    networks:
+      - vici-network
+
+  # RedisInsight - Redis GUI (Optional for dev)
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: vici-redis-insight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      - redis
+    networks:
+      - vici-network
+
   # Zookeeper - Required for Kafka
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -134,31 +162,14 @@ services:
     networks:
       - vici-network
 
-  # pgAdmin - PostgreSQL Management (Optional for dev)
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: vici-pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    depends_on:
-      - postgres
-    networks:
-      - vici-network
-
 volumes:
   postgres_data:
   redis_data:
+  redisinsight_data:
   zookeeper_data:
   zookeeper_log:
   kafka_data:
   minio_data:
-  pgadmin_data:
 
 networks:
   vici-network:
