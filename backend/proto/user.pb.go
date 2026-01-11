@@ -4,10 +4,9 @@
 // 	protoc        v4.25.3
 // source: user.proto
 
-package user
+package proto
 
 import (
-	common "github.com/ecommerce/proto/common"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -30,8 +29,8 @@ type UserProfile struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Phone         string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`
 	Avatar        string                 `protobuf:"bytes,5,opt,name=avatar,proto3" json:"avatar,omitempty"`
-	CreatedAt     *common.Timestamp      `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *common.Timestamp      `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt     *Timestamp             `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *Timestamp             `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -101,14 +100,14 @@ func (x *UserProfile) GetAvatar() string {
 	return ""
 }
 
-func (x *UserProfile) GetCreatedAt() *common.Timestamp {
+func (x *UserProfile) GetCreatedAt() *Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *UserProfile) GetUpdatedAt() *common.Timestamp {
+func (x *UserProfile) GetUpdatedAt() *Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -124,7 +123,7 @@ type UserPreferences struct {
 	MarketingEmails    bool                   `protobuf:"varint,4,opt,name=marketing_emails,json=marketingEmails,proto3" json:"marketing_emails,omitempty"`
 	Language           string                 `protobuf:"bytes,5,opt,name=language,proto3" json:"language,omitempty"`
 	Currency           string                 `protobuf:"bytes,6,opt,name=currency,proto3" json:"currency,omitempty"`
-	UpdatedAt          *common.Timestamp      `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UpdatedAt          *Timestamp             `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -201,7 +200,7 @@ func (x *UserPreferences) GetCurrency() string {
 	return ""
 }
 
-func (x *UserPreferences) GetUpdatedAt() *common.Timestamp {
+func (x *UserPreferences) GetUpdatedAt() *Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -214,7 +213,7 @@ type WishlistItem struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	ProductId     string                 `protobuf:"bytes,3,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
-	AddedAt       *common.Timestamp      `protobuf:"bytes,4,opt,name=added_at,json=addedAt,proto3" json:"added_at,omitempty"`
+	AddedAt       *Timestamp             `protobuf:"bytes,4,opt,name=added_at,json=addedAt,proto3" json:"added_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -270,7 +269,7 @@ func (x *WishlistItem) GetProductId() string {
 	return ""
 }
 
-func (x *WishlistItem) GetAddedAt() *common.Timestamp {
+func (x *WishlistItem) GetAddedAt() *Timestamp {
 	if x != nil {
 		return x.AddedAt
 	}
@@ -526,7 +525,7 @@ func (x *ListAddressesRequest) GetUserId() string {
 
 type ListAddressesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Addresses     []*common.Address      `protobuf:"bytes,1,rep,name=addresses,proto3" json:"addresses,omitempty"`
+	Addresses     []*Address             `protobuf:"bytes,1,rep,name=addresses,proto3" json:"addresses,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -561,7 +560,7 @@ func (*ListAddressesResponse) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ListAddressesResponse) GetAddresses() []*common.Address {
+func (x *ListAddressesResponse) GetAddresses() []*Address {
 	if x != nil {
 		return x.Addresses
 	}
@@ -695,7 +694,7 @@ func (x *AddAddressRequest) GetIsDefault() bool {
 
 type AddAddressResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Address       *common.Address        `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Address       *Address               `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -730,7 +729,7 @@ func (*AddAddressResponse) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *AddAddressResponse) GetAddress() *common.Address {
+func (x *AddAddressResponse) GetAddress() *Address {
 	if x != nil {
 		return x.Address
 	}
@@ -872,7 +871,7 @@ func (x *UpdateAddressRequest) GetIsDefault() bool {
 
 type UpdateAddressResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Address       *common.Address        `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Address       *Address               `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -907,7 +906,7 @@ func (*UpdateAddressResponse) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *UpdateAddressResponse) GetAddress() *common.Address {
+func (x *UpdateAddressResponse) GetAddress() *Address {
 	if x != nil {
 		return x.Address
 	}
@@ -1231,9 +1230,9 @@ func (x *UpdatePreferencesResponse) GetPreferences() *UserPreferences {
 
 // Get wishlist request
 type GetWishlistRequest struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	UserId        string                    `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Pagination    *common.PaginationRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Pagination    *PaginationRequest     `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1275,7 +1274,7 @@ func (x *GetWishlistRequest) GetUserId() string {
 	return ""
 }
 
-func (x *GetWishlistRequest) GetPagination() *common.PaginationRequest {
+func (x *GetWishlistRequest) GetPagination() *PaginationRequest {
 	if x != nil {
 		return x.Pagination
 	}
@@ -1283,9 +1282,9 @@ func (x *GetWishlistRequest) GetPagination() *common.PaginationRequest {
 }
 
 type GetWishlistResponse struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Items         []*WishlistItem            `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
-	Pagination    *common.PaginationResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*WishlistItem        `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Pagination    *PaginationResponse    `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1327,7 +1326,7 @@ func (x *GetWishlistResponse) GetItems() []*WishlistItem {
 	return nil
 }
 
-func (x *GetWishlistResponse) GetPagination() *common.PaginationResponse {
+func (x *GetWishlistResponse) GetPagination() *PaginationResponse {
 	if x != nil {
 		return x.Pagination
 	}
@@ -1686,7 +1685,7 @@ const file_user_proto_rawDesc = "" +
 	"\x11UpdatePreferences\x12\x1e.user.UpdatePreferencesRequest\x1a\x1f.user.UpdatePreferencesResponse\x12B\n" +
 	"\vGetWishlist\x12\x18.user.GetWishlistRequest\x1a\x19.user.GetWishlistResponse\x12H\n" +
 	"\rAddToWishlist\x12\x1a.user.AddToWishlistRequest\x1a\x1b.user.AddToWishlistResponse\x12W\n" +
-	"\x12RemoveFromWishlist\x12\x1f.user.RemoveFromWishlistRequest\x1a .user.RemoveFromWishlistResponseB4Z2github.com/cqchien/ecomerce-rec/backend/proto/userb\x06proto3"
+	"\x12RemoveFromWishlist\x12\x1f.user.RemoveFromWishlistRequest\x1a .user.RemoveFromWishlistResponseB/Z-github.com/cqchien/ecomerce-rec/backend/protob\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
@@ -1727,10 +1726,10 @@ var file_user_proto_goTypes = []any{
 	(*AddToWishlistResponse)(nil),      // 22: user.AddToWishlistResponse
 	(*RemoveFromWishlistRequest)(nil),  // 23: user.RemoveFromWishlistRequest
 	(*RemoveFromWishlistResponse)(nil), // 24: user.RemoveFromWishlistResponse
-	(*common.Timestamp)(nil),           // 25: common.Timestamp
-	(*common.Address)(nil),             // 26: common.Address
-	(*common.PaginationRequest)(nil),   // 27: common.PaginationRequest
-	(*common.PaginationResponse)(nil),  // 28: common.PaginationResponse
+	(*Timestamp)(nil),                  // 25: common.Timestamp
+	(*Address)(nil),                    // 26: common.Address
+	(*PaginationRequest)(nil),          // 27: common.PaginationRequest
+	(*PaginationResponse)(nil),         // 28: common.PaginationResponse
 }
 var file_user_proto_depIdxs = []int32{
 	25, // 0: user.UserProfile.created_at:type_name -> common.Timestamp
@@ -1782,6 +1781,7 @@ func file_user_proto_init() {
 	if File_user_proto != nil {
 		return
 	}
+	file_common_proto_init()
 	file_user_proto_msgTypes[5].OneofWrappers = []any{}
 	file_user_proto_msgTypes[11].OneofWrappers = []any{}
 	file_user_proto_msgTypes[17].OneofWrappers = []any{}

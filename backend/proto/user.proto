@@ -4,7 +4,7 @@ package user;
 
 import "common.proto";
 
-option go_package = "github.com/cqchien/ecomerce-rec/backend/proto/user";
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
 
 // User Service - manages user profiles and preferences
 service UserService {

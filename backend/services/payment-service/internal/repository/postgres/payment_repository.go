@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 
-	"github.com/cqchien/ecomerce_rec/backend/services/payment-service/internal/domain"
-	"github.com/cqchien/ecomerce_rec/backend/services/payment-service/internal/infrastructure/models"
+	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/domain"
+	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/infrastructure/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

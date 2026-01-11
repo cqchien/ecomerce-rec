@@ -4,10 +4,9 @@
 // 	protoc        v4.25.3
 // source: cart.proto
 
-package cart
+package proto
 
 import (
-	common "github.com/ecommerce/proto/common"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -28,13 +27,13 @@ type Cart struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Items         []*CartItem            `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"`
-	Subtotal      *common.Money          `protobuf:"bytes,4,opt,name=subtotal,proto3" json:"subtotal,omitempty"`
-	Discount      *common.Money          `protobuf:"bytes,5,opt,name=discount,proto3" json:"discount,omitempty"`
-	Total         *common.Money          `protobuf:"bytes,6,opt,name=total,proto3" json:"total,omitempty"`
+	Subtotal      *Money                 `protobuf:"bytes,4,opt,name=subtotal,proto3" json:"subtotal,omitempty"`
+	Discount      *Money                 `protobuf:"bytes,5,opt,name=discount,proto3" json:"discount,omitempty"`
+	Total         *Money                 `protobuf:"bytes,6,opt,name=total,proto3" json:"total,omitempty"`
 	CouponCode    string                 `protobuf:"bytes,7,opt,name=coupon_code,json=couponCode,proto3" json:"coupon_code,omitempty"`
 	IsAbandoned   bool                   `protobuf:"varint,8,opt,name=is_abandoned,json=isAbandoned,proto3" json:"is_abandoned,omitempty"`
-	CreatedAt     *common.Timestamp      `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *common.Timestamp      `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt     *Timestamp             `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *Timestamp             `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -90,21 +89,21 @@ func (x *Cart) GetItems() []*CartItem {
 	return nil
 }
 
-func (x *Cart) GetSubtotal() *common.Money {
+func (x *Cart) GetSubtotal() *Money {
 	if x != nil {
 		return x.Subtotal
 	}
 	return nil
 }
 
-func (x *Cart) GetDiscount() *common.Money {
+func (x *Cart) GetDiscount() *Money {
 	if x != nil {
 		return x.Discount
 	}
 	return nil
 }
 
-func (x *Cart) GetTotal() *common.Money {
+func (x *Cart) GetTotal() *Money {
 	if x != nil {
 		return x.Total
 	}
@@ -125,14 +124,14 @@ func (x *Cart) GetIsAbandoned() bool {
 	return false
 }
 
-func (x *Cart) GetCreatedAt() *common.Timestamp {
+func (x *Cart) GetCreatedAt() *Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *Cart) GetUpdatedAt() *common.Timestamp {
+func (x *Cart) GetUpdatedAt() *Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -150,8 +149,8 @@ type CartItem struct {
 	Image         string                 `protobuf:"bytes,6,opt,name=image,proto3" json:"image,omitempty"`
 	Sku           string                 `protobuf:"bytes,7,opt,name=sku,proto3" json:"sku,omitempty"`
 	Quantity      int32                  `protobuf:"varint,8,opt,name=quantity,proto3" json:"quantity,omitempty"`
-	UnitPrice     *common.Money          `protobuf:"bytes,9,opt,name=unit_price,json=unitPrice,proto3" json:"unit_price,omitempty"`
-	TotalPrice    *common.Money          `protobuf:"bytes,10,opt,name=total_price,json=totalPrice,proto3" json:"total_price,omitempty"`
+	UnitPrice     *Money                 `protobuf:"bytes,9,opt,name=unit_price,json=unitPrice,proto3" json:"unit_price,omitempty"`
+	TotalPrice    *Money                 `protobuf:"bytes,10,opt,name=total_price,json=totalPrice,proto3" json:"total_price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -242,14 +241,14 @@ func (x *CartItem) GetQuantity() int32 {
 	return 0
 }
 
-func (x *CartItem) GetUnitPrice() *common.Money {
+func (x *CartItem) GetUnitPrice() *Money {
 	if x != nil {
 		return x.UnitPrice
 	}
 	return nil
 }
 
-func (x *CartItem) GetTotalPrice() *common.Money {
+func (x *CartItem) GetTotalPrice() *Money {
 	if x != nil {
 		return x.TotalPrice
 	}
@@ -355,7 +354,7 @@ type AddToCartRequest struct {
 	Image         string                 `protobuf:"bytes,5,opt,name=image,proto3" json:"image,omitempty"`
 	Sku           string                 `protobuf:"bytes,6,opt,name=sku,proto3" json:"sku,omitempty"`
 	Quantity      int32                  `protobuf:"varint,7,opt,name=quantity,proto3" json:"quantity,omitempty"`
-	UnitPrice     *common.Money          `protobuf:"bytes,8,opt,name=unit_price,json=unitPrice,proto3" json:"unit_price,omitempty"`
+	UnitPrice     *Money                 `protobuf:"bytes,8,opt,name=unit_price,json=unitPrice,proto3" json:"unit_price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -439,7 +438,7 @@ func (x *AddToCartRequest) GetQuantity() int32 {
 	return 0
 }
 
-func (x *AddToCartRequest) GetUnitPrice() *common.Money {
+func (x *AddToCartRequest) GetUnitPrice() *Money {
 	if x != nil {
 		return x.UnitPrice
 	}
@@ -739,7 +738,7 @@ func (x *ClearCartRequest) GetUserId() string {
 
 type ClearCartResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Response      *common.Response       `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
+	Response      *Response              `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -774,7 +773,7 @@ func (*ClearCartResponse) Descriptor() ([]byte, []int) {
 	return file_cart_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *ClearCartResponse) GetResponse() *common.Response {
+func (x *ClearCartResponse) GetResponse() *Response {
 	if x != nil {
 		return x.Response
 	}
@@ -786,7 +785,7 @@ type ApplyCouponRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	UserId         string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	CouponCode     string                 `protobuf:"bytes,2,opt,name=coupon_code,json=couponCode,proto3" json:"coupon_code,omitempty"`
-	DiscountAmount *common.Money          `protobuf:"bytes,3,opt,name=discount_amount,json=discountAmount,proto3" json:"discount_amount,omitempty"`
+	DiscountAmount *Money                 `protobuf:"bytes,3,opt,name=discount_amount,json=discountAmount,proto3" json:"discount_amount,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -835,7 +834,7 @@ func (x *ApplyCouponRequest) GetCouponCode() string {
 	return ""
 }
 
-func (x *ApplyCouponRequest) GetDiscountAmount() *common.Money {
+func (x *ApplyCouponRequest) GetDiscountAmount() *Money {
 	if x != nil {
 		return x.DiscountAmount
 	}
@@ -1070,7 +1069,7 @@ const file_cart_proto_rawDesc = "" +
 	"RemoveItem\x12\x17.cart.RemoveItemRequest\x1a\x18.cart.RemoveItemResponse\x12<\n" +
 	"\tClearCart\x12\x16.cart.ClearCartRequest\x1a\x17.cart.ClearCartResponse\x12B\n" +
 	"\vApplyCoupon\x12\x18.cart.ApplyCouponRequest\x1a\x19.cart.ApplyCouponResponse\x12E\n" +
-	"\fRemoveCoupon\x12\x19.cart.RemoveCouponRequest\x1a\x1a.cart.RemoveCouponResponseB!Z\x1fgithub.com/ecommerce/proto/cartb\x06proto3"
+	"\fRemoveCoupon\x12\x19.cart.RemoveCouponRequest\x1a\x1a.cart.RemoveCouponResponseB/Z-github.com/cqchien/ecomerce-rec/backend/protob\x06proto3"
 
 var (
 	file_cart_proto_rawDescOnce sync.Once
@@ -1102,9 +1101,9 @@ var file_cart_proto_goTypes = []any{
 	(*ApplyCouponResponse)(nil),        // 13: cart.ApplyCouponResponse
 	(*RemoveCouponRequest)(nil),        // 14: cart.RemoveCouponRequest
 	(*RemoveCouponResponse)(nil),       // 15: cart.RemoveCouponResponse
-	(*common.Money)(nil),               // 16: common.Money
-	(*common.Timestamp)(nil),           // 17: common.Timestamp
-	(*common.Response)(nil),            // 18: common.Response
+	(*Money)(nil),                      // 16: common.Money
+	(*Timestamp)(nil),                  // 17: common.Timestamp
+	(*Response)(nil),                   // 18: common.Response
 }
 var file_cart_proto_depIdxs = []int32{
 	1,  // 0: cart.Cart.items:type_name -> cart.CartItem
@@ -1150,6 +1149,7 @@ func file_cart_proto_init() {
 	if File_cart_proto != nil {
 		return
 	}
+	file_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

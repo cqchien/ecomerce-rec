@@ -4,7 +4,7 @@
 // - protoc             v4.25.3
 // source: event.proto
 
-package event
+package proto
 
 import (
 	context "context"

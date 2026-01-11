@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 
-	"github.com/cqchien/ecomerce_rec/backend/services/payment-service/internal/domain"
-	"github.com/cqchien/ecomerce_rec/backend/services/payment-service/internal/usecase"
+	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/domain"
+	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/usecase"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

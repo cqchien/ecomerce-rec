@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/cqchien/ecomerce_rec/backend/services/event-service/internal/domain"
+	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/domain"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

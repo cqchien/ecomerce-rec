@@ -4,10 +4,9 @@
 // 	protoc        v4.25.3
 // source: product.proto
 
-package product
+package proto
 
 import (
-	common "github.com/ecommerce/proto/common"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -86,8 +85,8 @@ type Product struct {
 	Slug            string                 `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
 	Description     string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
 	LongDescription string                 `protobuf:"bytes,5,opt,name=long_description,json=longDescription,proto3" json:"long_description,omitempty"`
-	Price           *common.Money          `protobuf:"bytes,6,opt,name=price,proto3" json:"price,omitempty"`
-	OriginalPrice   *common.Money          `protobuf:"bytes,7,opt,name=original_price,json=originalPrice,proto3" json:"original_price,omitempty"`
+	Price           *Money                 `protobuf:"bytes,6,opt,name=price,proto3" json:"price,omitempty"`
+	OriginalPrice   *Money                 `protobuf:"bytes,7,opt,name=original_price,json=originalPrice,proto3" json:"original_price,omitempty"`
 	CategoryId      string                 `protobuf:"bytes,8,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	CategoryName    string                 `protobuf:"bytes,9,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`
 	Images          []string               `protobuf:"bytes,10,rep,name=images,proto3" json:"images,omitempty"`
@@ -101,8 +100,8 @@ type Product struct {
 	IsOnSale        bool                   `protobuf:"varint,18,opt,name=is_on_sale,json=isOnSale,proto3" json:"is_on_sale,omitempty"`
 	Sku             string                 `protobuf:"bytes,19,opt,name=sku,proto3" json:"sku,omitempty"`
 	Status          ProductStatus          `protobuf:"varint,20,opt,name=status,proto3,enum=product.ProductStatus" json:"status,omitempty"`
-	CreatedAt       *common.Timestamp      `protobuf:"bytes,21,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt       *common.Timestamp      `protobuf:"bytes,22,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt       *Timestamp             `protobuf:"bytes,21,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *Timestamp             `protobuf:"bytes,22,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -172,14 +171,14 @@ func (x *Product) GetLongDescription() string {
 	return ""
 }
 
-func (x *Product) GetPrice() *common.Money {
+func (x *Product) GetPrice() *Money {
 	if x != nil {
 		return x.Price
 	}
 	return nil
 }
 
-func (x *Product) GetOriginalPrice() *common.Money {
+func (x *Product) GetOriginalPrice() *Money {
 	if x != nil {
 		return x.OriginalPrice
 	}
@@ -277,14 +276,14 @@ func (x *Product) GetStatus() ProductStatus {
 	return ProductStatus_DRAFT
 }
 
-func (x *Product) GetCreatedAt() *common.Timestamp {
+func (x *Product) GetCreatedAt() *Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *Product) GetUpdatedAt() *common.Timestamp {
+func (x *Product) GetUpdatedAt() *Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -298,7 +297,7 @@ type ProductVariant struct {
 	ProductId     string                 `protobuf:"bytes,2,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Sku           string                 `protobuf:"bytes,4,opt,name=sku,proto3" json:"sku,omitempty"`
-	Price         *common.Money          `protobuf:"bytes,5,opt,name=price,proto3" json:"price,omitempty"`
+	Price         *Money                 `protobuf:"bytes,5,opt,name=price,proto3" json:"price,omitempty"`
 	Stock         int32                  `protobuf:"varint,6,opt,name=stock,proto3" json:"stock,omitempty"`
 	Attributes    map[string]string      `protobuf:"bytes,7,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // e.g., {"size": "L", "color": "red"}
 	unknownFields protoimpl.UnknownFields
@@ -363,7 +362,7 @@ func (x *ProductVariant) GetSku() string {
 	return ""
 }
 
-func (x *ProductVariant) GetPrice() *common.Money {
+func (x *ProductVariant) GetPrice() *Money {
 	if x != nil {
 		return x.Price
 	}
@@ -396,8 +395,8 @@ type Category struct {
 	ProductCount  int32                  `protobuf:"varint,7,opt,name=product_count,json=productCount,proto3" json:"product_count,omitempty"`
 	SortOrder     int32                  `protobuf:"varint,8,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
 	IsActive      bool                   `protobuf:"varint,9,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	CreatedAt     *common.Timestamp      `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *common.Timestamp      `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt     *Timestamp             `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *Timestamp             `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -495,14 +494,14 @@ func (x *Category) GetIsActive() bool {
 	return false
 }
 
-func (x *Category) GetCreatedAt() *common.Timestamp {
+func (x *Category) GetCreatedAt() *Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *Category) GetUpdatedAt() *common.Timestamp {
+func (x *Category) GetUpdatedAt() *Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -600,10 +599,10 @@ func (x *GetProductResponse) GetProduct() *Product {
 
 // List products request
 type ListProductsRequest struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	Pagination    *common.PaginationRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	Filters       *ProductFilters           `protobuf:"bytes,2,opt,name=filters,proto3" json:"filters,omitempty"`
-	Sort          *ProductSort              `protobuf:"bytes,3,opt,name=sort,proto3" json:"sort,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pagination    *PaginationRequest     `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	Filters       *ProductFilters        `protobuf:"bytes,2,opt,name=filters,proto3" json:"filters,omitempty"`
+	Sort          *ProductSort           `protobuf:"bytes,3,opt,name=sort,proto3" json:"sort,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -638,7 +637,7 @@ func (*ListProductsRequest) Descriptor() ([]byte, []int) {
 	return file_product_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ListProductsRequest) GetPagination() *common.PaginationRequest {
+func (x *ListProductsRequest) GetPagination() *PaginationRequest {
 	if x != nil {
 		return x.Pagination
 	}
@@ -660,9 +659,9 @@ func (x *ListProductsRequest) GetSort() *ProductSort {
 }
 
 type ListProductsResponse struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Products      []*Product                 `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
-	Pagination    *common.PaginationResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Products      []*Product             `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+	Pagination    *PaginationResponse    `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -704,7 +703,7 @@ func (x *ListProductsResponse) GetProducts() []*Product {
 	return nil
 }
 
-func (x *ListProductsResponse) GetPagination() *common.PaginationResponse {
+func (x *ListProductsResponse) GetPagination() *PaginationResponse {
 	if x != nil {
 		return x.Pagination
 	}
@@ -824,7 +823,7 @@ func (x *ProductFilters) GetStatus() ProductStatus {
 type ProductSort struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Field         string                 `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"` // price, rating, name, created_at
-	Direction     common.SortDirection   `protobuf:"varint,2,opt,name=direction,proto3,enum=common.SortDirection" json:"direction,omitempty"`
+	Direction     SortDirection          `protobuf:"varint,2,opt,name=direction,proto3,enum=common.SortDirection" json:"direction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -866,19 +865,19 @@ func (x *ProductSort) GetField() string {
 	return ""
 }
 
-func (x *ProductSort) GetDirection() common.SortDirection {
+func (x *ProductSort) GetDirection() SortDirection {
 	if x != nil {
 		return x.Direction
 	}
-	return common.SortDirection(0)
+	return SortDirection_ASC
 }
 
 // Search products
 type SearchProductsRequest struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	Query         string                    `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
-	Pagination    *common.PaginationRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	Filters       *ProductFilters           `protobuf:"bytes,3,opt,name=filters,proto3" json:"filters,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Query         string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	Pagination    *PaginationRequest     `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	Filters       *ProductFilters        `protobuf:"bytes,3,opt,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -920,7 +919,7 @@ func (x *SearchProductsRequest) GetQuery() string {
 	return ""
 }
 
-func (x *SearchProductsRequest) GetPagination() *common.PaginationRequest {
+func (x *SearchProductsRequest) GetPagination() *PaginationRequest {
 	if x != nil {
 		return x.Pagination
 	}
@@ -935,10 +934,10 @@ func (x *SearchProductsRequest) GetFilters() *ProductFilters {
 }
 
 type SearchProductsResponse struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Products      []*Product                 `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
-	Pagination    *common.PaginationResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	Suggestions   []string                   `protobuf:"bytes,3,rep,name=suggestions,proto3" json:"suggestions,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Products      []*Product             `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+	Pagination    *PaginationResponse    `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	Suggestions   []string               `protobuf:"bytes,3,rep,name=suggestions,proto3" json:"suggestions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -980,7 +979,7 @@ func (x *SearchProductsResponse) GetProducts() []*Product {
 	return nil
 }
 
-func (x *SearchProductsResponse) GetPagination() *common.PaginationResponse {
+func (x *SearchProductsResponse) GetPagination() *PaginationResponse {
 	if x != nil {
 		return x.Pagination
 	}
@@ -1284,8 +1283,8 @@ type CreateProductRequest struct {
 	Slug            string                 `protobuf:"bytes,2,opt,name=slug,proto3" json:"slug,omitempty"`
 	Description     string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	LongDescription string                 `protobuf:"bytes,4,opt,name=long_description,json=longDescription,proto3" json:"long_description,omitempty"`
-	Price           *common.Money          `protobuf:"bytes,5,opt,name=price,proto3" json:"price,omitempty"`
-	OriginalPrice   *common.Money          `protobuf:"bytes,6,opt,name=original_price,json=originalPrice,proto3" json:"original_price,omitempty"`
+	Price           *Money                 `protobuf:"bytes,5,opt,name=price,proto3" json:"price,omitempty"`
+	OriginalPrice   *Money                 `protobuf:"bytes,6,opt,name=original_price,json=originalPrice,proto3" json:"original_price,omitempty"`
 	CategoryId      string                 `protobuf:"bytes,7,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	Images          []string               `protobuf:"bytes,8,rep,name=images,proto3" json:"images,omitempty"`
 	Specifications  map[string]string      `protobuf:"bytes,9,rep,name=specifications,proto3" json:"specifications,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -1354,14 +1353,14 @@ func (x *CreateProductRequest) GetLongDescription() string {
 	return ""
 }
 
-func (x *CreateProductRequest) GetPrice() *common.Money {
+func (x *CreateProductRequest) GetPrice() *Money {
 	if x != nil {
 		return x.Price
 	}
 	return nil
 }
 
-func (x *CreateProductRequest) GetOriginalPrice() *common.Money {
+func (x *CreateProductRequest) GetOriginalPrice() *Money {
 	if x != nil {
 		return x.OriginalPrice
 	}
@@ -1461,7 +1460,7 @@ type UpdateProductRequest struct {
 	Name            *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Description     *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	LongDescription *string                `protobuf:"bytes,4,opt,name=long_description,json=longDescription,proto3,oneof" json:"long_description,omitempty"`
-	Price           *common.Money          `protobuf:"bytes,5,opt,name=price,proto3,oneof" json:"price,omitempty"`
+	Price           *Money                 `protobuf:"bytes,5,opt,name=price,proto3,oneof" json:"price,omitempty"`
 	CategoryId      *string                `protobuf:"bytes,6,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
 	Images          []string               `protobuf:"bytes,7,rep,name=images,proto3" json:"images,omitempty"`
 	Status          *ProductStatus         `protobuf:"varint,8,opt,name=status,proto3,enum=product.ProductStatus,oneof" json:"status,omitempty"`
@@ -1527,7 +1526,7 @@ func (x *UpdateProductRequest) GetLongDescription() string {
 	return ""
 }
 
-func (x *UpdateProductRequest) GetPrice() *common.Money {
+func (x *UpdateProductRequest) GetPrice() *Money {
 	if x != nil {
 		return x.Price
 	}
@@ -1969,7 +1968,7 @@ const file_product_proto_rawDesc = "" +
 	"\rCreateProduct\x12\x1d.product.CreateProductRequest\x1a\x1e.product.CreateProductResponse\x12N\n" +
 	"\rUpdateProduct\x12\x1d.product.UpdateProductRequest\x1a\x1e.product.UpdateProductResponse\x12N\n" +
 	"\rDeleteProduct\x12\x1d.product.DeleteProductRequest\x1a\x1e.product.DeleteProductResponse\x12W\n" +
-	"\x10GetProductsByIds\x12 .product.GetProductsByIdsRequest\x1a!.product.GetProductsByIdsResponseB$Z\"github.com/ecommerce/proto/productb\x06proto3"
+	"\x10GetProductsByIds\x12 .product.GetProductsByIdsRequest\x1a!.product.GetProductsByIdsResponseB/Z-github.com/cqchien/ecomerce-rec/backend/protob\x06proto3"
 
 var (
 	file_product_proto_rawDescOnce sync.Once
@@ -2015,11 +2014,11 @@ var file_product_proto_goTypes = []any{
 	nil,                                // 26: product.Product.SpecificationsEntry
 	nil,                                // 27: product.ProductVariant.AttributesEntry
 	nil,                                // 28: product.CreateProductRequest.SpecificationsEntry
-	(*common.Money)(nil),               // 29: common.Money
-	(*common.Timestamp)(nil),           // 30: common.Timestamp
-	(*common.PaginationRequest)(nil),   // 31: common.PaginationRequest
-	(*common.PaginationResponse)(nil),  // 32: common.PaginationResponse
-	(common.SortDirection)(0),          // 33: common.SortDirection
+	(*Money)(nil),                      // 29: common.Money
+	(*Timestamp)(nil),                  // 30: common.Timestamp
+	(*PaginationRequest)(nil),          // 31: common.PaginationRequest
+	(*PaginationResponse)(nil),         // 32: common.PaginationResponse
+	(SortDirection)(0),                 // 33: common.SortDirection
 }
 var file_product_proto_depIdxs = []int32{
 	29, // 0: product.Product.price:type_name -> common.Money
@@ -2088,6 +2087,7 @@ func file_product_proto_init() {
 	if File_product_proto != nil {
 		return
 	}
+	file_common_proto_init()
 	file_product_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

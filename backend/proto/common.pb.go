@@ -4,7 +4,7 @@
 // 	protoc        v4.25.3
 // source: common.proto
 
-package common
+package proto
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -636,7 +636,7 @@ const file_common_proto_rawDesc = "" +
 	"\aBETWEEN\x10\t*\"\n" +
 	"\rSortDirection\x12\a\n" +
 	"\x03ASC\x10\x00\x12\b\n" +
-	"\x04DESC\x10\x01B#Z!github.com/ecommerce/proto/commonb\x06proto3"
+	"\x04DESC\x10\x01B/Z-github.com/cqchien/ecomerce-rec/backend/protob\x06proto3"
 
 var (
 	file_common_proto_rawDescOnce sync.Once

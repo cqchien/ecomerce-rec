@@ -4,10 +4,9 @@
 // 	protoc        v4.25.3
 // source: order.proto
 
-package order
+package proto
 
 import (
-	common "github.com/ecommerce/proto/common"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -99,19 +98,19 @@ type Order struct {
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	UserId          string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Items           []*OrderItem           `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"`
-	Subtotal        *common.Money          `protobuf:"bytes,4,opt,name=subtotal,proto3" json:"subtotal,omitempty"`
-	Shipping        *common.Money          `protobuf:"bytes,5,opt,name=shipping,proto3" json:"shipping,omitempty"`
-	Tax             *common.Money          `protobuf:"bytes,6,opt,name=tax,proto3" json:"tax,omitempty"`
-	Discount        *common.Money          `protobuf:"bytes,7,opt,name=discount,proto3" json:"discount,omitempty"`
-	Total           *common.Money          `protobuf:"bytes,8,opt,name=total,proto3" json:"total,omitempty"`
+	Subtotal        *Money                 `protobuf:"bytes,4,opt,name=subtotal,proto3" json:"subtotal,omitempty"`
+	Shipping        *Money                 `protobuf:"bytes,5,opt,name=shipping,proto3" json:"shipping,omitempty"`
+	Tax             *Money                 `protobuf:"bytes,6,opt,name=tax,proto3" json:"tax,omitempty"`
+	Discount        *Money                 `protobuf:"bytes,7,opt,name=discount,proto3" json:"discount,omitempty"`
+	Total           *Money                 `protobuf:"bytes,8,opt,name=total,proto3" json:"total,omitempty"`
 	Status          OrderStatus            `protobuf:"varint,9,opt,name=status,proto3,enum=order.OrderStatus" json:"status,omitempty"`
-	ShippingAddress *common.Address        `protobuf:"bytes,10,opt,name=shipping_address,json=shippingAddress,proto3" json:"shipping_address,omitempty"`
-	BillingAddress  *common.Address        `protobuf:"bytes,11,opt,name=billing_address,json=billingAddress,proto3" json:"billing_address,omitempty"`
+	ShippingAddress *Address               `protobuf:"bytes,10,opt,name=shipping_address,json=shippingAddress,proto3" json:"shipping_address,omitempty"`
+	BillingAddress  *Address               `protobuf:"bytes,11,opt,name=billing_address,json=billingAddress,proto3" json:"billing_address,omitempty"`
 	PaymentMethod   string                 `protobuf:"bytes,12,opt,name=payment_method,json=paymentMethod,proto3" json:"payment_method,omitempty"`
 	PaymentId       string                 `protobuf:"bytes,13,opt,name=payment_id,json=paymentId,proto3" json:"payment_id,omitempty"`
 	Tracking        *TrackingInfo          `protobuf:"bytes,14,opt,name=tracking,proto3" json:"tracking,omitempty"`
-	CreatedAt       *common.Timestamp      `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt       *common.Timestamp      `protobuf:"bytes,16,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt       *Timestamp             `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *Timestamp             `protobuf:"bytes,16,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -167,35 +166,35 @@ func (x *Order) GetItems() []*OrderItem {
 	return nil
 }
 
-func (x *Order) GetSubtotal() *common.Money {
+func (x *Order) GetSubtotal() *Money {
 	if x != nil {
 		return x.Subtotal
 	}
 	return nil
 }
 
-func (x *Order) GetShipping() *common.Money {
+func (x *Order) GetShipping() *Money {
 	if x != nil {
 		return x.Shipping
 	}
 	return nil
 }
 
-func (x *Order) GetTax() *common.Money {
+func (x *Order) GetTax() *Money {
 	if x != nil {
 		return x.Tax
 	}
 	return nil
 }
 
-func (x *Order) GetDiscount() *common.Money {
+func (x *Order) GetDiscount() *Money {
 	if x != nil {
 		return x.Discount
 	}
 	return nil
 }
 
-func (x *Order) GetTotal() *common.Money {
+func (x *Order) GetTotal() *Money {
 	if x != nil {
 		return x.Total
 	}
@@ -209,14 +208,14 @@ func (x *Order) GetStatus() OrderStatus {
 	return OrderStatus_PENDING
 }
 
-func (x *Order) GetShippingAddress() *common.Address {
+func (x *Order) GetShippingAddress() *Address {
 	if x != nil {
 		return x.ShippingAddress
 	}
 	return nil
 }
 
-func (x *Order) GetBillingAddress() *common.Address {
+func (x *Order) GetBillingAddress() *Address {
 	if x != nil {
 		return x.BillingAddress
 	}
@@ -244,14 +243,14 @@ func (x *Order) GetTracking() *TrackingInfo {
 	return nil
 }
 
-func (x *Order) GetCreatedAt() *common.Timestamp {
+func (x *Order) GetCreatedAt() *Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *Order) GetUpdatedAt() *common.Timestamp {
+func (x *Order) GetUpdatedAt() *Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -268,8 +267,8 @@ type OrderItem struct {
 	Image         string                 `protobuf:"bytes,5,opt,name=image,proto3" json:"image,omitempty"`
 	Sku           string                 `protobuf:"bytes,6,opt,name=sku,proto3" json:"sku,omitempty"`
 	Quantity      int32                  `protobuf:"varint,7,opt,name=quantity,proto3" json:"quantity,omitempty"`
-	UnitPrice     *common.Money          `protobuf:"bytes,8,opt,name=unit_price,json=unitPrice,proto3" json:"unit_price,omitempty"`
-	TotalPrice    *common.Money          `protobuf:"bytes,9,opt,name=total_price,json=totalPrice,proto3" json:"total_price,omitempty"`
+	UnitPrice     *Money                 `protobuf:"bytes,8,opt,name=unit_price,json=unitPrice,proto3" json:"unit_price,omitempty"`
+	TotalPrice    *Money                 `protobuf:"bytes,9,opt,name=total_price,json=totalPrice,proto3" json:"total_price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -353,14 +352,14 @@ func (x *OrderItem) GetQuantity() int32 {
 	return 0
 }
 
-func (x *OrderItem) GetUnitPrice() *common.Money {
+func (x *OrderItem) GetUnitPrice() *Money {
 	if x != nil {
 		return x.UnitPrice
 	}
 	return nil
 }
 
-func (x *OrderItem) GetTotalPrice() *common.Money {
+func (x *OrderItem) GetTotalPrice() *Money {
 	if x != nil {
 		return x.TotalPrice
 	}
@@ -373,8 +372,8 @@ type TrackingInfo struct {
 	TrackingNumber    string                 `protobuf:"bytes,1,opt,name=tracking_number,json=trackingNumber,proto3" json:"tracking_number,omitempty"`
 	Carrier           string                 `protobuf:"bytes,2,opt,name=carrier,proto3" json:"carrier,omitempty"`
 	Url               string                 `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
-	ShippedAt         *common.Timestamp      `protobuf:"bytes,4,opt,name=shipped_at,json=shippedAt,proto3" json:"shipped_at,omitempty"`
-	EstimatedDelivery *common.Timestamp      `protobuf:"bytes,5,opt,name=estimated_delivery,json=estimatedDelivery,proto3" json:"estimated_delivery,omitempty"`
+	ShippedAt         *Timestamp             `protobuf:"bytes,4,opt,name=shipped_at,json=shippedAt,proto3" json:"shipped_at,omitempty"`
+	EstimatedDelivery *Timestamp             `protobuf:"bytes,5,opt,name=estimated_delivery,json=estimatedDelivery,proto3" json:"estimated_delivery,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -430,14 +429,14 @@ func (x *TrackingInfo) GetUrl() string {
 	return ""
 }
 
-func (x *TrackingInfo) GetShippedAt() *common.Timestamp {
+func (x *TrackingInfo) GetShippedAt() *Timestamp {
 	if x != nil {
 		return x.ShippedAt
 	}
 	return nil
 }
 
-func (x *TrackingInfo) GetEstimatedDelivery() *common.Timestamp {
+func (x *TrackingInfo) GetEstimatedDelivery() *Timestamp {
 	if x != nil {
 		return x.EstimatedDelivery
 	}
@@ -740,10 +739,10 @@ func (x *GetOrderResponse) GetOrder() *Order {
 
 // List orders request
 type ListOrdersRequest struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	UserId        string                    `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Pagination    *common.PaginationRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	Filters       *OrderFilters             `protobuf:"bytes,3,opt,name=filters,proto3" json:"filters,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Pagination    *PaginationRequest     `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	Filters       *OrderFilters          `protobuf:"bytes,3,opt,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -785,7 +784,7 @@ func (x *ListOrdersRequest) GetUserId() string {
 	return ""
 }
 
-func (x *ListOrdersRequest) GetPagination() *common.PaginationRequest {
+func (x *ListOrdersRequest) GetPagination() *PaginationRequest {
 	if x != nil {
 		return x.Pagination
 	}
@@ -802,8 +801,8 @@ func (x *ListOrdersRequest) GetFilters() *OrderFilters {
 type OrderFilters struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        OrderStatus            `protobuf:"varint,1,opt,name=status,proto3,enum=order.OrderStatus" json:"status,omitempty"`
-	FromDate      *common.Timestamp      `protobuf:"bytes,2,opt,name=from_date,json=fromDate,proto3" json:"from_date,omitempty"`
-	ToDate        *common.Timestamp      `protobuf:"bytes,3,opt,name=to_date,json=toDate,proto3" json:"to_date,omitempty"`
+	FromDate      *Timestamp             `protobuf:"bytes,2,opt,name=from_date,json=fromDate,proto3" json:"from_date,omitempty"`
+	ToDate        *Timestamp             `protobuf:"bytes,3,opt,name=to_date,json=toDate,proto3" json:"to_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -845,14 +844,14 @@ func (x *OrderFilters) GetStatus() OrderStatus {
 	return OrderStatus_PENDING
 }
 
-func (x *OrderFilters) GetFromDate() *common.Timestamp {
+func (x *OrderFilters) GetFromDate() *Timestamp {
 	if x != nil {
 		return x.FromDate
 	}
 	return nil
 }
 
-func (x *OrderFilters) GetToDate() *common.Timestamp {
+func (x *OrderFilters) GetToDate() *Timestamp {
 	if x != nil {
 		return x.ToDate
 	}
@@ -860,9 +859,9 @@ func (x *OrderFilters) GetToDate() *common.Timestamp {
 }
 
 type ListOrdersResponse struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Orders        []*Order                   `protobuf:"bytes,1,rep,name=orders,proto3" json:"orders,omitempty"`
-	Pagination    *common.PaginationResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Orders        []*Order               `protobuf:"bytes,1,rep,name=orders,proto3" json:"orders,omitempty"`
+	Pagination    *PaginationResponse    `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -904,7 +903,7 @@ func (x *ListOrdersResponse) GetOrders() []*Order {
 	return nil
 }
 
-func (x *ListOrdersResponse) GetPagination() *common.PaginationResponse {
+func (x *ListOrdersResponse) GetPagination() *PaginationResponse {
 	if x != nil {
 		return x.Pagination
 	}
@@ -1230,7 +1229,7 @@ type OrderStatusHistory struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        OrderStatus            `protobuf:"varint,1,opt,name=status,proto3,enum=order.OrderStatus" json:"status,omitempty"`
 	Note          string                 `protobuf:"bytes,2,opt,name=note,proto3" json:"note,omitempty"`
-	Timestamp     *common.Timestamp      `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Timestamp     *Timestamp             `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	UpdatedBy     string                 `protobuf:"bytes,4,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1280,7 +1279,7 @@ func (x *OrderStatusHistory) GetNote() string {
 	return ""
 }
 
-func (x *OrderStatusHistory) GetTimestamp() *common.Timestamp {
+func (x *OrderStatusHistory) GetTimestamp() *Timestamp {
 	if x != nil {
 		return x.Timestamp
 	}
@@ -1421,7 +1420,7 @@ const file_order_proto_rawDesc = "" +
 	"ListOrders\x12\x18.order.ListOrdersRequest\x1a\x19.order.ListOrdersResponse\x12D\n" +
 	"\vCancelOrder\x12\x19.order.CancelOrderRequest\x1a\x1a.order.CancelOrderResponse\x12V\n" +
 	"\x11UpdateOrderStatus\x12\x1f.order.UpdateOrderStatusRequest\x1a .order.UpdateOrderStatusResponse\x12b\n" +
-	"\x15GetOrderStatusHistory\x12#.order.GetOrderStatusHistoryRequest\x1a$.order.GetOrderStatusHistoryResponseB\"Z github.com/ecommerce/proto/orderb\x06proto3"
+	"\x15GetOrderStatusHistory\x12#.order.GetOrderStatusHistoryRequest\x1a$.order.GetOrderStatusHistoryResponseB/Z-github.com/cqchien/ecomerce-rec/backend/protob\x06proto3"
 
 var (
 	file_order_proto_rawDescOnce sync.Once
@@ -1457,11 +1456,11 @@ var file_order_proto_goTypes = []any{
 	(*GetOrderStatusHistoryRequest)(nil),  // 16: order.GetOrderStatusHistoryRequest
 	(*GetOrderStatusHistoryResponse)(nil), // 17: order.GetOrderStatusHistoryResponse
 	(*OrderStatusHistory)(nil),            // 18: order.OrderStatusHistory
-	(*common.Money)(nil),                  // 19: common.Money
-	(*common.Address)(nil),                // 20: common.Address
-	(*common.Timestamp)(nil),              // 21: common.Timestamp
-	(*common.PaginationRequest)(nil),      // 22: common.PaginationRequest
-	(*common.PaginationResponse)(nil),     // 23: common.PaginationResponse
+	(*Money)(nil),                         // 19: common.Money
+	(*Address)(nil),                       // 20: common.Address
+	(*Timestamp)(nil),                     // 21: common.Timestamp
+	(*PaginationRequest)(nil),             // 22: common.PaginationRequest
+	(*PaginationResponse)(nil),            // 23: common.PaginationResponse
 }
 var file_order_proto_depIdxs = []int32{
 	2,  // 0: order.Order.items:type_name -> order.OrderItem
@@ -1521,6 +1520,7 @@ func file_order_proto_init() {
 	if File_order_proto != nil {
 		return
 	}
+	file_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

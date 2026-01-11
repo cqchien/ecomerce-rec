@@ -4,7 +4,7 @@ package event;
 
 import "common.proto";
 
-option go_package = "github.com/ecommerce/proto/event";
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
 
 // Event Service - tracks user behavior for ML pipeline
 service EventService {

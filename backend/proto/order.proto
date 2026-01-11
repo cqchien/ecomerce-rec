@@ -4,7 +4,7 @@ package order;
 
 import "common.proto";
 
-option go_package = "github.com/ecommerce/proto/order";
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
 
 // Order Service - manages order lifecycle
 service OrderService {

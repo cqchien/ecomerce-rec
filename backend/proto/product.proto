@@ -4,7 +4,7 @@ package product;
 
 import "common.proto";
 
-option go_package = "github.com/ecommerce/proto/product";
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
 
 // Product Service - manages product catalog
 service ProductService {

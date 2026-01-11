@@ -4,7 +4,7 @@ package inventory;
 
 import "common.proto";
 
-option go_package = "github.com/cqchien/ecomerce-rec/backend/proto/inventory";
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
 
 // Inventory Service - manages stock levels and reservations
 service InventoryService {

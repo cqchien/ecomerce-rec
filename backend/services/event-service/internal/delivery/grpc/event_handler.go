@@ -4,8 +4,8 @@ import (
 	"context"
 
 	pb "github.com/cqchien/ecomerce-rec/backend/proto"
-	"github.com/cqchien/ecomerce_rec/backend/services/event-service/internal/domain"
-	"github.com/cqchien/ecomerce_rec/backend/services/event-service/internal/usecase"
+	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/domain"
+	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/usecase"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

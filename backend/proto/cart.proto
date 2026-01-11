@@ -4,7 +4,7 @@ package cart;
 
 import "common.proto";
 
-option go_package = "github.com/ecommerce/proto/cart";
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
 
 // Cart Service - manages shopping cart operations
 service CartService {

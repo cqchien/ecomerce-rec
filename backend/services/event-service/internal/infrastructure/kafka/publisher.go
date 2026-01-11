@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cqchien/ecomerce_rec/backend/services/event-service/internal/domain"
+	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/domain"
 	"github.com/segmentio/kafka-go"
 )
 

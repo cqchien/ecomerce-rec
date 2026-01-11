@@ -4,10 +4,9 @@
 // 	protoc        v4.25.3
 // source: inventory.proto
 
-package inventory
+package proto
 
 import (
-	common "github.com/ecommerce/proto/common"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -132,7 +131,7 @@ type Stock struct {
 	Reserved      int32                  `protobuf:"varint,4,opt,name=reserved,proto3" json:"reserved,omitempty"`
 	Total         int32                  `protobuf:"varint,5,opt,name=total,proto3" json:"total,omitempty"`
 	WarehouseId   string                 `protobuf:"bytes,6,opt,name=warehouse_id,json=warehouseId,proto3" json:"warehouse_id,omitempty"`
-	UpdatedAt     *common.Timestamp      `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UpdatedAt     *Timestamp             `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -209,7 +208,7 @@ func (x *Stock) GetWarehouseId() string {
 	return ""
 }
 
-func (x *Stock) GetUpdatedAt() *common.Timestamp {
+func (x *Stock) GetUpdatedAt() *Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -225,8 +224,8 @@ type Reservation struct {
 	VariantId     string                 `protobuf:"bytes,4,opt,name=variant_id,json=variantId,proto3" json:"variant_id,omitempty"`
 	Quantity      int32                  `protobuf:"varint,5,opt,name=quantity,proto3" json:"quantity,omitempty"`
 	Status        ReservationStatus      `protobuf:"varint,6,opt,name=status,proto3,enum=inventory.ReservationStatus" json:"status,omitempty"`
-	ExpiresAt     *common.Timestamp      `protobuf:"bytes,7,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
-	CreatedAt     *common.Timestamp      `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ExpiresAt     *Timestamp             `protobuf:"bytes,7,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	CreatedAt     *Timestamp             `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -303,14 +302,14 @@ func (x *Reservation) GetStatus() ReservationStatus {
 	return ReservationStatus_PENDING
 }
 
-func (x *Reservation) GetExpiresAt() *common.Timestamp {
+func (x *Reservation) GetExpiresAt() *Timestamp {
 	if x != nil {
 		return x.ExpiresAt
 	}
 	return nil
 }
 
-func (x *Reservation) GetCreatedAt() *common.Timestamp {
+func (x *Reservation) GetCreatedAt() *Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
@@ -1372,7 +1371,7 @@ const file_inventory_proto_rawDesc = "" +
 	"\x11CommitReservation\x12#.inventory.CommitReservationRequest\x1a$.inventory.CommitReservationResponse\x12L\n" +
 	"\vUpdateStock\x12\x1d.inventory.UpdateStockRequest\x1a\x1e.inventory.UpdateStockResponse\x12C\n" +
 	"\bGetStock\x12\x1a.inventory.GetStockRequest\x1a\x1b.inventory.GetStockResponse\x12U\n" +
-	"\x0eBulkCheckStock\x12 .inventory.BulkCheckStockRequest\x1a!.inventory.BulkCheckStockResponseB9Z7github.com/cqchien/ecomerce-rec/backend/proto/inventoryb\x06proto3"
+	"\x0eBulkCheckStock\x12 .inventory.BulkCheckStockRequest\x1a!.inventory.BulkCheckStockResponseB/Z-github.com/cqchien/ecomerce-rec/backend/protob\x06proto3"
 
 var (
 	file_inventory_proto_rawDescOnce sync.Once
@@ -1410,7 +1409,7 @@ var file_inventory_proto_goTypes = []any{
 	(*BulkCheckStockRequest)(nil),      // 18: inventory.BulkCheckStockRequest
 	(*BulkCheckStockResponse)(nil),     // 19: inventory.BulkCheckStockResponse
 	(*BulkStockResult)(nil),            // 20: inventory.BulkStockResult
-	(*common.Timestamp)(nil),           // 21: common.Timestamp
+	(*Timestamp)(nil),                  // 21: common.Timestamp
 }
 var file_inventory_proto_depIdxs = []int32{
 	21, // 0: inventory.Stock.updated_at:type_name -> common.Timestamp
@@ -1450,6 +1449,7 @@ func file_inventory_proto_init() {
 	if File_inventory_proto != nil {
 		return
 	}
+	file_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

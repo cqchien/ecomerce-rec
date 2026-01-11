@@ -4,10 +4,9 @@
 // 	protoc        v4.25.3
 // source: event.proto
 
-package event
+package proto
 
 import (
-	common "github.com/ecommerce/proto/common"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -113,7 +112,7 @@ type UserEvent struct {
 	IpAddress     string                 `protobuf:"bytes,6,opt,name=ip_address,json=ipAddress,proto3" json:"ip_address,omitempty"`
 	UserAgent     string                 `protobuf:"bytes,7,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
 	Referrer      string                 `protobuf:"bytes,8,opt,name=referrer,proto3" json:"referrer,omitempty"`
-	Timestamp     *common.Timestamp      `protobuf:"bytes,9,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Timestamp     *Timestamp             `protobuf:"bytes,9,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -204,7 +203,7 @@ func (x *UserEvent) GetReferrer() string {
 	return ""
 }
 
-func (x *UserEvent) GetTimestamp() *common.Timestamp {
+func (x *UserEvent) GetTimestamp() *Timestamp {
 	if x != nil {
 		return x.Timestamp
 	}
@@ -631,12 +630,12 @@ func (x *BatchTrackEventsResponse) GetProcessedCount() int32 {
 
 // Get user events request (Admin/Debug)
 type GetUserEventsRequest struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	UserId        string                    `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Pagination    *common.PaginationRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	EventType     EventType                 `protobuf:"varint,3,opt,name=event_type,json=eventType,proto3,enum=event.EventType" json:"event_type,omitempty"`
-	FromTime      *common.Timestamp         `protobuf:"bytes,4,opt,name=from_time,json=fromTime,proto3" json:"from_time,omitempty"`
-	ToTime        *common.Timestamp         `protobuf:"bytes,5,opt,name=to_time,json=toTime,proto3" json:"to_time,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Pagination    *PaginationRequest     `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	EventType     EventType              `protobuf:"varint,3,opt,name=event_type,json=eventType,proto3,enum=event.EventType" json:"event_type,omitempty"`
+	FromTime      *Timestamp             `protobuf:"bytes,4,opt,name=from_time,json=fromTime,proto3" json:"from_time,omitempty"`
+	ToTime        *Timestamp             `protobuf:"bytes,5,opt,name=to_time,json=toTime,proto3" json:"to_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -678,7 +677,7 @@ func (x *GetUserEventsRequest) GetUserId() string {
 	return ""
 }
 
-func (x *GetUserEventsRequest) GetPagination() *common.PaginationRequest {
+func (x *GetUserEventsRequest) GetPagination() *PaginationRequest {
 	if x != nil {
 		return x.Pagination
 	}
@@ -692,14 +691,14 @@ func (x *GetUserEventsRequest) GetEventType() EventType {
 	return EventType_UNKNOWN
 }
 
-func (x *GetUserEventsRequest) GetFromTime() *common.Timestamp {
+func (x *GetUserEventsRequest) GetFromTime() *Timestamp {
 	if x != nil {
 		return x.FromTime
 	}
 	return nil
 }
 
-func (x *GetUserEventsRequest) GetToTime() *common.Timestamp {
+func (x *GetUserEventsRequest) GetToTime() *Timestamp {
 	if x != nil {
 		return x.ToTime
 	}
@@ -707,9 +706,9 @@ func (x *GetUserEventsRequest) GetToTime() *common.Timestamp {
 }
 
 type GetUserEventsResponse struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Events        []*UserEvent               `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
-	Pagination    *common.PaginationResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Events        []*UserEvent           `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
+	Pagination    *PaginationResponse    `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -751,7 +750,7 @@ func (x *GetUserEventsResponse) GetEvents() []*UserEvent {
 	return nil
 }
 
-func (x *GetUserEventsResponse) GetPagination() *common.PaginationResponse {
+func (x *GetUserEventsResponse) GetPagination() *PaginationResponse {
 	if x != nil {
 		return x.Pagination
 	}
@@ -853,7 +852,7 @@ const file_event_proto_rawDesc = "" +
 	"\n" +
 	"TrackEvent\x12\x18.event.TrackEventRequest\x1a\x19.event.TrackEventResponse\x12S\n" +
 	"\x10BatchTrackEvents\x12\x1e.event.BatchTrackEventsRequest\x1a\x1f.event.BatchTrackEventsResponse\x12J\n" +
-	"\rGetUserEvents\x12\x1b.event.GetUserEventsRequest\x1a\x1c.event.GetUserEventsResponseB\"Z github.com/ecommerce/proto/eventb\x06proto3"
+	"\rGetUserEvents\x12\x1b.event.GetUserEventsRequest\x1a\x1c.event.GetUserEventsResponseB/Z-github.com/cqchien/ecomerce-rec/backend/protob\x06proto3"
 
 var (
 	file_event_proto_rawDescOnce sync.Once
@@ -870,21 +869,21 @@ func file_event_proto_rawDescGZIP() []byte {
 var file_event_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_event_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_event_proto_goTypes = []any{
-	(EventType)(0),                    // 0: event.EventType
-	(*UserEvent)(nil),                 // 1: event.UserEvent
-	(*ProductEvent)(nil),              // 2: event.ProductEvent
-	(*SearchEvent)(nil),               // 3: event.SearchEvent
-	(*TrackEventRequest)(nil),         // 4: event.TrackEventRequest
-	(*TrackEventResponse)(nil),        // 5: event.TrackEventResponse
-	(*BatchTrackEventsRequest)(nil),   // 6: event.BatchTrackEventsRequest
-	(*BatchTrackEventsResponse)(nil),  // 7: event.BatchTrackEventsResponse
-	(*GetUserEventsRequest)(nil),      // 8: event.GetUserEventsRequest
-	(*GetUserEventsResponse)(nil),     // 9: event.GetUserEventsResponse
-	nil,                               // 10: event.UserEvent.PropertiesEntry
-	nil,                               // 11: event.TrackEventRequest.MetadataEntry
-	(*common.Timestamp)(nil),          // 12: common.Timestamp
-	(*common.PaginationRequest)(nil),  // 13: common.PaginationRequest
-	(*common.PaginationResponse)(nil), // 14: common.PaginationResponse
+	(EventType)(0),                   // 0: event.EventType
+	(*UserEvent)(nil),                // 1: event.UserEvent
+	(*ProductEvent)(nil),             // 2: event.ProductEvent
+	(*SearchEvent)(nil),              // 3: event.SearchEvent
+	(*TrackEventRequest)(nil),        // 4: event.TrackEventRequest
+	(*TrackEventResponse)(nil),       // 5: event.TrackEventResponse
+	(*BatchTrackEventsRequest)(nil),  // 6: event.BatchTrackEventsRequest
+	(*BatchTrackEventsResponse)(nil), // 7: event.BatchTrackEventsResponse
+	(*GetUserEventsRequest)(nil),     // 8: event.GetUserEventsRequest
+	(*GetUserEventsResponse)(nil),    // 9: event.GetUserEventsResponse
+	nil,                              // 10: event.UserEvent.PropertiesEntry
+	nil,                              // 11: event.TrackEventRequest.MetadataEntry
+	(*Timestamp)(nil),                // 12: common.Timestamp
+	(*PaginationRequest)(nil),        // 13: common.PaginationRequest
+	(*PaginationResponse)(nil),       // 14: common.PaginationResponse
 }
 var file_event_proto_depIdxs = []int32{
 	0,  // 0: event.UserEvent.event_type:type_name -> event.EventType
@@ -919,6 +918,7 @@ func file_event_proto_init() {
 	if File_event_proto != nil {
 		return
 	}
+	file_common_proto_init()
 	file_event_proto_msgTypes[3].OneofWrappers = []any{
 		(*TrackEventRequest_ProductEvent)(nil),
 		(*TrackEventRequest_SearchEvent)(nil),
