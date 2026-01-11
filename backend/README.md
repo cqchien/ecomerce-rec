@@ -1,17 +1,42 @@
-# E-Commerce Backend - Microservices Architecture
+# Vici Backend - Microservices Architecture
 
 ## 🎯 Overview
-Production-ready microservices backend for e-commerce platform with real-time recommendations, event-driven architecture, and clean code principles.
+Production-ready microservices backend for the Vici e-commerce platform with real-time recommendations, event-driven architecture, and clean code principles.
 
 ## ⚡ Quick Start
 
-```bash
-# Interactive setup
-./quick-start.sh
+### 1. Environment Setup
 
-# Or manual:
-./scripts/setup-complete-backend.sh  # Generate skeleton
-cd deployment && docker-compose up -d # Start infrastructure
+```bash
+# Copy and configure environment variables
+cp deployment/.env.example deployment/.env
+# Edit .env with your credentials (default values work for development)
+```
+
+### 2. Start Infrastructure
+
+```bash
+cd deployment
+docker-compose up -d
+```
+
+This starts all infrastructure services with the **vici** naming convention:
+- `vici-postgres` - PostgreSQL 15 (port 5432)
+- `vici-redis` - Redis 7 (port 6379)
+- `vici-kafka` - Apache Kafka (ports 9092, 9093)
+- `vici-zookeeper` - Zookeeper (port 2181)
+- `vici-kafka-ui` - Kafka UI at http://localhost:8080
+- `vici-minio` - MinIO S3 storage (ports 9000, 9001)
+- `vici-pgadmin` - pgAdmin at http://localhost:5050
+
+### 3. Verify Infrastructure
+
+```bash
+# Check all containers are running
+docker ps
+
+# View logs
+docker-compose logs -f
 ```
 
 **📖 Read First:** [GETTING_STARTED.md](./GETTING_STARTED.md) - Complete beginner guide
@@ -134,24 +159,28 @@ backend/
 
 ## 🔧 Development Workflow
 
-### 1. Generate Services (First Time)
-```bash
-./scripts/setup-complete-backend.sh
-```
-
-### 2. Start Infrastructure
+### 1. Start Infrastructure (Required First)
 ```bash
 cd deployment
 docker-compose up -d
 ```
 
-**Available at:**
-- PostgreSQL: `localhost:5432`
-- Redis: `localhost:6379`
+**Available Services:**
+- PostgreSQL: `localhost:5432` (credentials in `.env`)
+- Redis: `localhost:6379` (password in `.env`)
 - Kafka: `localhost:9092`
-- Kafka UI: `http://localhost:8080`
-- MinIO: `http://localhost:9000`
-- pgAdmin: `http://localhost:5050`
+- Kafka UI: http://localhost:8080
+- MinIO Console: http://localhost:9001 (credentials in `.env`)
+- pgAdmin: http://localhost:5050 (credentials in `.env`)
+
+### 2. Database Initialization
+
+The PostgreSQL init script automatically creates:
+- Application user from `POSTGRES_USER` env variable
+- Separate databases for each service:
+  - `auth_db`, `user_db`, `product_db`, `inventory_db`
+  - `cart_db`, `order_db`, `payment_db`, `event_db`, `notification_db`
+- Grants all privileges to the application user
 
 ### 3. Develop Individual Service
 
@@ -175,6 +204,37 @@ go run cmd/product-service/main.go
 ```bash
 ./scripts/generate-proto.sh
 ```
+
+## 🔐 Environment Variables
+
+All sensitive credentials are stored in `deployment/.env`:
+
+```env
+# PostgreSQL Configuration
+POSTGRES_USER=vici_user
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_DB=vici_db
+
+# Redis Configuration
+REDIS_PASSWORD=your_redis_password
+
+# Kafka Configuration
+KAFKA_BROKER_ID=1
+ZOOKEEPER_CLIENT_PORT=2181
+ZOOKEEPER_TICK_TIME=2000
+
+# MinIO Configuration
+MINIO_ROOT_USER=vici_minio_admin
+MINIO_ROOT_PASSWORD=your_minio_password
+
+# pgAdmin Configuration
+PGADMIN_DEFAULT_EMAIL=admin@vici.local
+PGADMIN_DEFAULT_PASSWORD=your_pgadmin_password
+```
+
+**⚠️ NEVER commit `.env` to version control!**
+
+The `.env` file is included in `.gitignore` for security.
 
 ## 🎨 Frontend Integration
 
@@ -220,18 +280,71 @@ Each service exposes:
 ## 🐳 Docker Commands
 
 ```bash
-# Start all infrastructure
+# Start all infrastructure (uses vici-* container names)
+cd deployment
 docker-compose up -d
 
-# Stop all
+# Stop all containers
 docker-compose down
 
-# View logs
+# View logs for all services
 docker-compose logs -f
 
-# Reset everything
+# View logs for specific service
+docker-compose logs -f vici-postgres
+docker-compose logs -f vici-kafka
+
+# Restart a specific service
+docker-compose restart vici-redis
+
+# Reset everything (removes all data!)
 docker-compose down -v && docker-compose up -d
+
+# Check container status
+docker ps | grep vici
 ```
+
+## 🗄️ Database Management
+
+### Access Databases
+
+**Using pgAdmin:**
+- Navigate to http://localhost:5050
+- Login with credentials from `.env` file
+- Add new server connection:
+  - Host: `vici-postgres` (or `postgres` from within Docker network)
+  - Port: `5432`
+  - Username: from `POSTGRES_USER` in `.env`
+  - Password: from `POSTGRES_PASSWORD` in `.env`
+
+**Using psql:**
+```bash
+# From host machine
+docker exec -it vici-postgres psql -U vici_user -d auth_db
+
+# List all databases
+\l
+
+# Connect to a specific service database
+\c product_db
+```
+
+### Database Architecture
+
+Each microservice has its own isolated database:
+| Database | Service | Purpose |
+|----------|---------|---------|
+| `auth_db` | Auth Service | User credentials, tokens |
+| `user_db` | User Service | User profiles, addresses |
+| `product_db` | Product Service | Product catalog |
+| `inventory_db` | Inventory Service | Stock levels |
+| `cart_db` | Cart Service | Shopping carts |
+| `order_db` | Order Service | Orders, order items |
+| `payment_db` | Payment Service | Transactions |
+| `event_db` | Event Service | User events |
+| `notification_db` | Notification Service | Notification logs |
+
+All databases are owned by the user specified in `POSTGRES_USER` environment variable.
 
 ## 🔐 Security
 
