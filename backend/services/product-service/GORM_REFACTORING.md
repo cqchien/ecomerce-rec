@@ -165,7 +165,7 @@ Preload("Category").Preload("Variants")
 
 ### 1. Install Dependencies
 ```bash
-cd /Users/chiencq/Projects/ecomerce_rec/backend/services/product-service
+cd /Users/cqchien/Projects/ecomerce_rec/backend/services/product-service
 go mod tidy
 ```
 

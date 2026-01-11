@@ -1,0 +1,114 @@
+package usecase
+
+import (
+	"context"
+
+	"github.com/cqchien/ecomerce_rec/backend/services/payment-service/internal/domain"
+	"github.com/google/uuid"
+)
+
+// PaymentRepository defines the interface for payment data access
+type PaymentRepository interface {
+	Create(ctx context.Context, payment *domain.Payment) error
+	FindByID(ctx context.Context, id uuid.UUID) (*domain.Payment, error)
+	FindByOrderID(ctx context.Context, orderID uuid.UUID) (*domain.Payment, error)
+	FindByUserID(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Payment, error)
+	Update(ctx context.Context, payment *domain.Payment) error
+}
+
+// PaymentProvider defines the interface for payment processing
+type PaymentProvider interface {
+	ProcessPayment(ctx context.Context, payment *domain.Payment) (string, string, error) // returns providerID, response, error
+	RefundPayment(ctx context.Context, providerID string, amount float64) error
+}
+
+// PaymentUseCase handles payment business logic
+type PaymentUseCase struct {
+	repo     PaymentRepository
+	provider PaymentProvider
+}
+
+// NewPaymentUseCase creates a new payment use case
+func NewPaymentUseCase(repo PaymentRepository, provider PaymentProvider) *PaymentUseCase {
+	return &PaymentUseCase{
+		repo:     repo,
+		provider: provider,
+	}
+}
+
+// CreatePayment creates a new payment
+func (uc *PaymentUseCase) CreatePayment(ctx context.Context, orderID, userID uuid.UUID, amount float64, currency string, method domain.PaymentMethod) (*domain.Payment, error) {
+	payment, err := domain.NewPayment(orderID, userID, amount, currency, method)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := uc.repo.Create(ctx, payment); err != nil {
+		return nil, err
+	}
+
+	return payment, nil
+}
+
+// ProcessPayment processes a payment through the payment provider
+func (uc *PaymentUseCase) ProcessPayment(ctx context.Context, id uuid.UUID) (*domain.Payment, error) {
+	payment, err := uc.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := payment.MarkAsProcessing(); err != nil {
+		return nil, err
+	}
+	if err := uc.repo.Update(ctx, payment); err != nil {
+		return nil, err
+	}
+
+	// Process payment with provider
+	providerID, response, err := uc.provider.ProcessPayment(ctx, payment)
+	if err != nil {
+		payment.MarkAsFailed(err.Error())
+		_ = uc.repo.Update(ctx, payment)
+		return payment, domain.ErrPaymentFailed
+	}
+
+	payment.MarkAsCompleted(providerID, response)
+	if err := uc.repo.Update(ctx, payment); err != nil {
+		return nil, err
+	}
+
+	return payment, nil
+}
+
+// GetPayment retrieves a payment by ID
+func (uc *PaymentUseCase) GetPayment(ctx context.Context, id uuid.UUID) (*domain.Payment, error) {
+	return uc.repo.FindByID(ctx, id)
+}
+
+// GetPaymentByOrderID retrieves a payment by order ID
+func (uc *PaymentUseCase) GetPaymentByOrderID(ctx context.Context, orderID uuid.UUID) (*domain.Payment, error) {
+	return uc.repo.FindByOrderID(ctx, orderID)
+}
+
+// GetUserPayments retrieves all payments for a user
+func (uc *PaymentUseCase) GetUserPayments(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Payment, error) {
+	return uc.repo.FindByUserID(ctx, userID, limit, offset)
+}
+
+// RefundPayment processes a refund
+func (uc *PaymentUseCase) RefundPayment(ctx context.Context, id uuid.UUID) error {
+	payment, err := uc.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if err := payment.Refund(); err != nil {
+		return err
+	}
+
+	if err := uc.provider.RefundPayment(ctx, payment.ProviderID, payment.Amount); err != nil {
+		return err
+	}
+
+	return uc.repo.Update(ctx, payment)
+}

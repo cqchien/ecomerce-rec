@@ -1,283 +1,162 @@
-# Cart Service
+# Cart Service (Go)
 
-Shopping cart management microservice built with NestJS, TypeORM, and PostgreSQL for the e-commerce platform.
-
-## Features
-
-- **Cart Management**: Create, retrieve, and manage shopping carts
-- **Item Operations**: Add, update, remove items from cart
-- **Price Calculations**: Automatic subtotal, discount, and total calculation
-- **Coupon Support**: Apply and remove coupon codes
-- **Cart Abandonment**: Track and mark abandoned carts
-- **Auto Cleanup**: Scheduled tasks to clean expired and abandoned carts
-- **Cache Layer**: Redis caching for high-performance cart retrieval
-- **Clean Architecture**: Domain-driven design with clear separation of concerns
-- **TypeORM**: ORM with auto-sync in development
-- **Validation**: Class-validator for DTO validation
-- **RESTful API**: Full REST API for cart operations
-
-## Technology Stack
-
-- **NestJS**: Progressive Node.js framework
-- **TypeORM**: ORM for TypeScript
-- **PostgreSQL**: Primary database
-- **Redis**: Caching layer
-- **@nestjs/schedule**: Cron jobs for cleanup tasks
-- **Class-validator**: DTO validation
+Clean architecture-based shopping cart service written in Go with gRPC support.
 
 ## Architecture
 
+This service follows clean architecture principles with clear separation of concerns:
+
 ```
 cart-service/
-├── src/
-│   ├── domain/                      # Domain layer
-│   │   └── entities/
-│   │       ├── cart.entity.ts
-│   │       └── cart-item.entity.ts
-│   ├── application/                 # Application layer
-│   │   ├── dto/
-│   │   │   └── cart.dto.ts
-│   │   ├── services/
-│   │   │   └── cart.service.ts
-│   │   └── cart.module.ts
-│   ├── infrastructure/              # Infrastructure layer
+├── cmd/
+│   └── cart-service/        # Application entry point
+│       └── main.go
+├── internal/
+│   ├── domain/               # Business logic and entities
+│   │   ├── cart.go          # Cart entity with business rules
+│   │   └── repository.go    # Repository interfaces
+│   ├── usecase/              # Application business rules
+│   │   └── cart_usecase.go  # Cart use cases
+│   ├── repository/           # Data access implementations
+│   │   └── postgres/
+│   │       └── cart_repository.go
+│   ├── infrastructure/       # External concerns
 │   │   ├── database/
-│   │   │   └── database.config.ts
-│   │   ├── redis/
-│   │   │   ├── redis.service.ts
-│   │   │   └── redis.module.ts
-│   │   └── tasks/
-│   │       └── cart-cleanup.task.ts
-│   ├── presentation/                # Presentation layer
-│   │   └── http/
-│   │       ├── cart.controller.ts
-│   │       └── health.controller.ts
-│   ├── common/
-│   │   └── constants.ts             # All constants
-│   ├── app.module.ts
-│   └── main.ts
-├── package.json
-├── tsconfig.json
-└── .env.example
+│   │   │   ├── models/      # Database models
+│   │   │   └── postgres.go  # Database connection
+│   │   └── redis/           # Redis client
+│   └── delivery/             # Delivery mechanisms
+│       ├── grpc/            # gRPC handlers
+│       └── http/            # HTTP handlers (health checks)
+├── pkg/
+│   ├── config/              # Configuration management
+│   └── logger/              # Logging utilities
+└── go.mod
+
 ```
+
+## Features
+
+- Add items to cart
+- Update item quantities
+- Remove items from cart
+- Clear cart
+- Apply/remove coupon codes
+- Abandoned cart detection
+- Automatic cart cleanup
+- Redis caching for performance
+- gRPC API
+
+## Technologies
+
+- **Go 1.21**
+- **GORM** - ORM for database operations
+- **PostgreSQL** - Primary database
+- **Redis** - Caching layer
+- **gRPC** - Inter-service communication
+- **Protocol Buffers** - API definition
+
+## Configuration
+
+Environment variables (see `.env.example`):
+
+```
+SERVICE_NAME=cart-service
+PORT=3003
+GRPC_PORT=50053
+LOG_LEVEL=info
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=cart_db
+
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=redis123
+
+CART_ABANDONED_DAYS=7
+CART_EXPIRY_DAYS=30
+```
+
+## Running the Service
+
+```bash
+# Install dependencies
+go mod download
+
+# Run the service
+go run cmd/cart-service/main.go
+
+# Build
+go build -o cart-service cmd/cart-service/main.go
+```
+
+## Docker
+
+```bash
+# Build image
+docker build -t cart-service .
+
+# Run container
+docker run -p 3003:3003 -p 50053:50053 cart-service
+```
+
+## API (gRPC)
+
+See `proto/cart.proto` for the complete API definition.
+
+Key operations:
+- `GetCart` - Get user's cart
+- `AddToCart` - Add item to cart
+- `UpdateItemQuantity` - Update item quantity
+- `RemoveItem` - Remove item from cart
+- `ClearCart` - Clear entire cart
+- `ApplyCoupon` - Apply coupon code
+- `RemoveCoupon` - Remove coupon
 
 ## Database Schema
 
 ### carts
-- `id`: UUID primary key
-- `user_id`: User identifier (indexed)
-- `subtotal`: Decimal(10,2) - Sum of all items
-- `discount`: Decimal(10,2) - Discount amount from coupon
-- `total`: Decimal(10,2) - Final total (subtotal - discount)
-- `is_abandoned`: Boolean - Marked if inactive for 24h
-- `coupon_code`: String - Applied coupon code (nullable)
-- `created_at`, `updated_at`, `deleted_at`
+- id (uuid, PK)
+- user_id (varchar)
+- subtotal (bigint) - in cents
+- discount (bigint) - in cents
+- total (bigint) - in cents
+- coupon_code (varchar, nullable)
+- is_abandoned (boolean)
+- created_at (timestamp)
+- updated_at (timestamp)
+- deleted_at (timestamp, nullable)
 
 ### cart_items
-- `id`: UUID primary key
-- `cart_id`: Foreign key to carts (cascade delete)
-- `product_id`: Product identifier (indexed)
-- `variant_id`: Product variant identifier (nullable)
-- `name`: Product name
-- `image`: Product image URL (nullable)
-- `sku`: Stock keeping unit (nullable)
-- `quantity`: Integer - Item quantity (1-99)
-- `unit_price`: Decimal(10,2) - Price per unit
-- `total_price`: Decimal(10,2) - quantity × unit_price
-- `created_at`, `updated_at`
-- Unique constraint on (cart_id, product_id, variant_id)
+- id (uuid, PK)
+- cart_id (uuid, FK)
+- product_id (varchar)
+- variant_id (varchar, nullable)
+- name (varchar)
+- image (text)
+- sku (varchar)
+- quantity (int)
+- unit_price (bigint) - in cents
+- total_price (bigint) - in cents
+- created_at (timestamp)
+- updated_at (timestamp)
 
-## API Endpoints
+## Clean Architecture Layers
 
-### REST API (Port 5003)
+### Domain Layer
+Contains business entities and repository interfaces. No dependencies on external frameworks.
 
-**Cart Operations:**
-- `GET /api/cart/:userId` - Get user's cart
-- `POST /api/cart/add` - Add item to cart
-- `PUT /api/cart/update` - Update item quantity
-- `DELETE /api/cart/remove` - Remove item from cart
-- `DELETE /api/cart/:userId/clear` - Clear entire cart
+### Use Case Layer
+Application business rules. Orchestrates the flow of data between delivery and repository layers.
 
-**Coupon Operations:**
-- `POST /api/cart/coupon/apply` - Apply coupon code
-- `DELETE /api/cart/:userId/coupon` - Remove coupon
+### Repository Layer
+Implements data access logic. Converts between domain entities and database models.
 
-**Health Checks:**
-- `GET /health` - Service health
-- `GET /readiness` - Service readiness
+### Infrastructure Layer
+External concerns like database connections, Redis clients, etc.
 
-## Setup
-
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-
-2. **Configure Environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-3. **Start PostgreSQL & Redis**
-   ```bash
-   docker-compose up -d postgres redis
-   ```
-
-4. **Run Service**
-   ```bash
-   # Development
-   npm run start:dev
-
-   # Production
-   npm run build
-   npm run start:prod
-   ```
-
-## Usage Examples
-
-### Get Cart
-```bash
-GET /api/cart/user-123
-```
-
-### Add to Cart
-```bash
-POST /api/cart/add
-{
-  "userId": "user-123",
-  "productId": "product-456",
-  "variantId": "variant-789",
-  "quantity": 2,
-  "name": "Product Name",
-  "image": "https://example.com/image.jpg",
-  "sku": "SKU-123",
-  "unitPrice": 29.99
-}
-```
-
-### Update Quantity
-```bash
-PUT /api/cart/update
-{
-  "userId": "user-123",
-  "cartItemId": "item-456",
-  "quantity": 5
-}
-```
-
-### Remove Item
-```bash
-DELETE /api/cart/remove
-{
-  "userId": "user-123",
-  "cartItemId": "item-456"
-}
-```
-
-### Apply Coupon
-```bash
-POST /api/cart/coupon/apply
-{
-  "userId": "user-123",
-  "couponCode": "SAVE10"
-}
-```
-
-### Clear Cart
-```bash
-DELETE /api/cart/user-123/clear
-```
-
-## Key Features
-
-### Automatic Price Calculation
-- Calculates `totalPrice` for each item (quantity × unitPrice)
-- Calculates cart `subtotal` (sum of all item totals)
-- Applies discount from coupon
-- Calculates final `total` (subtotal - discount)
-- All prices rounded to 2 decimal places
-
-### Duplicate Item Prevention
-- Unique constraint on (cart_id, product_id, variant_id)
-- When adding existing item, quantity is incremented
-- Prevents duplicate entries in cart
-
-### Cart Abandonment Tracking
-- **Hourly Check**: Marks carts as abandoned if inactive for 24h
-- **Daily Cleanup**: Deletes carts older than 30 days
-- Background cron jobs using @nestjs/schedule
-
-### Caching Strategy
-- User carts cached in Redis (30-minute TTL)
-- Cache invalidation on any cart modification
-- Cache-aside pattern for performance
-
-### Quantity Limits
-- Min quantity per item: 1
-- Max quantity per item: 99
-- Max items per cart: 50
-
-### Soft Deletes
-- Cart items use hard delete (cascade on cart delete)
-- Carts use TypeORM soft delete
-
-### Validation
-- All DTOs validated with class-validator
-- Quantity bounds enforced
-- Required fields checked
-
-### Constants & Configuration
-- All magic values defined as constants
-- No hardcoded values in business logic
-- Easy to adjust limits and settings
-- Centralized in `constants.ts`
-
-## Scheduled Tasks
-
-### Daily Cart Cleanup (2 AM)
-Deletes carts that haven't been updated in 30 days to prevent database bloat.
-
-### Hourly Abandonment Check
-Marks carts as abandoned if they haven't been updated in 24 hours and contain items. Used for abandoned cart email campaigns.
-
-## Development
-
-### Running Tests
-```bash
-npm test
-```
-
-### Building for Production
-```bash
-npm run build
-```
-
-### Linting
-```bash
-npm run lint
-```
-
-### Format Code
-```bash
-npm run format
-```
-
-## Monitoring
-
-- Health check: `http://localhost:5003/health`
-- Readiness check: `http://localhost:5003/readiness`
-- Logs: Structured logging to stdout with cron job execution logs
-
-## Integration
-
-This service is designed to work with:
-- **Product Service**: Fetch product details and prices
-- **Inventory Service**: Check stock availability before adding to cart
-- **Order Service**: Convert cart to order on checkout
-- **User Service**: Validate user and get default addresses
-- **Coupon Service**: Validate and calculate coupon discounts
-
-## License
-
-MIT
+### Delivery Layer
+Handles input/output. gRPC and HTTP handlers live here.

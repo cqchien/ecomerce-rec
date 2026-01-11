@@ -1,0 +1,114 @@
+package postgres
+
+import (
+	"context"
+
+	"github.com/cqchien/ecomerce_rec/backend/services/event-service/internal/domain"
+	"github.com/cqchien/ecomerce_rec/backend/services/event-service/internal/infrastructure/models"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
+// EventRepository implements the event repository using PostgreSQL
+type EventRepository struct {
+	db *gorm.DB
+}
+
+// NewEventRepository creates a new PostgreSQL event repository
+func NewEventRepository(db *gorm.DB) *EventRepository {
+	return &EventRepository{db: db}
+}
+
+// Create creates a new event
+func (r *EventRepository) Create(ctx context.Context, event *domain.Event) error {
+	model := &models.Event{}
+	model.FromDomain(event)
+	return r.db.WithContext(ctx).Create(model).Error
+}
+
+// FindByID finds an event by ID
+func (r *EventRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Event, error) {
+	var model models.Event
+	if err := r.db.WithContext(ctx).First(&model, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, domain.ErrEventNotFound
+		}
+		return nil, err
+	}
+	return model.ToDomain(), nil
+}
+
+// FindByType finds events by type
+func (r *EventRepository) FindByType(ctx context.Context, eventType domain.EventType, limit, offset int) ([]domain.Event, error) {
+	var modelList []models.Event
+	query := r.db.WithContext(ctx).Where("type = ?", string(eventType))
+
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if offset > 0 {
+		query = query.Offset(offset)
+	}
+
+	if err := query.Order("created_at DESC").Find(&modelList).Error; err != nil {
+		return nil, err
+	}
+
+	events := make([]domain.Event, len(modelList))
+	for i, model := range modelList {
+		events[i] = *model.ToDomain()
+	}
+	return events, nil
+}
+
+// FindPending finds pending events
+func (r *EventRepository) FindPending(ctx context.Context, limit int) ([]domain.Event, error) {
+	var modelList []models.Event
+	query := r.db.WithContext(ctx).Where("status = ?", string(domain.EventStatusPending))
+
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+
+	if err := query.Order("created_at ASC").Find(&modelList).Error; err != nil {
+		return nil, err
+	}
+
+	events := make([]domain.Event, len(modelList))
+	for i, model := range modelList {
+		events[i] = *model.ToDomain()
+	}
+	return events, nil
+}
+
+// FindFailed finds failed events that can be retried
+func (r *EventRepository) FindFailed(ctx context.Context, limit int) ([]domain.Event, error) {
+	var modelList []models.Event
+	query := r.db.WithContext(ctx).Where("status = ? AND retry_count < ?", string(domain.EventStatusFailed), 3)
+
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+
+	if err := query.Order("updated_at ASC").Find(&modelList).Error; err != nil {
+		return nil, err
+	}
+
+	events := make([]domain.Event, len(modelList))
+	for i, model := range modelList {
+		events[i] = *model.ToDomain()
+	}
+	return events, nil
+}
+
+// Update updates an event
+func (r *EventRepository) Update(ctx context.Context, event *domain.Event) error {
+	model := &models.Event{}
+	model.FromDomain(event)
+	return r.db.WithContext(ctx).Save(model).Error
+}
+
+// Delete deletes an event
+func (r *EventRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).Delete(&models.Event{}, "id = ?", id).Error
+}
