@@ -1,0 +1,167 @@
+version: '3.9'
+
+services:
+  # PostgreSQL - Main Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: vici-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts/postgres:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vici-network
+
+  # Redis - Cache & Sessions
+  redis:
+    image: redis:7-alpine
+    container_name: vici-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vici-network
+
+  # Zookeeper - Required for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: vici-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
+      ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+    networks:
+      - vici-network
+
+  # Kafka - Message Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: vici-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: ${KAFKA_BROKER_ID}
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_CLIENT_PORT}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: 168
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - vici-network
+
+  # Kafka UI - For development
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: vici-kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: vici
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:${ZOOKEEPER_CLIENT_PORT}
+    networks:
+      - vici-network
+
+  # MinIO - S3-compatible storage for images
+  minio:
+    image: minio/minio:latest
+    container_name: vici-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - vici-network
+
+  # Create MinIO buckets
+  minio-init:
+    image: minio/mc:latest
+    container_name: vici-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc mb myminio/products --ignore-existing;
+      /usr/bin/mc mb myminio/users --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/products;
+      exit 0;
+      "
+    networks:
+      - vici-network
+
+  # pgAdmin - PostgreSQL Management (Optional for dev)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: vici-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - vici-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  zookeeper_data:
+  zookeeper_log:
+  kafka_data:
+  minio_data:
+  pgadmin_data:
+
+networks:
+  vici-network:
+    driver: bridge

@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package event;
+
+import "common.proto";
+
+option go_package = "github.com/ecommerce/proto/event";
+
+// Event Service - tracks user behavior for ML pipeline
+service EventService {
+  // Track user event
+  rpc TrackEvent(TrackEventRequest) returns (TrackEventResponse);
+  
+  // Batch track events
+  rpc BatchTrackEvents(BatchTrackEventsRequest) returns (BatchTrackEventsResponse);
+  
+  // Get user events (for debugging/admin)
+  rpc GetUserEvents(GetUserEventsRequest) returns (GetUserEventsResponse);
+}
+
+// User event types
+enum EventType {
+  UNKNOWN = 0;
+  PAGE_VIEW = 1;
+  PRODUCT_VIEW = 2;
+  PRODUCT_CLICK = 3;
+  ADD_TO_CART = 4;
+  REMOVE_FROM_CART = 5;
+  CHECKOUT_START = 6;
+  CHECKOUT_COMPLETE = 7;
+  PURCHASE = 8;
+  SEARCH = 9;
+  CATEGORY_VIEW = 10;
+  WISHLIST_ADD = 11;
+  WISHLIST_REMOVE = 12;
+}
+
+// User event
+message UserEvent {
+  string id = 1;
+  string user_id = 2;
+  string session_id = 3;
+  EventType event_type = 4;
+  map<string, string> properties = 5;
+  string ip_address = 6;
+  string user_agent = 7;
+  string referrer = 8;
+  common.Timestamp timestamp = 9;
+}
+
+// Product interaction event
+message ProductEvent {
+  string product_id = 1;
+  string variant_id = 2;
+  string category_id = 3;
+  double price = 4;
+  int32 quantity = 5;
+  int32 position = 6; // Position in list/carousel
+  string source = 7; // search, recommendation, category, etc.
+}
+
+// Search event
+message SearchEvent {
+  string query = 1;
+  int32 results_count = 2;
+  repeated string result_product_ids = 3;
+}
+
+// Track event request
+message TrackEventRequest {
+  string user_id = 1;
+  string session_id = 2;
+  EventType event_type = 3;
+  oneof event_data {
+    ProductEvent product_event = 4;
+    SearchEvent search_event = 5;
+  }
+  map<string, string> metadata = 6;
+}
+
+message TrackEventResponse {
+  bool success = 1;
+  string event_id = 2;
+}
+
+// Batch track events request
+message BatchTrackEventsRequest {
+  repeated TrackEventRequest events = 1;
+}
+
+message BatchTrackEventsResponse {
+  bool success = 1;
+  int32 processed_count = 2;
+}
+
+// Get user events request (Admin/Debug)
+message GetUserEventsRequest {
+  string user_id = 1;
+  common.PaginationRequest pagination = 2;
+  EventType event_type = 3;
+  common.Timestamp from_time = 4;
+  common.Timestamp to_time = 5;
+}
+
+message GetUserEventsResponse {
+  repeated UserEvent events = 1;
+  common.PaginationResponse pagination = 2;
+}

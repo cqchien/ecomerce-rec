@@ -1,0 +1,103 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+backend/deployment/.env
+
+# Dependencies
+node_modules/
+vendor/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+*.out
+*.exe
+
+# Frontend
+frontend/dist/
+frontend/.vite/
+frontend/.vite-cache/
+frontend/.rollup.cache/
+
+# Go
+*.o
+*.a
+*.so
+*.test
+*.prof
+go.work
+go.work.sum
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.directory
+.Spotlight-V100
+.Trashes
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.iml
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Docker
+docker-compose.override.yml
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.cache
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Proto generated files (if not committed)
+# **/*.pb.go
+# **/proto/**/*.js
+# **/proto/**/*.d.ts
+
+# Certificates and keys
+*.pem
+*.key
+*.cert
+*.crt
+
+# Sensitive data
+secrets/
+credentials/

@@ -1,0 +1,89 @@
+{
+  "trending": [
+    { "product_id": "1", "score": 1000 },
+    { "product_id": "2", "score": 950 },
+    { "product_id": "3", "score": 900 },
+    { "product_id": "5", "score": 850 },
+    { "product_id": "7", "score": 800 },
+    { "product_id": "10", "score": 750 },
+    { "product_id": "12", "score": 700 },
+    { "product_id": "15", "score": 650 }
+  ],
+  "popular": [
+    { "product_id": "1", "score": 5000 },
+    { "product_id": "2", "score": 4800 },
+    { "product_id": "3", "score": 4500 },
+    { "product_id": "5", "score": 4200 },
+    { "product_id": "7", "score": 4000 },
+    { "product_id": "10", "score": 3800 },
+    { "product_id": "12", "score": 3600 }
+  ],
+  "new_arrivals": [
+    { "product_id": "20", "timestamp": 1704902400 },
+    { "product_id": "19", "timestamp": 1704816000 },
+    { "product_id": "18", "timestamp": 1704729600 },
+    { "product_id": "17", "timestamp": 1704643200 }
+  ],
+  "user_recommendations": {
+    "1": [
+      { "product_id": "5", "score": 0.95 },
+      { "product_id": "7", "score": 0.89 },
+      { "product_id": "10", "score": 0.85 },
+      { "product_id": "12", "score": 0.82 },
+      { "product_id": "15", "score": 0.78 }
+    ],
+    "2": [
+      { "product_id": "3", "score": 0.92 },
+      { "product_id": "6", "score": 0.88 },
+      { "product_id": "9", "score": 0.84 },
+      { "product_id": "11", "score": 0.80 }
+    ]
+  },
+  "similar_products": {
+    "1": [
+      { "product_id": "2", "score": 0.92 },
+      { "product_id": "3", "score": 0.88 },
+      { "product_id": "5", "score": 0.85 },
+      { "product_id": "7", "score": 0.80 }
+    ],
+    "2": [
+      { "product_id": "1", "score": 0.92 },
+      { "product_id": "4", "score": 0.87 },
+      { "product_id": "6", "score": 0.83 },
+      { "product_id": "8", "score": 0.79 }
+    ],
+    "3": [
+      { "product_id": "1", "score": 0.88 },
+      { "product_id": "5", "score": 0.86 },
+      { "product_id": "9", "score": 0.82 }
+    ]
+  },
+  "frequently_bought_together": {
+    "1": [
+      { "product_id": "10", "frequency": 150 },
+      { "product_id": "11", "frequency": 120 },
+      { "product_id": "12", "frequency": 95 }
+    ],
+    "2": [
+      { "product_id": "13", "frequency": 180 },
+      { "product_id": "14", "frequency": 140 },
+      { "product_id": "15", "frequency": 110 }
+    ],
+    "3": [
+      { "product_id": "16", "frequency": 200 },
+      { "product_id": "17", "frequency": 160 }
+    ]
+  },
+  "category_trending": {
+    "cat_electronics": [
+      { "product_id": "1", "score": 500 },
+      { "product_id": "2", "score": 450 },
+      { "product_id": "5", "score": 400 }
+    ],
+    "cat_fashion": [
+      { "product_id": "10", "score": 600 },
+      { "product_id": "12", "score": 550 },
+      { "product_id": "15", "score": 500 }
+    ]
+  }
+}
