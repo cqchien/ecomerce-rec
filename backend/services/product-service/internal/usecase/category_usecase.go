@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type categoryUseCase struct {
+type CategoryUseCase struct {
 	categoryRepo domain.CategoryRepository
 	redis        RedisClient
 	logger       logger.Logger
@@ -24,8 +24,8 @@ func NewCategoryUseCase(
 	categoryRepo domain.CategoryRepository,
 	redis RedisClient,
 	logger logger.Logger,
-) *categoryUseCase {
-	return &categoryUseCase{
+) *CategoryUseCase {
+	return &CategoryUseCase{
 		categoryRepo: categoryRepo,
 		redis:        redis,
 		logger:       logger,
@@ -33,7 +33,7 @@ func NewCategoryUseCase(
 	}
 }
 
-func (uc *categoryUseCase) GetCategory(ctx context.Context, id string) (*domain.Category, error) {
+func (uc *CategoryUseCase) GetCategory(ctx context.Context, id string) (*domain.Category, error) {
 	// Try cache first
 	cacheKey := fmt.Sprintf("%s%s", models.CacheKeyCategory, id)
 	cached, err := uc.redis.Get(ctx, cacheKey)
@@ -59,7 +59,7 @@ func (uc *categoryUseCase) GetCategory(ctx context.Context, id string) (*domain.
 	return category, nil
 }
 
-func (uc *categoryUseCase) GetCategoryBySlug(ctx context.Context, slug string) (*domain.Category, error) {
+func (uc *CategoryUseCase) GetCategoryBySlug(ctx context.Context, slug string) (*domain.Category, error) {
 	// Try cache first
 	cacheKey := fmt.Sprintf("%s%s", models.CacheKeyCategorySlug, slug)
 	cached, err := uc.redis.Get(ctx, cacheKey)
@@ -85,7 +85,7 @@ func (uc *categoryUseCase) GetCategoryBySlug(ctx context.Context, slug string) (
 	return category, nil
 }
 
-func (uc *categoryUseCase) ListCategories(ctx context.Context, parentID *string) ([]domain.Category, error) {
+func (uc *CategoryUseCase) ListCategories(ctx context.Context, parentID *string) ([]domain.Category, error) {
 	// Try cache first
 	cacheKey := models.CacheKeyCategoriesAll
 	if parentID != nil {
@@ -115,7 +115,7 @@ func (uc *categoryUseCase) ListCategories(ctx context.Context, parentID *string)
 	return categories, nil
 }
 
-func (uc *categoryUseCase) GetCategoriesWithProductCount(ctx context.Context) ([]domain.Category, error) {
+func (uc *CategoryUseCase) GetCategoriesWithProductCount(ctx context.Context) ([]domain.Category, error) {
 	// Try cache first
 	cacheKey := models.CacheKeyCategoriesCount
 	cached, err := uc.redis.Get(ctx, cacheKey)
@@ -141,7 +141,7 @@ func (uc *categoryUseCase) GetCategoriesWithProductCount(ctx context.Context) ([
 	return categories, nil
 }
 
-func (uc *categoryUseCase) CreateCategory(ctx context.Context, category *domain.Category) error {
+func (uc *CategoryUseCase) CreateCategory(ctx context.Context, category *domain.Category) error {
 	// Generate ID and timestamps
 	category.ID = uuid.New().String()
 	category.CreatedAt = time.Now()
@@ -168,7 +168,7 @@ func (uc *categoryUseCase) CreateCategory(ctx context.Context, category *domain.
 	return nil
 }
 
-func (uc *categoryUseCase) UpdateCategory(ctx context.Context, category *domain.Category) error {
+func (uc *CategoryUseCase) UpdateCategory(ctx context.Context, category *domain.Category) error {
 	// Validate category exists
 	existing, err := uc.categoryRepo.GetByID(ctx, category.ID)
 	if err != nil {
@@ -208,7 +208,7 @@ func (uc *categoryUseCase) UpdateCategory(ctx context.Context, category *domain.
 	return nil
 }
 
-func (uc *categoryUseCase) DeleteCategory(ctx context.Context, id string) error {
+func (uc *CategoryUseCase) DeleteCategory(ctx context.Context, id string) error {
 	// Validate category exists
 	category, err := uc.categoryRepo.GetByID(ctx, id)
 	if err != nil {
@@ -241,7 +241,7 @@ func (uc *categoryUseCase) DeleteCategory(ctx context.Context, id string) error 
 	return nil
 }
 
-func (uc *categoryUseCase) invalidateCategoryCache(ctx context.Context, parentID *string) {
+func (uc *CategoryUseCase) invalidateCategoryCache(ctx context.Context, parentID *string) {
 	keys := []string{models.CacheKeyCategoriesAll, models.CacheKeyCategoriesCount}
 	if parentID != nil {
 		keys = append(keys, fmt.Sprintf("%s%s", models.CacheKeyCategoriesParent, *parentID))

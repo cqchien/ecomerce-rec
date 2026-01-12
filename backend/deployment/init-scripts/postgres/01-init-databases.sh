@@ -42,6 +42,9 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     -- Notification Service Database
     CREATE DATABASE notification_db;
     
+    -- Recommendation Service Database
+    CREATE DATABASE recommendation_db;
+    
     -- Grant privileges to application user
     GRANT ALL PRIVILEGES ON DATABASE auth_db TO $APP_USER;
     GRANT ALL PRIVILEGES ON DATABASE user_db TO $APP_USER;
@@ -52,6 +55,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     GRANT ALL PRIVILEGES ON DATABASE payment_db TO $APP_USER;
     GRANT ALL PRIVILEGES ON DATABASE event_db TO $APP_USER;
     GRANT ALL PRIVILEGES ON DATABASE notification_db TO $APP_USER;
+    GRANT ALL PRIVILEGES ON DATABASE recommendation_db TO $APP_USER;
 EOSQL
 
 echo "All databases created successfully!"

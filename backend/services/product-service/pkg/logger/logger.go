@@ -1,12 +1,8 @@
 package logger
 
 import (
-	"fmt"
-	"io"
+	"log/slog"
 	"os"
-	"time"
-
-	"github.com/rs/zerolog"
 )
 
 // Logger defines the interface for logging
@@ -18,104 +14,50 @@ type Logger interface {
 	Fatal(msg string, keysAndValues ...interface{})
 }
 
-type zerologLogger struct {
-	logger zerolog.Logger
+type slogLogger struct {
+	logger *slog.Logger
 }
 
 // New creates a new logger
 func New(serviceName, level string) Logger {
-	var logLevel zerolog.Level
+	var logLevel slog.Level
 	switch level {
 	case "debug":
-		logLevel = zerolog.DebugLevel
-	case "info":
-		logLevel = zerolog.InfoLevel
+		logLevel = slog.LevelDebug
 	case "warn":
-		logLevel = zerolog.WarnLevel
+		logLevel = slog.LevelWarn
 	case "error":
-		logLevel = zerolog.ErrorLevel
+		logLevel = slog.LevelError
 	default:
-		logLevel = zerolog.InfoLevel
+		logLevel = slog.LevelInfo
 	}
 
-	output := zerolog.ConsoleWriter{
-		Out:        os.Stdout,
-		TimeFormat: time.RFC3339,
-		NoColor:    false,
-	}
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: logLevel,
+	})
 
-	logger := zerolog.New(output).
-		Level(logLevel).
-		With().
-		Timestamp().
-		Str("service", serviceName).
-		Logger()
+	logger := slog.New(handler).With("service", serviceName)
 
-	return &zerologLogger{logger: logger}
+	return &slogLogger{logger: logger}
 }
 
-// NewWithWriter creates a new logger with custom writer
-func NewWithWriter(serviceName string, level string, writer io.Writer) Logger {
-	var logLevel zerolog.Level
-	switch level {
-	case "debug":
-		logLevel = zerolog.DebugLevel
-	case "info":
-		logLevel = zerolog.InfoLevel
-	case "warn":
-		logLevel = zerolog.WarnLevel
-	case "error":
-		logLevel = zerolog.ErrorLevel
-	default:
-		logLevel = zerolog.InfoLevel
-	}
-
-	logger := zerolog.New(writer).
-		Level(logLevel).
-		With().
-		Timestamp().
-		Str("service", serviceName).
-		Logger()
-
-	return &zerologLogger{logger: logger}
+func (l *slogLogger) Debug(msg string, args ...interface{}) {
+	l.logger.Debug(msg, args...)
 }
 
-func (l *zerologLogger) Debug(msg string, keysAndValues ...interface{}) {
-	event := l.logger.Debug()
-	l.addFields(event, keysAndValues...)
-	event.Msg(msg)
+func (l *slogLogger) Info(msg string, args ...interface{}) {
+	l.logger.Info(msg, args...)
 }
 
-func (l *zerologLogger) Info(msg string, keysAndValues ...interface{}) {
-	event := l.logger.Info()
-	l.addFields(event, keysAndValues...)
-	event.Msg(msg)
+func (l *slogLogger) Warn(msg string, args ...interface{}) {
+	l.logger.Warn(msg, args...)
 }
 
-func (l *zerologLogger) Warn(msg string, keysAndValues ...interface{}) {
-	event := l.logger.Warn()
-	l.addFields(event, keysAndValues...)
-	event.Msg(msg)
+func (l *slogLogger) Error(msg string, args ...interface{}) {
+	l.logger.Error(msg, args...)
 }
 
-func (l *zerologLogger) Error(msg string, keysAndValues ...interface{}) {
-	event := l.logger.Error()
-	l.addFields(event, keysAndValues...)
-	event.Msg(msg)
-}
-
-func (l *zerologLogger) Fatal(msg string, keysAndValues ...interface{}) {
-	event := l.logger.Fatal()
-	l.addFields(event, keysAndValues...)
-	event.Msg(msg)
-}
-
-func (l *zerologLogger) addFields(event *zerolog.Event, keysAndValues ...interface{}) {
-	for i := 0; i < len(keysAndValues); i += 2 {
-		if i+1 < len(keysAndValues) {
-			key := fmt.Sprintf("%v", keysAndValues[i])
-			value := keysAndValues[i+1]
-			event.Interface(key, value)
-		}
-	}
+func (l *slogLogger) Fatal(msg string, args ...interface{}) {
+	l.logger.Error(msg, args...)
+	os.Exit(1)
 }

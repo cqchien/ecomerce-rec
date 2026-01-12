@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IAddressRepository } from '../../../domain/interfaces/address-repository.interface';
-import { Address } from '../../../domain/models/address.model';
+import { IAddressRepository } from '../../domain/interfaces/address-repository.interface';
+import { Address } from '../../domain/models/address.model';
 import { AddressEntity } from '../persistence/entities/address.entity';
 import { AddressMapper } from '../persistence/mappers/address.mapper';
 

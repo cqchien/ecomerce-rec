@@ -3,8 +3,7 @@ package grpc
 import (
 	"context"
 
-	pb "github.com/cqchien/ecomerce-rec/backend/proto/cart"
-	commonpb "github.com/cqchien/ecomerce-rec/backend/proto/common"
+	pb "github.com/cqchien/ecomerce-rec/backend/proto"
 	"github.com/cqchien/ecomerce-rec/backend/services/cart-service/internal/domain"
 	"github.com/cqchien/ecomerce-rec/backend/services/cart-service/internal/usecase"
 	"github.com/cqchien/ecomerce-rec/backend/services/cart-service/pkg/logger"
@@ -148,7 +147,7 @@ func (s *cartServer) ClearCart(ctx context.Context, req *pb.ClearCartRequest) (*
 	}
 
 	return &pb.ClearCartResponse{
-		Response: &commonpb.Response{
+		Response: &pb.Response{
 			Success: true,
 			Message: "Cart cleared successfully",
 		},
@@ -203,24 +202,24 @@ func (s *cartServer) domainToProto(cart *domain.Cart) *pb.Cart {
 	pbCart := &pb.Cart{
 		Id:     cart.ID,
 		UserId: cart.UserID,
-		Subtotal: &commonpb.Money{
+		Subtotal: &pb.Money{
 			AmountCents: cart.Subtotal,
 			Currency:    "USD",
 		},
-		Discount: &commonpb.Money{
+		Discount: &pb.Money{
 			AmountCents: cart.Discount,
 			Currency:    "USD",
 		},
-		Total: &commonpb.Money{
+		Total: &pb.Money{
 			AmountCents: cart.Total,
 			Currency:    "USD",
 		},
 		IsAbandoned: cart.IsAbandoned,
-		CreatedAt: &commonpb.Timestamp{
+		CreatedAt: &pb.Timestamp{
 			Seconds: cart.CreatedAt.Unix(),
 			Nanos:   int32(cart.CreatedAt.Nanosecond()),
 		},
-		UpdatedAt: &commonpb.Timestamp{
+		UpdatedAt: &pb.Timestamp{
 			Seconds: cart.UpdatedAt.Unix(),
 			Nanos:   int32(cart.UpdatedAt.Nanosecond()),
 		},
@@ -240,11 +239,11 @@ func (s *cartServer) domainToProto(cart *domain.Cart) *pb.Cart {
 			Image:     item.Image,
 			Sku:       item.SKU,
 			Quantity:  item.Quantity,
-			UnitPrice: &commonpb.Money{
+			UnitPrice: &pb.Money{
 				AmountCents: item.UnitPrice,
 				Currency:    "USD",
 			},
-			TotalPrice: &commonpb.Money{
+			TotalPrice: &pb.Money{
 				AmountCents: item.TotalPrice,
 				Currency:    "USD",
 			},

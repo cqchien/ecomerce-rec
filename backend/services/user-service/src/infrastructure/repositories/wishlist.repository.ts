@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IWishlistRepository } from '../../../domain/interfaces/wishlist-repository.interface';
-import { WishlistItem } from '../../../domain/models/wishlist-item.model';
+import { IWishlistRepository } from '../../domain/interfaces/wishlist-repository.interface';
+import { WishlistItem } from '../../domain/models/wishlist-item.model';
 import { WishlistItemEntity } from '../persistence/entities/wishlist-item.entity';
 import { WishlistItemMapper } from '../persistence/mappers/wishlist-item.mapper';
 

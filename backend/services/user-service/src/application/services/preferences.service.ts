@@ -28,7 +28,7 @@ export class PreferencesService {
     const cached = await this.cacheService.get(cacheKey);
     
     if (cached) {
-      return JSON.parse(cached);
+      return JSON.parse(cached as string);
     }
 
     let preferences = await this.preferencesRepository.findByUserId(userId);

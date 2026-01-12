@@ -9,6 +9,7 @@ package proto
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -109,8 +110,8 @@ type Order struct {
 	PaymentMethod   string                 `protobuf:"bytes,12,opt,name=payment_method,json=paymentMethod,proto3" json:"payment_method,omitempty"`
 	PaymentId       string                 `protobuf:"bytes,13,opt,name=payment_id,json=paymentId,proto3" json:"payment_id,omitempty"`
 	Tracking        *TrackingInfo          `protobuf:"bytes,14,opt,name=tracking,proto3" json:"tracking,omitempty"`
-	CreatedAt       *Timestamp             `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt       *Timestamp             `protobuf:"bytes,16,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -243,14 +244,14 @@ func (x *Order) GetTracking() *TrackingInfo {
 	return nil
 }
 
-func (x *Order) GetCreatedAt() *Timestamp {
+func (x *Order) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *Order) GetUpdatedAt() *Timestamp {
+func (x *Order) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -1297,7 +1298,7 @@ var File_order_proto protoreflect.FileDescriptor
 
 const file_order_proto_rawDesc = "" +
 	"\n" +
-	"\vorder.proto\x12\x05order\x1a\fcommon.proto\"\x9c\x05\n" +
+	"\vorder.proto\x12\x05order\x1a\fcommon.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xae\x05\n" +
 	"\x05Order\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12&\n" +
@@ -1314,11 +1315,11 @@ const file_order_proto_rawDesc = "" +
 	"\x0epayment_method\x18\f \x01(\tR\rpaymentMethod\x12\x1d\n" +
 	"\n" +
 	"payment_id\x18\r \x01(\tR\tpaymentId\x12/\n" +
-	"\btracking\x18\x0e \x01(\v2\x13.order.TrackingInfoR\btracking\x120\n" +
+	"\btracking\x18\x0e \x01(\v2\x13.order.TrackingInfoR\btracking\x129\n" +
 	"\n" +
-	"created_at\x18\x0f \x01(\v2\x11.common.TimestampR\tcreatedAt\x120\n" +
+	"created_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x10 \x01(\v2\x11.common.TimestampR\tupdatedAt\"\x8f\x02\n" +
+	"updated_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x8f\x02\n" +
 	"\tOrderItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -1458,9 +1459,10 @@ var file_order_proto_goTypes = []any{
 	(*OrderStatusHistory)(nil),            // 18: order.OrderStatusHistory
 	(*Money)(nil),                         // 19: common.Money
 	(*Address)(nil),                       // 20: common.Address
-	(*Timestamp)(nil),                     // 21: common.Timestamp
-	(*PaginationRequest)(nil),             // 22: common.PaginationRequest
-	(*PaginationResponse)(nil),            // 23: common.PaginationResponse
+	(*timestamppb.Timestamp)(nil),         // 21: google.protobuf.Timestamp
+	(*Timestamp)(nil),                     // 22: common.Timestamp
+	(*PaginationRequest)(nil),             // 23: common.PaginationRequest
+	(*PaginationResponse)(nil),            // 24: common.PaginationResponse
 }
 var file_order_proto_depIdxs = []int32{
 	2,  // 0: order.Order.items:type_name -> order.OrderItem
@@ -1473,29 +1475,29 @@ var file_order_proto_depIdxs = []int32{
 	20, // 7: order.Order.shipping_address:type_name -> common.Address
 	20, // 8: order.Order.billing_address:type_name -> common.Address
 	3,  // 9: order.Order.tracking:type_name -> order.TrackingInfo
-	21, // 10: order.Order.created_at:type_name -> common.Timestamp
-	21, // 11: order.Order.updated_at:type_name -> common.Timestamp
+	21, // 10: order.Order.created_at:type_name -> google.protobuf.Timestamp
+	21, // 11: order.Order.updated_at:type_name -> google.protobuf.Timestamp
 	19, // 12: order.OrderItem.unit_price:type_name -> common.Money
 	19, // 13: order.OrderItem.total_price:type_name -> common.Money
-	21, // 14: order.TrackingInfo.shipped_at:type_name -> common.Timestamp
-	21, // 15: order.TrackingInfo.estimated_delivery:type_name -> common.Timestamp
+	22, // 14: order.TrackingInfo.shipped_at:type_name -> common.Timestamp
+	22, // 15: order.TrackingInfo.estimated_delivery:type_name -> common.Timestamp
 	5,  // 16: order.CreateOrderRequest.items:type_name -> order.OrderItemRequest
 	1,  // 17: order.CreateOrderResponse.order:type_name -> order.Order
 	1,  // 18: order.GetOrderResponse.order:type_name -> order.Order
-	22, // 19: order.ListOrdersRequest.pagination:type_name -> common.PaginationRequest
+	23, // 19: order.ListOrdersRequest.pagination:type_name -> common.PaginationRequest
 	10, // 20: order.ListOrdersRequest.filters:type_name -> order.OrderFilters
 	0,  // 21: order.OrderFilters.status:type_name -> order.OrderStatus
-	21, // 22: order.OrderFilters.from_date:type_name -> common.Timestamp
-	21, // 23: order.OrderFilters.to_date:type_name -> common.Timestamp
+	22, // 22: order.OrderFilters.from_date:type_name -> common.Timestamp
+	22, // 23: order.OrderFilters.to_date:type_name -> common.Timestamp
 	1,  // 24: order.ListOrdersResponse.orders:type_name -> order.Order
-	23, // 25: order.ListOrdersResponse.pagination:type_name -> common.PaginationResponse
+	24, // 25: order.ListOrdersResponse.pagination:type_name -> common.PaginationResponse
 	1,  // 26: order.CancelOrderResponse.order:type_name -> order.Order
 	0,  // 27: order.UpdateOrderStatusRequest.status:type_name -> order.OrderStatus
 	3,  // 28: order.UpdateOrderStatusRequest.tracking:type_name -> order.TrackingInfo
 	1,  // 29: order.UpdateOrderStatusResponse.order:type_name -> order.Order
 	18, // 30: order.GetOrderStatusHistoryResponse.history:type_name -> order.OrderStatusHistory
 	0,  // 31: order.OrderStatusHistory.status:type_name -> order.OrderStatus
-	21, // 32: order.OrderStatusHistory.timestamp:type_name -> common.Timestamp
+	22, // 32: order.OrderStatusHistory.timestamp:type_name -> common.Timestamp
 	4,  // 33: order.OrderService.CreateOrder:input_type -> order.CreateOrderRequest
 	7,  // 34: order.OrderService.GetOrder:input_type -> order.GetOrderRequest
 	9,  // 35: order.OrderService.ListOrders:input_type -> order.ListOrdersRequest

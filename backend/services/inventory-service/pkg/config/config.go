@@ -27,6 +27,7 @@ type Config struct {
 
 	// Service configuration
 	Environment string
+	LogLevel    string
 }
 
 // Load loads configuration from environment variables
@@ -51,6 +52,7 @@ func Load() *Config {
 
 		// Service
 		Environment: getEnv("ENVIRONMENT", "development"),
+		LogLevel:    getEnv("LOG_LEVEL", "info"),
 	}
 }
 

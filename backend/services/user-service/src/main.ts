@@ -21,8 +21,16 @@ async function bootstrap() {
   const port = process.env.HTTP_PORT || DEFAULT_HTTP_PORT;
   await app.listen(port);
 
-  console.log(`[User Service] HTTP server running on port ${port}`);
-  console.log(`[User Service] Health check: http://localhost:${port}/health`);
+  const logData = {
+    time: new Date().toISOString(),
+    level: 'INFO',
+    msg: 'User Service started successfully',
+    service: 'user-service',
+    http_port: port,
+    grpc_port: process.env.GRPC_PORT || '5001',
+    health: `/health`
+  };
+  console.log(JSON.stringify(logData));
 }
 
 bootstrap();

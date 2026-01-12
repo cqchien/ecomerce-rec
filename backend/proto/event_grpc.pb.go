@@ -22,6 +22,8 @@ const (
 	EventService_TrackEvent_FullMethodName       = "/event.EventService/TrackEvent"
 	EventService_BatchTrackEvents_FullMethodName = "/event.EventService/BatchTrackEvents"
 	EventService_GetUserEvents_FullMethodName    = "/event.EventService/GetUserEvents"
+	EventService_PublishEvent_FullMethodName     = "/event.EventService/PublishEvent"
+	EventService_GetEvent_FullMethodName         = "/event.EventService/GetEvent"
 )
 
 // EventServiceClient is the client API for EventService service.
@@ -36,6 +38,10 @@ type EventServiceClient interface {
 	BatchTrackEvents(ctx context.Context, in *BatchTrackEventsRequest, opts ...grpc.CallOption) (*BatchTrackEventsResponse, error)
 	// Get user events (for debugging/admin)
 	GetUserEvents(ctx context.Context, in *GetUserEventsRequest, opts ...grpc.CallOption) (*GetUserEventsResponse, error)
+	// Publish event to event store
+	PublishEvent(ctx context.Context, in *PublishEventRequest, opts ...grpc.CallOption) (*PublishEventResponse, error)
+	// Get event by ID
+	GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*GetEventResponse, error)
 }
 
 type eventServiceClient struct {
@@ -76,6 +82,26 @@ func (c *eventServiceClient) GetUserEvents(ctx context.Context, in *GetUserEvent
 	return out, nil
 }
 
+func (c *eventServiceClient) PublishEvent(ctx context.Context, in *PublishEventRequest, opts ...grpc.CallOption) (*PublishEventResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishEventResponse)
+	err := c.cc.Invoke(ctx, EventService_PublishEvent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*GetEventResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEventResponse)
+	err := c.cc.Invoke(ctx, EventService_GetEvent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EventServiceServer is the server API for EventService service.
 // All implementations must embed UnimplementedEventServiceServer
 // for forward compatibility.
@@ -88,6 +114,10 @@ type EventServiceServer interface {
 	BatchTrackEvents(context.Context, *BatchTrackEventsRequest) (*BatchTrackEventsResponse, error)
 	// Get user events (for debugging/admin)
 	GetUserEvents(context.Context, *GetUserEventsRequest) (*GetUserEventsResponse, error)
+	// Publish event to event store
+	PublishEvent(context.Context, *PublishEventRequest) (*PublishEventResponse, error)
+	// Get event by ID
+	GetEvent(context.Context, *GetEventRequest) (*GetEventResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -106,6 +136,12 @@ func (UnimplementedEventServiceServer) BatchTrackEvents(context.Context, *BatchT
 }
 func (UnimplementedEventServiceServer) GetUserEvents(context.Context, *GetUserEventsRequest) (*GetUserEventsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserEvents not implemented")
+}
+func (UnimplementedEventServiceServer) PublishEvent(context.Context, *PublishEventRequest) (*PublishEventResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PublishEvent not implemented")
+}
+func (UnimplementedEventServiceServer) GetEvent(context.Context, *GetEventRequest) (*GetEventResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEvent not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
 func (UnimplementedEventServiceServer) testEmbeddedByValue()                      {}
@@ -182,6 +218,42 @@ func _EventService_GetUserEvents_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_PublishEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishEventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).PublishEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_PublishEvent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).PublishEvent(ctx, req.(*PublishEventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_GetEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).GetEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_GetEvent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).GetEvent(ctx, req.(*GetEventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // EventService_ServiceDesc is the grpc.ServiceDesc for EventService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -200,6 +272,14 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserEvents",
 			Handler:    _EventService_GetUserEvents_Handler,
+		},
+		{
+			MethodName: "PublishEvent",
+			Handler:    _EventService_PublishEvent_Handler,
+		},
+		{
+			MethodName: "GetEvent",
+			Handler:    _EventService_GetEvent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

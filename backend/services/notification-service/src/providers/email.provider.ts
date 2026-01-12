@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as sgMail from '@sendgrid/mail';
+import sgMail from '@sendgrid/mail';
 import { ConfigService } from '@nestjs/config';
 import { PROVIDERS, ERRORS } from '../common/constants';
 

@@ -19,7 +19,7 @@ type RedisClient interface {
 	Del(ctx context.Context, keys ...string) error
 }
 
-type productUseCase struct {
+type ProductUseCase struct {
 	productRepo  domain.ProductRepository
 	categoryRepo domain.CategoryRepository
 	redis        RedisClient
@@ -33,8 +33,8 @@ func NewProductUseCase(
 	categoryRepo domain.CategoryRepository,
 	redis RedisClient,
 	logger logger.Logger,
-) *productUseCase {
-	return &productUseCase{
+) *ProductUseCase {
+	return &ProductUseCase{
 		productRepo:  productRepo,
 		categoryRepo: categoryRepo,
 		redis:        redis,
@@ -43,7 +43,7 @@ func NewProductUseCase(
 	}
 }
 
-func (uc *productUseCase) GetProduct(ctx context.Context, id string) (*domain.Product, error) {
+func (uc *ProductUseCase) GetProduct(ctx context.Context, id string) (*domain.Product, error) {
 	// Try cache first
 	cacheKey := fmt.Sprintf("%s%s", models.CacheKeyProduct, id)
 	cached, err := uc.redis.Get(ctx, cacheKey)
@@ -69,7 +69,7 @@ func (uc *productUseCase) GetProduct(ctx context.Context, id string) (*domain.Pr
 	return product, nil
 }
 
-func (uc *productUseCase) GetProductBySlug(ctx context.Context, slug string) (*domain.Product, error) {
+func (uc *ProductUseCase) GetProductBySlug(ctx context.Context, slug string) (*domain.Product, error) {
 	// Try cache first
 	cacheKey := fmt.Sprintf("%s%s", models.CacheKeyProductSlug, slug)
 	cached, err := uc.redis.Get(ctx, cacheKey)
@@ -95,7 +95,7 @@ func (uc *productUseCase) GetProductBySlug(ctx context.Context, slug string) (*d
 	return product, nil
 }
 
-func (uc *productUseCase) ListProducts(ctx context.Context, filter *domain.ProductFilter, pagination *domain.Pagination) (*domain.PaginatedProducts, error) {
+func (uc *ProductUseCase) ListProducts(ctx context.Context, filter *domain.ProductFilter, pagination *domain.Pagination) (*domain.PaginatedProducts, error) {
 	products, err := uc.productRepo.List(ctx, filter, pagination)
 	if err != nil {
 		uc.logger.Error("Failed to list products", "error", err)
@@ -105,7 +105,7 @@ func (uc *productUseCase) ListProducts(ctx context.Context, filter *domain.Produ
 	return products, nil
 }
 
-func (uc *productUseCase) SearchProducts(ctx context.Context, query string, filter *domain.ProductFilter, pagination *domain.Pagination) (*domain.PaginatedProducts, error) {
+func (uc *ProductUseCase) SearchProducts(ctx context.Context, query string, filter *domain.ProductFilter, pagination *domain.Pagination) (*domain.PaginatedProducts, error) {
 	products, err := uc.productRepo.Search(ctx, query, filter, pagination)
 	if err != nil {
 		uc.logger.Error("Failed to search products", "query", query, "error", err)
@@ -115,7 +115,7 @@ func (uc *productUseCase) SearchProducts(ctx context.Context, query string, filt
 	return products, nil
 }
 
-func (uc *productUseCase) GetProductsByIDs(ctx context.Context, ids []string) ([]domain.Product, error) {
+func (uc *ProductUseCase) GetProductsByIDs(ctx context.Context, ids []string) ([]domain.Product, error) {
 	products, err := uc.productRepo.GetByIDs(ctx, ids)
 	if err != nil {
 		uc.logger.Error("Failed to get products by IDs", "error", err)
@@ -125,7 +125,7 @@ func (uc *productUseCase) GetProductsByIDs(ctx context.Context, ids []string) ([
 	return products, nil
 }
 
-func (uc *productUseCase) CreateProduct(ctx context.Context, product *domain.Product) error {
+func (uc *ProductUseCase) CreateProduct(ctx context.Context, product *domain.Product) error {
 	// Generate ID and timestamps
 	product.ID = uuid.New().String()
 	product.CreatedAt = time.Now()
@@ -147,7 +147,7 @@ func (uc *productUseCase) CreateProduct(ctx context.Context, product *domain.Pro
 	return nil
 }
 
-func (uc *productUseCase) UpdateProduct(ctx context.Context, product *domain.Product) error {
+func (uc *ProductUseCase) UpdateProduct(ctx context.Context, product *domain.Product) error {
 	// Validate product exists
 	existing, err := uc.productRepo.GetByID(ctx, product.ID)
 	if err != nil {
@@ -181,7 +181,7 @@ func (uc *productUseCase) UpdateProduct(ctx context.Context, product *domain.Pro
 	return nil
 }
 
-func (uc *productUseCase) DeleteProduct(ctx context.Context, id string) error {
+func (uc *ProductUseCase) DeleteProduct(ctx context.Context, id string) error {
 	// Validate product exists
 	product, err := uc.productRepo.GetByID(ctx, id)
 	if err != nil {
@@ -205,7 +205,7 @@ func (uc *productUseCase) DeleteProduct(ctx context.Context, id string) error {
 	return nil
 }
 
-func (uc *productUseCase) GetRelatedProducts(ctx context.Context, productID string, limit int32) ([]domain.Product, error) {
+func (uc *ProductUseCase) GetRelatedProducts(ctx context.Context, productID string, limit int32) ([]domain.Product, error) {
 	// Get the product to find its category
 	product, err := uc.productRepo.GetByID(ctx, productID)
 	if err != nil {
@@ -239,7 +239,7 @@ func (uc *productUseCase) GetRelatedProducts(ctx context.Context, productID stri
 	return related, nil
 }
 
-func (uc *productUseCase) UpdateRating(ctx context.Context, productID string, rating float64, reviewCount int32) error {
+func (uc *ProductUseCase) UpdateRating(ctx context.Context, productID string, rating float64, reviewCount int32) error {
 	if err := uc.productRepo.UpdateRating(ctx, productID, rating, reviewCount); err != nil {
 		uc.logger.Error("Failed to update rating", "id", productID, "error", err)
 		return fmt.Errorf("update rating: %w", err)

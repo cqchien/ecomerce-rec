@@ -30,12 +30,20 @@ async function bootstrap() {
   const port = process.env.PORT || PORT.HTTP;
   await app.listen(port);
 
-  console.log(`🚀 Notification Service is running on: http://localhost:${port}/api`);
-  console.log(`📋 Health check: http://localhost:${port}/api/health`);
-  console.log(`📧 Email Provider: SendGrid`);
-  console.log(`📱 SMS Provider: Twilio`);
-  console.log(`🔔 Push Provider: Firebase`);
-  console.log(`📡 Kafka brokers: ${process.env.KAFKA_BROKERS || 'localhost:9092'}`);
+  const logData = {
+    time: new Date().toISOString(),
+    level: 'INFO',
+    msg: 'Notification Service started successfully',
+    service: 'notification-service',
+    port: port,
+    providers: {
+      email: 'SendGrid',
+      sms: 'Twilio',
+      push: 'Firebase'
+    },
+    kafka_brokers: process.env.KAFKA_BROKERS || 'localhost:9092'
+  };
+  console.log(JSON.stringify(logData));
 }
 
 bootstrap();

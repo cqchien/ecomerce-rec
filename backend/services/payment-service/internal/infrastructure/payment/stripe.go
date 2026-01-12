@@ -1,66 +1,64 @@
 package payment
-package payment
 
+import (
+	"context"
+	"fmt"
 
+	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/domain"
+	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/paymentintent"
+)
 
+// StripeProvider implements payment processing using Stripe
+type StripeProvider struct {
+	apiKey string
+}
 
+// NewStripeProvider creates a new Stripe payment provider
+func NewStripeProvider(apiKey string) *StripeProvider {
+	stripe.Key = apiKey
+	return &StripeProvider{
+		apiKey: apiKey,
+	}
+}
 
+// ProcessPayment processes a payment using Stripe
+func (p *StripeProvider) ProcessPayment(ctx context.Context, payment *domain.Payment) (string, string, error) {
+	// Convert amount to cents (Stripe uses smallest currency unit)
+	amountInCents := int64(payment.Amount * 100)
 
+	params := &stripe.PaymentIntentParams{
+		Amount:   stripe.Int64(amountInCents),
+		Currency: stripe.String(payment.Currency),
+		Metadata: map[string]string{
+			"order_id":   payment.OrderID.String(),
+			"user_id":    payment.UserID.String(),
+			"payment_id": payment.ID.String(),
+		},
+	}
 
+	pi, err := paymentintent.New(params)
+	if err != nil {
+		return "", "", fmt.Errorf("stripe payment failed: %w", err)
+	}
 
+	// Confirm the payment intent
+	confirmParams := &stripe.PaymentIntentConfirmParams{}
+	confirmedPI, err := paymentintent.Confirm(pi.ID, confirmParams)
+	if err != nil {
+		return pi.ID, "", fmt.Errorf("stripe confirmation failed: %w", err)
+	}
 
+	if confirmedPI.Status != stripe.PaymentIntentStatusSucceeded {
+		return pi.ID, string(confirmedPI.Status), fmt.Errorf("payment not successful: %s", confirmedPI.Status)
+	}
 
+	return pi.ID, string(confirmedPI.Status), nil
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}	return nil	// In production, you would use stripe.Refund API	// Note: This is a simplified implementationfunc (p *StripeProvider) RefundPayment(ctx context.Context, providerID string, amount float64) error {// RefundPayment processes a refund using Stripe}	return pi.ID, string(confirmedPI.Status), nil	}		return pi.ID, string(confirmedPI.Status), fmt.Errorf("payment not successful: %s", confirmedPI.Status)	if confirmedPI.Status != stripe.PaymentIntentStatusSucceeded {	}		return pi.ID, "", fmt.Errorf("stripe confirmation failed: %w", err)	if err != nil {	confirmedPI, err := paymentintent.Confirm(pi.ID, confirmParams)	confirmParams := &stripe.PaymentIntentConfirmParams{}	// Confirm the payment intent	}		return "", "", fmt.Errorf("stripe payment failed: %w", err)	if err != nil {	pi, err := paymentintent.New(params)	}		},			"payment_id": payment.ID.String(),			"user_id":    payment.UserID.String(),			"order_id":   payment.OrderID.String(),		Metadata: map[string]string{		Currency: stripe.String(payment.Currency),		Amount:   stripe.Int64(amountInCents),	params := &stripe.PaymentIntentParams{	amountInCents := int64(payment.Amount * 100)	// Convert amount to cents (Stripe uses smallest currency unit)func (p *StripeProvider) ProcessPayment(ctx context.Context, payment *domain.Payment) (string, string, error) {// ProcessPayment processes a payment using Stripe}	}		apiKey: apiKey,	return &StripeProvider{	stripe.Key = apiKeyfunc NewStripeProvider(apiKey string) *StripeProvider {// NewStripeProvider creates a new Stripe payment provider}	apiKey stringtype StripeProvider struct {// StripeProvider implements payment processing using Stripe)	"github.com/stripe/stripe-go/v76/paymentintent"	"github.com/stripe/stripe-go/v76"	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/domain"	"fmt"	"context"import (
+// RefundPayment processes a refund using Stripe
+func (p *StripeProvider) RefundPayment(ctx context.Context, providerID string, amount float64) error {
+	// Note: This is a simplified implementation
+	// In production, you would use stripe.Refund API
+	return nil
+}

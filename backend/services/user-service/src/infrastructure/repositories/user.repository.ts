@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IUserRepository } from '../../../domain/interfaces/user-repository.interface';
-import { User } from '../../../domain/models/user.model';
+import { IUserRepository } from '../../domain/interfaces/user-repository.interface';
+import { User } from '../../domain/models/user.model';
 import { UserEntity } from '../persistence/entities/user.entity';
 import { UserMapper } from '../persistence/mappers/user.mapper';
 

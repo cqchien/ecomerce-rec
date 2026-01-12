@@ -134,9 +134,9 @@ func (r *categoryRepository) GetWithProductCount(ctx context.Context) ([]domain.
 	}
 
 	categories := make([]domain.Category, len(results))
-	for i, r := range results {
-		category := r.modelToDomain(&r.Category)
-		category.ProductCount = r.ProductCount
+	for i, result := range results {
+		category := r.modelToDomain(&result.Category)
+		category.ProductCount = result.ProductCount
 		categories[i] = *category
 	}
 

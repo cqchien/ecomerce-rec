@@ -1,11 +1,11 @@
-name: vici
+name: vici-services
 services:
   # API Gateway - Main entry point
   api-gateway:
     build:
       context: ../services/api-gateway
       dockerfile: Dockerfile
-    container_name: vici-api-gateway
+    container_name: api-gateway
     ports:
       - "3000:3000"
     environment:
@@ -49,7 +49,7 @@ services:
     build:
       context: ../services/auth-service
       dockerfile: Dockerfile
-    container_name: vici-auth-service
+    container_name: auth-service
     ports:
       - "3001:3001"
     environment:
@@ -59,7 +59,9 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: auth_db
+      DB_DATABASE: auth_db
       DB_USER: ${POSTGRES_USER}
+      DB_USERNAME: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       # Redis
       REDIS_HOST: redis
@@ -78,7 +80,7 @@ services:
     build:
       context: ../services/user-service
       dockerfile: Dockerfile
-    container_name: vici-user-service
+    container_name: user-service
     ports:
       - "5002:5002"
       - "5001:5001"
@@ -108,9 +110,9 @@ services:
   # Product Service (Go)
   product-service:
     build:
-      context: ../services/product-service
-      dockerfile: Dockerfile
-    container_name: vici-product-service
+      context: ..
+      dockerfile: services/product-service/Dockerfile
+    container_name: product-service
     ports:
       - "4001:4001"
       - "4003:4003"
@@ -137,9 +139,6 @@ services:
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET: products
       MINIO_USE_SSL: "false"
-    depends_on:
-      - postgres
-      - redis
     networks:
       - vici-network
     restart: unless-stopped
@@ -147,9 +146,9 @@ services:
   # Inventory Service (Go)
   inventory-service:
     build:
-      context: ../services/inventory-service
-      dockerfile: Dockerfile
-    container_name: vici-inventory-service
+      context: ..
+      dockerfile: services/inventory-service/Dockerfile
+    container_name: inventory-service
     ports:
       - "4002:4002"
       - "4004:4004"
@@ -172,10 +171,6 @@ services:
       REDIS_DB: 0
       # Kafka
       KAFKA_BROKERS: kafka:9092
-    depends_on:
-      - postgres
-      - redis
-      - kafka
     networks:
       - vici-network
     restart: unless-stopped
@@ -183,9 +178,9 @@ services:
   # Cart Service (Go)
   cart-service:
     build:
-      context: ../services/cart-service
-      dockerfile: Dockerfile
-    container_name: vici-cart-service
+      context: ..
+      dockerfile: services/cart-service/Dockerfile
+    container_name: cart-service
     ports:
       - "3003:3003"
       - "50053:50053"
@@ -209,9 +204,6 @@ services:
       # Cart settings
       CART_ABANDONED_DAYS: 7
       CART_EXPIRY_DAYS: 30
-    depends_on:
-      - postgres
-      - redis
     networks:
       - vici-network
     restart: unless-stopped
@@ -219,9 +211,9 @@ services:
   # Order Service (Go)
   order-service:
     build:
-      context: ../services/order-service
-      dockerfile: Dockerfile
-    container_name: vici-order-service
+      context: ..
+      dockerfile: services/order-service/Dockerfile
+    container_name: order-service
     ports:
       - "3005:3005"
       - "50054:50054"
@@ -231,6 +223,7 @@ services:
       GRPC_PORT: 50054
       LOG_LEVEL: info
       # Database
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/order_db?sslmode=disable
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: order_db
@@ -242,9 +235,6 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_DB: 0
-    depends_on:
-      - postgres
-      - redis
     networks:
       - vici-network
     restart: unless-stopped
@@ -252,45 +242,58 @@ services:
   # Payment Service (Go)
   payment-service:
     build:
-      context: ../services/payment-service
-      dockerfile: Dockerfile
-    container_name: vici-payment-service
+      context: ..
+      dockerfile: services/payment-service/Dockerfile
+    container_name: payment-service
     ports:
-      - "3006:3006"
-      - "50055:50055"
+      - "3006:3006"      # HTTP port
+      - "50055:50055"    # gRPC port
     environment:
+      # Service Configuration
       SERVICE_NAME: payment-service
       PORT: 3006
       GRPC_PORT: 50055
       LOG_LEVEL: info
-      # Database
+      
+      # Database Configuration
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/payment_db?sslmode=disable
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: payment_db
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SSL_MODE: disable
-      # Redis
+      
+      # Redis Configuration (Optional caching)
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_DB: 0
-      # Stripe
+      
+      # Stripe Configuration (Required)
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-pk_test_dummy}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_dummy}
-    depends_on:
-      - postgres
-      - redis
+      
+      # Service URLs (for future inter-service communication)
+      ORDER_SERVICE_GRPC: order-service:50054
+      EVENT_SERVICE_GRPC: event-service:50056
     networks:
       - vici-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3006/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
 
   # Event Service (Go)
   event-service:
     build:
-      context: ../services/event-service
-      dockerfile: Dockerfile
-    container_name: vici-event-service
+      context: ..
+      dockerfile: services/event-service/Dockerfile
+    container_name: event-service
     ports:
       - "3007:3007"
       - "50056:50056"
@@ -315,10 +318,6 @@ services:
       KAFKA_BROKERS: kafka:9092
       KAFKA_TOPIC: ecommerce-events
       KAFKA_CONSUMER_GROUP: event-service-group
-    depends_on:
-      - postgres
-      - redis
-      - kafka
     networks:
       - vici-network
     restart: unless-stopped
@@ -328,7 +327,7 @@ services:
     build:
       context: ../services/notification-service
       dockerfile: Dockerfile
-    container_name: vici-notification-service
+    container_name: notification-service
     ports:
       - "3008:3008"
     environment:
@@ -338,7 +337,9 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: notification_db
+      DB_DATABASE: notification_db
       DB_USER: ${POSTGRES_USER}
+      DB_USERNAME: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       # Redis
       REDIS_HOST: redis
@@ -358,9 +359,9 @@ services:
   # Recommendation Service (Go)
   recommendation-service:
     build:
-      context: ../services/recommendation-service
-      dockerfile: Dockerfile
-    container_name: vici-recommendation-service
+      context: ..
+      dockerfile: services/recommendation-service/Dockerfile
+    container_name: recommendation-service
     ports:
       - "4005:4005"
     environment:
@@ -373,15 +374,12 @@ services:
       DB_NAME: recommendation_db
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_SSL_MODE: disable
+      DB_SSLMODE: disable
       # Redis
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_DB: 0
-    depends_on:
-      - postgres
-      - redis
     networks:
       - vici-network
     restart: unless-stopped
@@ -389,3 +387,4 @@ services:
 networks:
   vici-network:
     external: true
+    name: vici-infrastructures_vici-network

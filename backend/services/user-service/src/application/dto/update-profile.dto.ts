@@ -1,5 +1,5 @@
 import { IsString, IsEmail, IsOptional, MinLength, MaxLength } from 'class-validator';
-import { MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_PHONE_LENGTH } from '../common/constants';
+import { MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_PHONE_LENGTH } from '../../common/constants';
 
 export class UpdateProfileDto {
   @IsString()

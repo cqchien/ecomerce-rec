@@ -11,7 +11,6 @@ import (
 	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/infrastructure/database"
 	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/infrastructure/kafka"
 	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/infrastructure/models"
-	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/infrastructure/redis"
 	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/repository/postgres"
 	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/usecase"
 	"github.com/cqchien/ecomerce-rec/backend/services/event-service/pkg/config"
@@ -24,7 +23,7 @@ func main() {
 	cfg := config.Load()
 
 	// Initialize logger
-	log := logger.New(cfg.LogLevel)
+	log := logger.New("event-service", cfg.LogLevel)
 	log.Info("Starting event service...")
 
 	// Connect to PostgreSQL
@@ -40,9 +39,9 @@ func main() {
 	}
 	log.Info("Database migration completed")
 
-	// Connect to Redis
-	redisClient := redis.NewRedisClient(cfg.RedisURL)
-	log.Info("Connected to Redis")
+	// Connect to Redis (if needed in the future)
+	// redisClient := redis.NewRedisClient(cfg.RedisURL)
+	// log.Info("Connected to Redis")
 
 	// Initialize Kafka publisher
 	brokers := strings.Split(cfg.KafkaBrokers, ",")

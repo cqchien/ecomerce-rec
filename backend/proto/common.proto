@@ -8,6 +8,8 @@ option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
 message PaginationRequest {
   int32 page = 1;
   int32 limit = 2;
+  int32 page_number = 3;
+  int32 page_size = 4;
 }
 
 // Pagination response

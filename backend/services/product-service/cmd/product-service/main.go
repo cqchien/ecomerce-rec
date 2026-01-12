@@ -37,7 +37,14 @@ func main() {
 	if err != nil {
 		appLogger.Fatal("Failed to connect to database", "error", err)
 	}
-	defer db.Close()
+	defer func() {
+		sqlDB, err := db.DB()
+		if err != nil {
+			appLogger.Error("Failed to get database instance", "error", err)
+			return
+		}
+		sqlDB.Close()
+	}()
 
 	// Run migrations
 	if err := database.RunMigrations(db); err != nil {

@@ -1,0 +1,168 @@
+syntax = "proto3";
+
+package payment;
+
+import "common.proto";
+
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
+
+// Payment Service - manages payment processing
+service PaymentService {
+  // Create payment intent
+  rpc CreatePaymentIntent(CreatePaymentIntentRequest) returns (CreatePaymentIntentResponse);
+  
+  // Confirm payment
+  rpc ConfirmPayment(ConfirmPaymentRequest) returns (ConfirmPaymentResponse);
+  
+  // Cancel payment
+  rpc CancelPayment(CancelPaymentRequest) returns (CancelPaymentResponse);
+  
+  // Refund payment
+  rpc RefundPayment(RefundPaymentRequest) returns (RefundPaymentResponse);
+  
+  // Get payment status
+  rpc GetPaymentStatus(GetPaymentStatusRequest) returns (GetPaymentStatusResponse);
+  
+  // Get payment methods for user
+  rpc GetPaymentMethods(GetPaymentMethodsRequest) returns (GetPaymentMethodsResponse);
+  
+  // Add payment method
+  rpc AddPaymentMethod(AddPaymentMethodRequest) returns (AddPaymentMethodResponse);
+  
+  // Remove payment method
+  rpc RemovePaymentMethod(RemovePaymentMethodRequest) returns (RemovePaymentMethodResponse);
+}
+
+// Payment status enum
+enum PaymentStatus {
+  PENDING = 0;
+  PROCESSING = 1;
+  SUCCEEDED = 2;
+  FAILED = 3;
+  CANCELLED = 4;
+  REFUNDED = 5;
+}
+
+// Payment method type
+enum PaymentMethodType {
+  CREDIT_CARD = 0;
+  DEBIT_CARD = 1;
+  PAYPAL = 2;
+  BANK_TRANSFER = 3;
+  CASH_ON_DELIVERY = 4;
+}
+
+// Payment message
+message Payment {
+  string id = 1;
+  string order_id = 2;
+  string user_id = 3;
+  common.Money amount = 4;
+  PaymentStatus status = 5;
+  PaymentMethodType method = 6;
+  string transaction_id = 7;
+  string error_message = 8;
+  common.Timestamp created_at = 9;
+  common.Timestamp updated_at = 10;
+}
+
+// Payment method
+message PaymentMethod {
+  string id = 1;
+  string user_id = 2;
+  PaymentMethodType type = 3;
+  string last4 = 4; // Last 4 digits of card
+  string brand = 5; // Visa, Mastercard, etc.
+  int32 exp_month = 6;
+  int32 exp_year = 7;
+  bool is_default = 8;
+  common.Timestamp created_at = 9;
+}
+
+// Create payment intent request
+message CreatePaymentIntentRequest {
+  string order_id = 1;
+  string user_id = 2;
+  common.Money amount = 3;
+  PaymentMethodType method = 4;
+  string payment_method_id = 5;
+  map<string, string> metadata = 6;
+}
+
+message CreatePaymentIntentResponse {
+  string payment_intent_id = 1;
+  string client_secret = 2;
+  PaymentStatus status = 3;
+}
+
+// Confirm payment request
+message ConfirmPaymentRequest {
+  string payment_intent_id = 1;
+  string payment_method_id = 2;
+}
+
+message ConfirmPaymentResponse {
+  Payment payment = 1;
+}
+
+// Cancel payment request
+message CancelPaymentRequest {
+  string payment_id = 1;
+  string reason = 2;
+}
+
+message CancelPaymentResponse {
+  Payment payment = 1;
+}
+
+// Refund payment request
+message RefundPaymentRequest {
+  string payment_id = 1;
+  common.Money amount = 2; // Partial or full refund
+  string reason = 3;
+}
+
+message RefundPaymentResponse {
+  Payment payment = 1;
+  string refund_id = 2;
+}
+
+// Get payment status request
+message GetPaymentStatusRequest {
+  string payment_id = 1;
+}
+
+message GetPaymentStatusResponse {
+  Payment payment = 1;
+}
+
+// Get payment methods request
+message GetPaymentMethodsRequest {
+  string user_id = 1;
+}
+
+message GetPaymentMethodsResponse {
+  repeated PaymentMethod payment_methods = 1;
+}
+
+// Add payment method request
+message AddPaymentMethodRequest {
+  string user_id = 1;
+  PaymentMethodType type = 2;
+  string token = 3; // Tokenized payment info
+  bool set_as_default = 4;
+}
+
+message AddPaymentMethodResponse {
+  PaymentMethod payment_method = 1;
+}
+
+// Remove payment method request
+message RemovePaymentMethodRequest {
+  string payment_method_id = 1;
+  string user_id = 2;
+}
+
+message RemovePaymentMethodResponse {
+  bool success = 1;
+}

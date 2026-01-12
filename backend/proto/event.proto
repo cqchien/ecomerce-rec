@@ -16,6 +16,12 @@ service EventService {
   
   // Get user events (for debugging/admin)
   rpc GetUserEvents(GetUserEventsRequest) returns (GetUserEventsResponse);
+  
+  // Publish event to event store
+  rpc PublishEvent(PublishEventRequest) returns (PublishEventResponse);
+  
+  // Get event by ID
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse);
 }
 
 // User event types
@@ -105,4 +111,34 @@ message GetUserEventsRequest {
 message GetUserEventsResponse {
   repeated UserEvent events = 1;
   common.PaginationResponse pagination = 2;
+}
+
+// Publish event request
+message PublishEventRequest {
+  string type = 1;
+  string aggregate_id = 2;
+  map<string, string> payload = 3;
+}
+
+message PublishEventResponse {
+  Event event = 1;
+}
+
+// Get event request
+message GetEventRequest {
+  string id = 1;
+}
+
+message GetEventResponse {
+  Event event = 1;
+}
+
+// Event message
+message Event {
+  string id = 1;
+  string type = 2;
+  string aggregate_id = 3;
+  map<string, string> payload = 4;
+  string status = 5;
+  int64 created_at = 6;
 }

@@ -28,7 +28,15 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   await app.listen(port);
-  console.log(`🚀 Auth Service is running on: http://localhost:${port}`);
+  
+  const logData = {
+    time: new Date().toISOString(),
+    level: 'INFO',
+    msg: 'Auth Service started successfully',
+    service: 'auth-service',
+    port: port
+  };
+  console.log(JSON.stringify(logData));
 }
 
 bootstrap();

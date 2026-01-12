@@ -757,6 +757,285 @@ func (x *GetUserEventsResponse) GetPagination() *PaginationResponse {
 	return nil
 }
 
+// Publish event request
+type PublishEventRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	AggregateId   string                 `protobuf:"bytes,2,opt,name=aggregate_id,json=aggregateId,proto3" json:"aggregate_id,omitempty"`
+	Payload       map[string]string      `protobuf:"bytes,3,rep,name=payload,proto3" json:"payload,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishEventRequest) Reset() {
+	*x = PublishEventRequest{}
+	mi := &file_event_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishEventRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishEventRequest) ProtoMessage() {}
+
+func (x *PublishEventRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_event_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishEventRequest.ProtoReflect.Descriptor instead.
+func (*PublishEventRequest) Descriptor() ([]byte, []int) {
+	return file_event_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *PublishEventRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *PublishEventRequest) GetAggregateId() string {
+	if x != nil {
+		return x.AggregateId
+	}
+	return ""
+}
+
+func (x *PublishEventRequest) GetPayload() map[string]string {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+type PublishEventResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Event         *Event                 `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishEventResponse) Reset() {
+	*x = PublishEventResponse{}
+	mi := &file_event_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishEventResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishEventResponse) ProtoMessage() {}
+
+func (x *PublishEventResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_event_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishEventResponse.ProtoReflect.Descriptor instead.
+func (*PublishEventResponse) Descriptor() ([]byte, []int) {
+	return file_event_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *PublishEventResponse) GetEvent() *Event {
+	if x != nil {
+		return x.Event
+	}
+	return nil
+}
+
+// Get event request
+type GetEventRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEventRequest) Reset() {
+	*x = GetEventRequest{}
+	mi := &file_event_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEventRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEventRequest) ProtoMessage() {}
+
+func (x *GetEventRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_event_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEventRequest.ProtoReflect.Descriptor instead.
+func (*GetEventRequest) Descriptor() ([]byte, []int) {
+	return file_event_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetEventRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetEventResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Event         *Event                 `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEventResponse) Reset() {
+	*x = GetEventResponse{}
+	mi := &file_event_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEventResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEventResponse) ProtoMessage() {}
+
+func (x *GetEventResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_event_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEventResponse.ProtoReflect.Descriptor instead.
+func (*GetEventResponse) Descriptor() ([]byte, []int) {
+	return file_event_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetEventResponse) GetEvent() *Event {
+	if x != nil {
+		return x.Event
+	}
+	return nil
+}
+
+// Event message
+type Event struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	AggregateId   string                 `protobuf:"bytes,3,opt,name=aggregate_id,json=aggregateId,proto3" json:"aggregate_id,omitempty"`
+	Payload       map[string]string      `protobuf:"bytes,4,rep,name=payload,proto3" json:"payload,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	CreatedAt     int64                  `protobuf:"varint,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Event) Reset() {
+	*x = Event{}
+	mi := &file_event_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Event) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Event) ProtoMessage() {}
+
+func (x *Event) ProtoReflect() protoreflect.Message {
+	mi := &file_event_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Event.ProtoReflect.Descriptor instead.
+func (*Event) Descriptor() ([]byte, []int) {
+	return file_event_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *Event) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Event) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *Event) GetAggregateId() string {
+	if x != nil {
+		return x.AggregateId
+	}
+	return ""
+}
+
+func (x *Event) GetPayload() map[string]string {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *Event) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Event) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
 var File_event_proto protoreflect.FileDescriptor
 
 const file_event_proto_rawDesc = "" +
@@ -831,7 +1110,31 @@ const file_event_proto_rawDesc = "" +
 	"\x06events\x18\x01 \x03(\v2\x10.event.UserEventR\x06events\x12:\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2\x1a.common.PaginationResponseR\n" +
-	"pagination*\xf2\x01\n" +
+	"pagination\"\xcb\x01\n" +
+	"\x13PublishEventRequest\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12!\n" +
+	"\faggregate_id\x18\x02 \x01(\tR\vaggregateId\x12A\n" +
+	"\apayload\x18\x03 \x03(\v2'.event.PublishEventRequest.PayloadEntryR\apayload\x1a:\n" +
+	"\fPayloadEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\":\n" +
+	"\x14PublishEventResponse\x12\"\n" +
+	"\x05event\x18\x01 \x01(\v2\f.event.EventR\x05event\"!\n" +
+	"\x0fGetEventRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"6\n" +
+	"\x10GetEventResponse\x12\"\n" +
+	"\x05event\x18\x01 \x01(\v2\f.event.EventR\x05event\"\xf6\x01\n" +
+	"\x05Event\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12!\n" +
+	"\faggregate_id\x18\x03 \x01(\tR\vaggregateId\x123\n" +
+	"\apayload\x18\x04 \x03(\v2\x19.event.Event.PayloadEntryR\apayload\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\x03R\tcreatedAt\x1a:\n" +
+	"\fPayloadEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xf2\x01\n" +
 	"\tEventType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\r\n" +
 	"\tPAGE_VIEW\x10\x01\x12\x10\n" +
@@ -847,12 +1150,14 @@ const file_event_proto_rawDesc = "" +
 	"\rCATEGORY_VIEW\x10\n" +
 	"\x12\x10\n" +
 	"\fWISHLIST_ADD\x10\v\x12\x13\n" +
-	"\x0fWISHLIST_REMOVE\x10\f2\xf2\x01\n" +
+	"\x0fWISHLIST_REMOVE\x10\f2\xf8\x02\n" +
 	"\fEventService\x12A\n" +
 	"\n" +
 	"TrackEvent\x12\x18.event.TrackEventRequest\x1a\x19.event.TrackEventResponse\x12S\n" +
 	"\x10BatchTrackEvents\x12\x1e.event.BatchTrackEventsRequest\x1a\x1f.event.BatchTrackEventsResponse\x12J\n" +
-	"\rGetUserEvents\x12\x1b.event.GetUserEventsRequest\x1a\x1c.event.GetUserEventsResponseB/Z-github.com/cqchien/ecomerce-rec/backend/protob\x06proto3"
+	"\rGetUserEvents\x12\x1b.event.GetUserEventsRequest\x1a\x1c.event.GetUserEventsResponse\x12G\n" +
+	"\fPublishEvent\x12\x1a.event.PublishEventRequest\x1a\x1b.event.PublishEventResponse\x12;\n" +
+	"\bGetEvent\x12\x16.event.GetEventRequest\x1a\x17.event.GetEventResponseB/Z-github.com/cqchien/ecomerce-rec/backend/protob\x06proto3"
 
 var (
 	file_event_proto_rawDescOnce sync.Once
@@ -867,7 +1172,7 @@ func file_event_proto_rawDescGZIP() []byte {
 }
 
 var file_event_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_event_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_event_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_event_proto_goTypes = []any{
 	(EventType)(0),                   // 0: event.EventType
 	(*UserEvent)(nil),                // 1: event.UserEvent
@@ -879,38 +1184,53 @@ var file_event_proto_goTypes = []any{
 	(*BatchTrackEventsResponse)(nil), // 7: event.BatchTrackEventsResponse
 	(*GetUserEventsRequest)(nil),     // 8: event.GetUserEventsRequest
 	(*GetUserEventsResponse)(nil),    // 9: event.GetUserEventsResponse
-	nil,                              // 10: event.UserEvent.PropertiesEntry
-	nil,                              // 11: event.TrackEventRequest.MetadataEntry
-	(*Timestamp)(nil),                // 12: common.Timestamp
-	(*PaginationRequest)(nil),        // 13: common.PaginationRequest
-	(*PaginationResponse)(nil),       // 14: common.PaginationResponse
+	(*PublishEventRequest)(nil),      // 10: event.PublishEventRequest
+	(*PublishEventResponse)(nil),     // 11: event.PublishEventResponse
+	(*GetEventRequest)(nil),          // 12: event.GetEventRequest
+	(*GetEventResponse)(nil),         // 13: event.GetEventResponse
+	(*Event)(nil),                    // 14: event.Event
+	nil,                              // 15: event.UserEvent.PropertiesEntry
+	nil,                              // 16: event.TrackEventRequest.MetadataEntry
+	nil,                              // 17: event.PublishEventRequest.PayloadEntry
+	nil,                              // 18: event.Event.PayloadEntry
+	(*Timestamp)(nil),                // 19: common.Timestamp
+	(*PaginationRequest)(nil),        // 20: common.PaginationRequest
+	(*PaginationResponse)(nil),       // 21: common.PaginationResponse
 }
 var file_event_proto_depIdxs = []int32{
 	0,  // 0: event.UserEvent.event_type:type_name -> event.EventType
-	10, // 1: event.UserEvent.properties:type_name -> event.UserEvent.PropertiesEntry
-	12, // 2: event.UserEvent.timestamp:type_name -> common.Timestamp
+	15, // 1: event.UserEvent.properties:type_name -> event.UserEvent.PropertiesEntry
+	19, // 2: event.UserEvent.timestamp:type_name -> common.Timestamp
 	0,  // 3: event.TrackEventRequest.event_type:type_name -> event.EventType
 	2,  // 4: event.TrackEventRequest.product_event:type_name -> event.ProductEvent
 	3,  // 5: event.TrackEventRequest.search_event:type_name -> event.SearchEvent
-	11, // 6: event.TrackEventRequest.metadata:type_name -> event.TrackEventRequest.MetadataEntry
+	16, // 6: event.TrackEventRequest.metadata:type_name -> event.TrackEventRequest.MetadataEntry
 	4,  // 7: event.BatchTrackEventsRequest.events:type_name -> event.TrackEventRequest
-	13, // 8: event.GetUserEventsRequest.pagination:type_name -> common.PaginationRequest
+	20, // 8: event.GetUserEventsRequest.pagination:type_name -> common.PaginationRequest
 	0,  // 9: event.GetUserEventsRequest.event_type:type_name -> event.EventType
-	12, // 10: event.GetUserEventsRequest.from_time:type_name -> common.Timestamp
-	12, // 11: event.GetUserEventsRequest.to_time:type_name -> common.Timestamp
+	19, // 10: event.GetUserEventsRequest.from_time:type_name -> common.Timestamp
+	19, // 11: event.GetUserEventsRequest.to_time:type_name -> common.Timestamp
 	1,  // 12: event.GetUserEventsResponse.events:type_name -> event.UserEvent
-	14, // 13: event.GetUserEventsResponse.pagination:type_name -> common.PaginationResponse
-	4,  // 14: event.EventService.TrackEvent:input_type -> event.TrackEventRequest
-	6,  // 15: event.EventService.BatchTrackEvents:input_type -> event.BatchTrackEventsRequest
-	8,  // 16: event.EventService.GetUserEvents:input_type -> event.GetUserEventsRequest
-	5,  // 17: event.EventService.TrackEvent:output_type -> event.TrackEventResponse
-	7,  // 18: event.EventService.BatchTrackEvents:output_type -> event.BatchTrackEventsResponse
-	9,  // 19: event.EventService.GetUserEvents:output_type -> event.GetUserEventsResponse
-	17, // [17:20] is the sub-list for method output_type
-	14, // [14:17] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	21, // 13: event.GetUserEventsResponse.pagination:type_name -> common.PaginationResponse
+	17, // 14: event.PublishEventRequest.payload:type_name -> event.PublishEventRequest.PayloadEntry
+	14, // 15: event.PublishEventResponse.event:type_name -> event.Event
+	14, // 16: event.GetEventResponse.event:type_name -> event.Event
+	18, // 17: event.Event.payload:type_name -> event.Event.PayloadEntry
+	4,  // 18: event.EventService.TrackEvent:input_type -> event.TrackEventRequest
+	6,  // 19: event.EventService.BatchTrackEvents:input_type -> event.BatchTrackEventsRequest
+	8,  // 20: event.EventService.GetUserEvents:input_type -> event.GetUserEventsRequest
+	10, // 21: event.EventService.PublishEvent:input_type -> event.PublishEventRequest
+	12, // 22: event.EventService.GetEvent:input_type -> event.GetEventRequest
+	5,  // 23: event.EventService.TrackEvent:output_type -> event.TrackEventResponse
+	7,  // 24: event.EventService.BatchTrackEvents:output_type -> event.BatchTrackEventsResponse
+	9,  // 25: event.EventService.GetUserEvents:output_type -> event.GetUserEventsResponse
+	11, // 26: event.EventService.PublishEvent:output_type -> event.PublishEventResponse
+	13, // 27: event.EventService.GetEvent:output_type -> event.GetEventResponse
+	23, // [23:28] is the sub-list for method output_type
+	18, // [18:23] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_event_proto_init() }
@@ -929,7 +1249,7 @@ func file_event_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_event_proto_rawDesc), len(file_event_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   11,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

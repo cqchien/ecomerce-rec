@@ -8,7 +8,7 @@ import {
   MAX_STATE_LENGTH,
   MAX_POSTAL_CODE_LENGTH,
   MAX_COUNTRY_LENGTH,
-} from '../common/constants';
+} from '../../common/constants';
 
 export class AddAddressDto {
   @IsString()

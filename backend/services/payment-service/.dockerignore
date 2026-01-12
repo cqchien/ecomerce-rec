@@ -1,8 +1,50 @@
+# Environment files
 .env
-.env.example
+.env.local
+.env.*.local
+
+# Git
 .git
 .gitignore
+.gitattributes
+
+# Documentation
 README.md
 *.md
+docs/
+
+# IDE
 .vscode
 .idea
+*.swp
+*.swo
+*~
+
+# Build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+payment-service
+main
+
+# Test files
+*_test.go
+testdata/
+coverage.out
+coverage.html
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Development tools
+.air.toml
+Makefile

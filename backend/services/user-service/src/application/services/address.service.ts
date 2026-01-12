@@ -22,7 +22,7 @@ export class AddressService {
     const cached = await this.redisService.get(cacheKey);
     
     if (cached) {
-      return JSON.parse(cached);
+      return JSON.parse(cached as string);
     }
 
     const addresses = await this.addressRepository.findByUserId(userId);

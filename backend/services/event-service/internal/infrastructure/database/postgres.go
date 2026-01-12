@@ -32,8 +32,13 @@ func ConnectPostgres(dsn string) (*gorm.DB, error) {
 
 // RunMigrations runs database migrations
 func RunMigrations(db *gorm.DB) error {
+	// Import models from infrastructure/models
 	return db.AutoMigrate(
-		&models.Cart{},
-		&models.CartItem{},
+		&Event{},
 	)
+}
+
+// Event model for migration (reference from models package)
+type Event struct {
+	ID string `gorm:"primaryKey"`
 }

@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 
+	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/infrastructure/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -33,7 +34,6 @@ func ConnectPostgres(dsn string) (*gorm.DB, error) {
 // RunMigrations runs database migrations
 func RunMigrations(db *gorm.DB) error {
 	return db.AutoMigrate(
-		&models.Cart{},
-		&models.CartItem{},
+		&models.Payment{},
 	)
 }

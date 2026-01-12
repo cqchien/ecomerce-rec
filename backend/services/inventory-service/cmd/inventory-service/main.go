@@ -14,19 +14,19 @@ import (
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/infrastructure/database"
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/infrastructure/database/models"
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/infrastructure/redis"
-	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/repository/postgres"
+	postgresRepo "github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/repository/postgres"
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/usecase"
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/pkg/config"
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/pkg/logger"
 )
 
 func main() {
-	// Initialize logger
-	log := logger.NewLogger()
-	log.Info("Starting Inventory Service...")
-
 	// Load configuration
 	cfg := config.Load()
+
+	// Initialize logger
+	log := logger.New("inventory-service", cfg.LogLevel)
+	log.Info("Starting Inventory Service...")
 	log.Info("Configuration loaded", "environment", cfg.Environment)
 
 	// Connect to PostgreSQL
@@ -61,8 +61,8 @@ func main() {
 	}
 
 	// Initialize repositories
-	stockRepo := postgres.NewStockRepository(db)
-	reservationRepo := postgres.NewReservationRepository(db)
+	stockRepo := postgresRepo.NewStockRepository(db)
+	reservationRepo := postgresRepo.NewReservationRepository(db)
 	log.Info("Repositories initialized")
 
 	// Initialize use cases

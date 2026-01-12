@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IUserPreferencesRepository } from '../../../domain/interfaces/user-preferences-repository.interface';
-import { UserPreferences } from '../../../domain/models/user-preferences.model';
+import { IUserPreferencesRepository } from '../../domain/interfaces/user-preferences-repository.interface';
+import { UserPreferences } from '../../domain/models/user-preferences.model';
 import { UserPreferencesEntity } from '../persistence/entities/user-preferences.entity';
 import { UserPreferencesMapper } from '../persistence/mappers/user-preferences.mapper';
 

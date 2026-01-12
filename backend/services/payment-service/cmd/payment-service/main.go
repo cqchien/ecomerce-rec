@@ -22,7 +22,7 @@ func main() {
 	cfg := config.Load()
 
 	// Initialize logger
-	log := logger.New(cfg.LogLevel)
+	log := logger.New("payment-service", cfg.LogLevel)
 	log.Info("Starting payment service...")
 
 	// Connect to PostgreSQL
@@ -40,7 +40,7 @@ func main() {
 
 	// Connect to Redis
 	redisClient := redis.NewRedisClient(cfg.RedisURL)
-	log.Info("Connected to Redis")
+	log.Info("Connected to Redis", "client", redisClient != nil)
 
 	// Initialize Stripe provider
 	stripeProvider := payment.NewStripeProvider(cfg.StripeSecretKey)
@@ -54,6 +54,7 @@ func main() {
 
 	// Initialize gRPC handler
 	paymentHandler := grpc.NewPaymentHandler(paymentUseCase)
+	log.Info("Payment handler initialized", "handler", paymentHandler != nil)
 
 	// Start HTTP server for health checks
 	go func() {

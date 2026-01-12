@@ -6,9 +6,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
-	pb "github.com/cqchien/ecomerce-rec/backend/proto/inventory"
+	pb "github.com/cqchien/ecomerce-rec/backend/proto"
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/domain"
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/infrastructure/database/models"
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/usecase"
@@ -203,7 +202,10 @@ func (s *inventoryServer) UpdateStock(ctx context.Context, req *pb.UpdateStockRe
 			Reserved:    int32(stock.Reserved),
 			Total:       int32(stock.Total),
 			WarehouseId: stock.WarehouseID,
-			UpdatedAt:   timestamppb.New(stock.UpdatedAt),
+			UpdatedAt: &pb.Timestamp{
+				Seconds: stock.UpdatedAt.Unix(),
+				Nanos:   int32(stock.UpdatedAt.Nanosecond()),
+			},
 		},
 	}, nil
 }
@@ -230,7 +232,10 @@ func (s *inventoryServer) GetStock(ctx context.Context, req *pb.GetStockRequest)
 			Reserved:    int32(stock.Reserved),
 			Total:       int32(stock.Total),
 			WarehouseId: stock.WarehouseID,
-			UpdatedAt:   timestamppb.New(stock.UpdatedAt),
+			UpdatedAt: &pb.Timestamp{
+				Seconds: stock.UpdatedAt.Unix(),
+				Nanos:   int32(stock.UpdatedAt.Nanosecond()),
+			},
 		},
 	}, nil
 }

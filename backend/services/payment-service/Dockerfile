@@ -1,17 +1,20 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
 # Install build dependencies
 RUN apk add --no-cache git
 
-# Copy go mod files
-COPY go.mod go.sum ./
-RUN go mod download
+# Copy proto directory
+COPY proto/ /proto/
 
-# Copy source code
-COPY . .
+# Copy source code first
+COPY services/payment-service/ ./
+
+# Tidy and download dependencies
+RUN go mod tidy
+RUN go mod download
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/payment-service
@@ -27,6 +30,6 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 COPY --from=builder /app/.env.example .env.example
 
-EXPOSE 3003 50053
+EXPOSE 3006 50055
 
 CMD ["./main"]

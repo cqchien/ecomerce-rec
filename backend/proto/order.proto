@@ -3,6 +3,7 @@ syntax = "proto3";
 package order;
 
 import "common.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
 
@@ -43,8 +44,8 @@ message Order {
   string payment_method = 12;
   string payment_id = 13;
   TrackingInfo tracking = 14;
-  common.Timestamp created_at = 15;
-  common.Timestamp updated_at = 16;
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
 }
 
 // Order item

@@ -14,9 +14,9 @@ async function bootstrap() {
   app.enableCors({
     origin: CORS_CONFIG.ORIGIN,
     credentials: CORS_CONFIG.CREDENTIALS,
-    methods: CORS_CONFIG.METHODS,
-    allowedHeaders: CORS_CONFIG.ALLOWED_HEADERS,
-    exposedHeaders: CORS_CONFIG.EXPOSED_HEADERS,
+    methods: CORS_CONFIG.METHODS as unknown as string[],
+    allowedHeaders: CORS_CONFIG.ALLOWED_HEADERS as unknown as string[],
+    exposedHeaders: CORS_CONFIG.EXPOSED_HEADERS as unknown as string[],
   });
 
   // Global validation pipe
@@ -41,9 +41,19 @@ async function bootstrap() {
   const port = process.env.PORT || PORT.HTTP;
   await app.listen(port);
 
-  console.log(`🚀 API Gateway is running on: http://localhost:${port}/api`);
-  console.log(`📋 Health check: http://localhost:${port}/api/health`);
-  console.log(`🔐 Auth endpoints: http://localhost:${port}/api/auth/*`);
+  const logData = {
+    time: new Date().toISOString(),
+    level: 'INFO',
+    msg: 'API Gateway started successfully',
+    service: 'api-gateway',
+    port: port,
+    endpoints: {
+      base: `/api`,
+      health: `/api/health`,
+      auth: `/api/auth/*`
+    }
+  };
+  console.log(JSON.stringify(logData));
 }
 
 bootstrap();

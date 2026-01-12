@@ -1,5 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DB_MAX_CONNECTIONS, DB_MIN_CONNECTIONS, DB_IDLE_TIMEOUT } from '../common/constants';
+import { DB_MAX_CONNECTIONS, DB_MIN_CONNECTIONS, DB_IDLE_TIMEOUT } from '../../common/constants';
 
 export const getDatabaseConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',

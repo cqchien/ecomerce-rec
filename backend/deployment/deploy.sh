@@ -39,7 +39,7 @@ check_docker() {
 # Function to start infrastructure
 start_infrastructure() {
     print_info "Starting infrastructure services..."
-    docker-compose up -d
+    docker-compose up -d --remove-orphans --force-recreate
     print_info "Waiting for infrastructure to be healthy..."
     sleep 10
     docker-compose ps
@@ -48,18 +48,13 @@ start_infrastructure() {
 # Function to start application services
 start_services() {
     print_info "Building and starting application services..."
-    docker-compose -f services.docker-compose.yml up -d --build
-    print_info "Waiting for services to start..."
-    sleep 5
-    docker-compose -f services.docker-compose.yml ps
+    docker-compose -f services.docker-compose.yml up -d --build --remove-orphans --force-recreate
 }
 
 # Function to stop all services
 stop_all() {
-    print_info "Stopping application services..."
-    docker-compose -f services.docker-compose.yml down
-    print_info "Stopping infrastructure services..."
-    docker-compose down
+    print_info "Stopping all services..."
+    docker-compose -f docker-compose.yml -f services.docker-compose.yml down
 }
 
 # Function to restart services
@@ -72,20 +67,17 @@ restart_services() {
 show_logs() {
     if [ -z "$1" ]; then
         print_info "Showing logs for all services..."
-        docker-compose -f services.docker-compose.yml logs -f
+        docker-compose -f docker-compose.yml -f services.docker-compose.yml logs -f
     else
         print_info "Showing logs for $1..."
-        docker-compose -f services.docker-compose.yml logs -f "$1"
+        docker-compose -f docker-compose.yml -f services.docker-compose.yml logs -f "$1"
     fi
 }
 
 # Function to show status
 show_status() {
-    print_info "Infrastructure services:"
-    docker-compose ps
-    echo ""
-    print_info "Application services:"
-    docker-compose -f services.docker-compose.yml ps
+    print_info "All services:"
+    docker-compose -f docker-compose.yml -f services.docker-compose.yml ps
 }
 
 # Function to rebuild a specific service
@@ -95,7 +87,7 @@ rebuild_service() {
         exit 1
     fi
     print_info "Rebuilding $1..."
-    docker-compose -f services.docker-compose.yml up -d --build "$1"
+    docker-compose -f services.docker-compose.yml up -d --build "$1" --remove-orphans --force-recreate
 }
 
 # Function to clean everything
@@ -105,8 +97,7 @@ clean_all() {
     echo
     if [[ $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
         print_info "Cleaning up..."
-        docker-compose -f services.docker-compose.yml down -v
-        docker-compose down -v
+        docker-compose -f docker-compose.yml -f services.docker-compose.yml down -v
         print_info "Cleanup complete"
     else
         print_info "Cleanup cancelled"
@@ -157,7 +148,7 @@ case "$1" in
     start-infra)
         start_infrastructure
         ;;
-    start-apps)
+    start-services)
         start_services
         ;;
     stop)

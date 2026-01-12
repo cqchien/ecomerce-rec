@@ -16,18 +16,16 @@ func NewServer(port string) *Server {
 
 // Start starts the HTTP server
 func (s *Server) Start() error {
-	s := &Server{
-		logger: logger,
-	}
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", s.healthCheck)
 	mux.HandleFunc("/ready", s.readyCheck)
 
-	return &http.Server{
-		Addr:    ":" + port,
+	server := &http.Server{
+		Addr:    ":" + s.port,
 		Handler: mux,
 	}
+
+	return server.ListenAndServe()
 }
 
 func (s *Server) healthCheck(w http.ResponseWriter, r *http.Request) {

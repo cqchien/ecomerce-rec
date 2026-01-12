@@ -2,8 +2,9 @@ package grpc
 
 import (
 	"context"
+	"time"
 
-	pb "github.com/cqchien/ecomerce-rec/backend/proto/product"
+	pb "github.com/cqchien/ecomerce-rec/backend/proto"
 	"github.com/cqchien/ecomerce-rec/backend/services/product-service/internal/domain"
 	"github.com/cqchien/ecomerce-rec/backend/services/product-service/internal/infrastructure/database/models"
 	"github.com/cqchien/ecomerce-rec/backend/services/product-service/internal/usecase"
@@ -11,7 +12,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type productServer struct {
@@ -72,10 +72,10 @@ func (s *productServer) ListProducts(ctx context.Context, req *pb.ListProductsRe
 	return &pb.ListProductsResponse{
 		Products: products,
 		Pagination: &pb.PaginationResponse{
-			TotalItems:  result.Total,
-			TotalPages:  result.TotalPages,
-			CurrentPage: result.Page,
-			PageSize:    result.Limit,
+			Total:      result.Total,
+			TotalPages: result.TotalPages,
+			Page:       result.Page,
+			Limit:      result.Limit,
 		},
 	}, nil
 }
@@ -103,10 +103,10 @@ func (s *productServer) SearchProducts(ctx context.Context, req *pb.SearchProduc
 	return &pb.SearchProductsResponse{
 		Products: products,
 		Pagination: &pb.PaginationResponse{
-			TotalItems:  result.Total,
-			TotalPages:  result.TotalPages,
-			CurrentPage: result.Page,
-			PageSize:    result.Limit,
+			Total:      result.Total,
+			TotalPages: result.TotalPages,
+			Page:       result.Page,
+			Limit:      result.Limit,
 		},
 		Suggestions: []string{}, // TODO: Implement search suggestions
 	}, nil
@@ -343,8 +343,8 @@ func (s *productServer) domainToProtoProduct(product *domain.Product) *pb.Produc
 		IsOnSale:        product.IsOnSale,
 		Sku:             product.SKU,
 		Status:          s.productStatusToProto(product.Status),
-		CreatedAt:       timestamppb.New(product.CreatedAt),
-		UpdatedAt:       timestamppb.New(product.UpdatedAt),
+		CreatedAt:       timeToTimestamp(product.CreatedAt),
+		UpdatedAt:       timeToTimestamp(product.UpdatedAt),
 	}
 }
 
@@ -368,8 +368,8 @@ func (s *productServer) domainToProtoCategory(category *domain.Category) *pb.Cat
 		ProductCount: category.ProductCount,
 		SortOrder:    category.SortOrder,
 		IsActive:     category.IsActive,
-		CreatedAt:    timestamppb.New(category.CreatedAt),
-		UpdatedAt:    timestamppb.New(category.UpdatedAt),
+		CreatedAt:    timeToTimestamp(category.CreatedAt),
+		UpdatedAt:    timeToTimestamp(category.UpdatedAt),
 	}
 }
 
@@ -463,5 +463,16 @@ func (s *productServer) protoToProductStatus(status pb.ProductStatus) domain.Pro
 		return domain.ProductStatusDiscontinued
 	default:
 		return domain.ProductStatusActive
+	}
+}
+
+// timeToTimestamp converts time.Time to proto Timestamp
+func timeToTimestamp(t time.Time) *pb.Timestamp {
+	if t.IsZero() {
+		return nil
+	}
+	return &pb.Timestamp{
+		Seconds: t.Unix(),
+		Nanos:   int32(t.Nanosecond()),
 	}
 }
