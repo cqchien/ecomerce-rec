@@ -1,0 +1,28 @@
+import { Module, Global } from '@nestjs/common';
+import { AuthGrpcClient } from './auth-grpc.client';
+import { UserGrpcClient } from './user-grpc.client';
+import { ProductGrpcClient } from './product-grpc.client';
+import { CartGrpcClient } from './cart-grpc.client';
+import { OrderGrpcClient } from './order-grpc.client';
+import { PaymentGrpcClient } from './payment-grpc.client';
+
+@Global()
+@Module({
+  providers: [
+    AuthGrpcClient,
+    UserGrpcClient,
+    ProductGrpcClient,
+    CartGrpcClient,
+    OrderGrpcClient,
+    PaymentGrpcClient,
+  ],
+  exports: [
+    AuthGrpcClient,
+    UserGrpcClient,
+    ProductGrpcClient,
+    CartGrpcClient,
+    OrderGrpcClient,
+    PaymentGrpcClient,
+  ],
+})
+export class GrpcClientsModule {}

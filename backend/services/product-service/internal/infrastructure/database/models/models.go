@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -76,9 +77,9 @@ type Product struct {
 	OriginalPrice   int64             // in cents
 	CategoryID      string            `gorm:"type:varchar(36);not null;index"`
 	Category        *Category         `gorm:"foreignKey:CategoryID"`
-	Images          []string          `gorm:"type:text[];serializer:json"`
+	Images          pq.StringArray    `gorm:"type:text[]"`
 	Specifications  map[string]string `gorm:"type:jsonb;serializer:json"`
-	Tags            []string          `gorm:"type:text[];serializer:json"`
+	Tags            pq.StringArray    `gorm:"type:text[]"`
 	Rating          float64           `gorm:"type:decimal(3,2);default:0"`
 	ReviewCount     int32             `gorm:"default:0"`
 	IsFeatured      bool              `gorm:"default:false;index"`

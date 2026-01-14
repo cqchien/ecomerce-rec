@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
+
+// Pagination request
+message PaginationRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  int32 page_number = 3;
+  int32 page_size = 4;
+}
+
+// Pagination response
+message PaginationResponse {
+  int32 page = 1;
+  int32 limit = 2;
+  int64 total = 3;
+  int32 total_pages = 4;
+}
+
+// Standard response wrapper
+message Response {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+}
+
+// Timestamp
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}
+
+// Money representation
+message Money {
+  int64 amount_cents = 1;  // Amount in cents to avoid floating point
+  string currency = 2;     // ISO 4217 currency code (USD, EUR, etc.)
+}
+
+// Address
+message Address {
+  string id = 1;
+  string user_id = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string address_line1 = 5;
+  string address_line2 = 6;
+  string city = 7;
+  string state = 8;
+  string postal_code = 9;
+  string country = 10;
+  string phone = 11;
+  bool is_default = 12;
+  Timestamp created_at = 13;
+  Timestamp updated_at = 14;
+}
+
+// Filter operators
+enum FilterOperator {
+  EQUAL = 0;
+  NOT_EQUAL = 1;
+  GREATER_THAN = 2;
+  LESS_THAN = 3;
+  GREATER_OR_EQUAL = 4;
+  LESS_OR_EQUAL = 5;
+  IN = 6;
+  NOT_IN = 7;
+  LIKE = 8;
+  BETWEEN = 9;
+}
+
+// Sort direction
+enum SortDirection {
+  ASC = 0;
+  DESC = 1;
+}

@@ -3,8 +3,8 @@ services:
   # API Gateway - Main entry point
   api-gateway:
     build:
-      context: ../services/api-gateway
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: services/api-gateway/Dockerfile
     container_name: api-gateway
     ports:
       - "3000:3000"
@@ -47,19 +47,20 @@ services:
   # Auth Service
   auth-service:
     build:
-      context: ../services/auth-service
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: services/auth-service/Dockerfile
     container_name: auth-service
     ports:
-      - "3001:3001"
+      - "50051:50051"
     environment:
       NODE_ENV: production
-      PORT: 3001
+      GRPC_PORT: 50051
       # Database
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: auth_db
-      DB_DATABASE: auth_db
+      DB_NAME: ecommerce_db
+      DB_DATABASE: ecommerce_db
+      DB_SCHEMA: auth
       DB_USER: ${POSTGRES_USER}
       DB_USERNAME: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -78,20 +79,19 @@ services:
   # User Service
   user-service:
     build:
-      context: ../services/user-service
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: services/user-service/Dockerfile
     container_name: user-service
     ports:
-      - "5002:5002"
       - "5001:5001"
     environment:
       NODE_ENV: production
-      HTTP_PORT: 5002
       GRPC_PORT: 5001
       # Database
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: user_db
+      DB_NAME: ecommerce_db
+      DB_SCHEMA: users
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       # Redis
@@ -124,7 +124,8 @@ services:
       # Database
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: product_db
+      DB_NAME: ecommerce_db
+      DB_SCHEMA: products
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SSL_MODE: disable
@@ -160,7 +161,8 @@ services:
       # Database
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: inventory_db
+      DB_NAME: ecommerce_db
+      DB_SCHEMA: inventory
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SSL_MODE: disable
@@ -192,7 +194,8 @@ services:
       # Database
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: cart_db
+      DB_NAME: ecommerce_db
+      DB_SCHEMA: carts
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SSL_MODE: disable
@@ -223,10 +226,11 @@ services:
       GRPC_PORT: 50054
       LOG_LEVEL: info
       # Database
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/order_db?sslmode=disable
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/ecommerce_db?sslmode=disable&search_path=orders
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: order_db
+      DB_NAME: ecommerce_db
+      DB_SCHEMA: orders
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SSL_MODE: disable
@@ -256,10 +260,11 @@ services:
       LOG_LEVEL: info
       
       # Database Configuration
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/payment_db?sslmode=disable
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/ecommerce_db?sslmode=disable&search_path=payments
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: payment_db
+      DB_NAME: ecommerce_db
+      DB_SCHEMA: payments
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SSL_MODE: disable
@@ -305,7 +310,8 @@ services:
       # Database
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: event_db
+      DB_NAME: ecommerce_db
+      DB_SCHEMA: events
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SSL_MODE: disable
@@ -336,8 +342,9 @@ services:
       # Database
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: notification_db
-      DB_DATABASE: notification_db
+      DB_NAME: ecommerce_db
+      DB_DATABASE: ecommerce_db
+      DB_SCHEMA: notifications
       DB_USER: ${POSTGRES_USER}
       DB_USERNAME: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -371,7 +378,8 @@ services:
       # Database
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: recommendation_db
+      DB_NAME: ecommerce_db
+      DB_SCHEMA: recommendations
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SSLMODE: disable

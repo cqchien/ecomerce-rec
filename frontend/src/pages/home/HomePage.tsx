@@ -77,7 +77,7 @@ export const HomePage: React.FC = () => {
         </div>
         <div className="absolute top-[20%] right-[5%] w-48 h-48 md:w-64 md:h-64 rounded-3xl overflow-hidden shadow-2xl animate-product-float hidden lg:block rotate-3">
           <img
-            src="https://images.unsplash.com/photo-1559454403-b8fb87521bc7?auto=format&fit=crop&q=80&w=600"
+            src="https://hoangphuconline.vn/media/catalog/product/k/0/k0ex2td95d_0111_5__3.jpg?quality=100&fit=bounds&height=700&width=700&canvas=700:700"
             alt="Float 1"
             className="w-full h-full object-cover"
           />

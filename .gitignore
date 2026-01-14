@@ -17,6 +17,7 @@ out/
 bin/
 *.out
 *.exe
+*.json
 
 # Frontend
 frontend/dist/

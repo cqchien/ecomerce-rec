@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
+import { AuthGrpcController } from './auth.grpc.controller';
 import { AuthService } from './auth.service';
 import { User } from '../../common/entities/user.entity';
 import { RefreshToken } from '../../common/entities/refresh-token.entity';
@@ -27,7 +28,7 @@ import { RedisModule } from '../redis/redis.module';
     }),
     RedisModule,
   ],
-  controllers: [AuthController],
+  controllers: [AuthGrpcController],
   providers: [AuthService, JwtStrategy, LocalStrategy],
   exports: [AuthService],
 })

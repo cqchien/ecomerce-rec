@@ -72,7 +72,7 @@ func main() {
 	}
 
 	grpcSrv := grpcServer.NewServer()
-	// Note: Register with proto-generated service when available
+	// TODO: Payment handler needs to implement all PaymentServiceServer methods
 	// pb.RegisterPaymentServiceServer(grpcSrv, paymentHandler)
 
 	log.Info("gRPC server listening", "port", cfg.GRPCPort)

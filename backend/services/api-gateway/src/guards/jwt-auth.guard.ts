@@ -2,6 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { PUBLIC_ROUTES, ERROR_MESSAGES } from '../common/constants';
+import { IS_PUBLIC_KEY } from '../common/decorators/public.decorator';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -13,9 +14,16 @@ export class JwtAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     
-    // Check if route is public
-    const isPublic = this.isPublicRoute(request.path);
-    if (isPublic) {
+    // Check if route is marked as public via decorator
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    
+    // Also check PUBLIC_ROUTES constant for backwards compatibility
+    const isPublicRoute = this.isPublicRoute(request.path);
+    
+    if (isPublic || isPublicRoute) {
       return true;
     }
 

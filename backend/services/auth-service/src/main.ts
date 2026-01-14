@@ -1,40 +1,41 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
   const configService = app.get(ConfigService);
-  const port = configService.get('PORT') || 3001;
+  
+  const grpcPort = configService.get('GRPC_PORT') || '50051';
 
-  // Global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-
-  // CORS
-  app.enableCors({
-    origin: configService.get('CORS_ORIGIN'),
-    credentials: true,
+  // Configure gRPC microservice
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: 'auth',
+      protoPath: join(__dirname, '../proto/auth.proto'),
+      url: `0.0.0.0:${grpcPort}`,
+      loader: {
+        keepCase: true,
+        longs: String,
+        enums: String,
+        defaults: true,
+        oneofs: true,
+      },
+    },
   });
 
-  // Graceful shutdown
-  app.enableShutdownHooks();
-
-  await app.listen(port);
+  // Start all microservices
+  await app.startAllMicroservices();
   
   const logData = {
     time: new Date().toISOString(),
     level: 'INFO',
-    msg: 'Auth Service started successfully',
+    msg: 'Auth Service started (gRPC only)',
     service: 'auth-service',
-    port: port
+    grpcPort: grpcPort,
   };
   console.log(JSON.stringify(logData));
 }

@@ -1,0 +1,134 @@
+syntax = "proto3";
+
+package cart;
+
+import "common.proto";
+
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
+
+// Cart Service - manages shopping cart operations
+service CartService {
+  // Get user's cart
+  rpc GetCart(GetCartRequest) returns (GetCartResponse);
+  
+  // Add item to cart
+  rpc AddToCart(AddToCartRequest) returns (AddToCartResponse);
+  
+  // Update item quantity
+  rpc UpdateItemQuantity(UpdateItemQuantityRequest) returns (UpdateItemQuantityResponse);
+  
+  // Remove item from cart
+  rpc RemoveItem(RemoveItemRequest) returns (RemoveItemResponse);
+  
+  // Clear entire cart
+  rpc ClearCart(ClearCartRequest) returns (ClearCartResponse);
+  
+  // Apply coupon code
+  rpc ApplyCoupon(ApplyCouponRequest) returns (ApplyCouponResponse);
+  
+  // Remove coupon
+  rpc RemoveCoupon(RemoveCouponRequest) returns (RemoveCouponResponse);
+}
+
+// Cart message
+message Cart {
+  string id = 1;
+  string user_id = 2;
+  repeated CartItem items = 3;
+  common.Money subtotal = 4;
+  common.Money discount = 5;
+  common.Money total = 6;
+  string coupon_code = 7;
+  bool is_abandoned = 8;
+  common.Timestamp created_at = 9;
+  common.Timestamp updated_at = 10;
+}
+
+// Cart item message
+message CartItem {
+  string id = 1;
+  string cart_id = 2;
+  string product_id = 3;
+  string variant_id = 4;
+  string name = 5;
+  string image = 6;
+  string sku = 7;
+  int32 quantity = 8;
+  common.Money unit_price = 9;
+  common.Money total_price = 10;
+}
+
+// Get cart request
+message GetCartRequest {
+  string user_id = 1;
+}
+
+message GetCartResponse {
+  Cart cart = 1;
+}
+
+// Add to cart request
+message AddToCartRequest {
+  string user_id = 1;
+  string product_id = 2;
+  string variant_id = 3;
+  string name = 4;
+  string image = 5;
+  string sku = 6;
+  int32 quantity = 7;
+  common.Money unit_price = 8;
+}
+
+message AddToCartResponse {
+  Cart cart = 1;
+}
+
+// Update item quantity request
+message UpdateItemQuantityRequest {
+  string user_id = 1;
+  string item_id = 2;
+  int32 quantity = 3;
+}
+
+message UpdateItemQuantityResponse {
+  Cart cart = 1;
+}
+
+// Remove item request
+message RemoveItemRequest {
+  string user_id = 1;
+  string item_id = 2;
+}
+
+message RemoveItemResponse {
+  Cart cart = 1;
+}
+
+// Clear cart request
+message ClearCartRequest {
+  string user_id = 1;
+}
+
+message ClearCartResponse {
+  common.Response response = 1;
+}
+
+// Apply coupon request
+message ApplyCouponRequest {
+  string user_id = 1;
+  string coupon_code = 2;
+  common.Money discount_amount = 3;
+}
+
+message ApplyCouponResponse {
+  Cart cart = 1;
+}
+
+// Remove coupon request
+message RemoveCouponRequest {
+  string user_id = 1;
+}
+
+message RemoveCouponResponse {
+  Cart cart = 1;
+}

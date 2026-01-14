@@ -40,27 +40,28 @@ export class User {
   })
   role: UserRole;
 
-  @Column({ default: false })
+  @Column({ name: 'email_verified', default: false })
   emailVerified: boolean;
 
-  @Column({ nullable: true })
+  @Column({ name: 'verification_token', nullable: true })
   verificationToken: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'reset_password_token', nullable: true })
   resetPasswordToken: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: 'reset_password_expires', type: 'timestamp', nullable: true })
   resetPasswordExpires: Date;
 
-  @Column({ default: true })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
-  lastLoginAt: Date;
+  // Note: last_login_at column doesn't exist in database yet
+  // @Column({ name: 'last_login_at', type: 'timestamp', nullable: true })
+  // lastLoginAt: Date;
 }

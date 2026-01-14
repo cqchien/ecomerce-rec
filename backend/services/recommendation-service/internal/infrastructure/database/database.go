@@ -38,6 +38,13 @@ func InitDB() error {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
+	// Set schema search path
+	schema := os.Getenv("DB_SCHEMA")
+	if schema == "" {
+		schema = "recommendations"
+	}
+	DB.Exec("SET search_path TO " + schema + ", public")
+
 	sqlDB, err := DB.DB()
 	if err != nil {
 		return fmt.Errorf("failed to get database instance: %w", err)

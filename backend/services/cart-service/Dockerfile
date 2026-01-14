@@ -6,11 +6,11 @@ WORKDIR /app
 # Install build dependencies
 RUN apk add --no-cache git
 
-# Copy proto directory
-COPY proto/ /proto/
-
 # Copy source code first
 COPY services/cart-service/ ./
+
+# Copy proto directory to the location expected by go.mod replace directive
+COPY proto/ ../../proto/
 
 # Tidy and download dependencies
 RUN go mod tidy

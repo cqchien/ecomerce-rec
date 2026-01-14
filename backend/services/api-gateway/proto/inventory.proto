@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package inventory;
+
+import "common.proto";
+
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
+
+// Inventory Service - manages stock levels and reservations
+service InventoryService {
+  // Check stock availability
+  rpc CheckStock(CheckStockRequest) returns (CheckStockResponse);
+  
+  // Reserve stock for order
+  rpc ReserveStock(ReserveStockRequest) returns (ReserveStockResponse);
+  
+  // Release stock reservation
+  rpc ReleaseReservation(ReleaseReservationRequest) returns (ReleaseReservationResponse);
+  
+  // Commit reservation (convert to sold)
+  rpc CommitReservation(CommitReservationRequest) returns (CommitReservationResponse);
+  
+  // Update stock levels (Admin)
+  rpc UpdateStock(UpdateStockRequest) returns (UpdateStockResponse);
+  
+  // Get stock by product ID
+  rpc GetStock(GetStockRequest) returns (GetStockResponse);
+  
+  // Bulk check stock
+  rpc BulkCheckStock(BulkCheckStockRequest) returns (BulkCheckStockResponse);
+}
+
+// Stock information
+message Stock {
+  string product_id = 1;
+  string variant_id = 2;
+  int32 available = 3;
+  int32 reserved = 4;
+  int32 total = 5;
+  string warehouse_id = 6;
+  common.Timestamp updated_at = 7;
+}
+
+// Stock reservation
+message Reservation {
+  string id = 1;
+  string order_id = 2;
+  string product_id = 3;
+  string variant_id = 4;
+  int32 quantity = 5;
+  ReservationStatus status = 6;
+  common.Timestamp expires_at = 7;
+  common.Timestamp created_at = 8;
+}
+
+enum ReservationStatus {
+  PENDING = 0;
+  COMMITTED = 1;
+  RELEASED = 2;
+  EXPIRED = 3;
+}
+
+// Check stock request
+message CheckStockRequest {
+  string product_id = 1;
+  string variant_id = 2;
+  int32 quantity = 3;
+}
+
+message CheckStockResponse {
+  bool available = 1;
+  int32 available_quantity = 2;
+}
+
+// Reserve stock request
+message ReserveStockRequest {
+  string order_id = 1;
+  repeated ReservationItem items = 2;
+  int32 ttl_seconds = 3; // How long to hold reservation
+}
+
+message ReservationItem {
+  string product_id = 1;
+  string variant_id = 2;
+  int32 quantity = 3;
+}
+
+message ReserveStockResponse {
+  string reservation_id = 1;
+  bool success = 2;
+  repeated ReservationResult results = 3;
+}
+
+message ReservationResult {
+  string product_id = 1;
+  string variant_id = 2;
+  bool reserved = 3;
+  int32 available_quantity = 4;
+  string error = 5;
+}
+
+// Release reservation request
+message ReleaseReservationRequest {
+  string reservation_id = 1;
+  string order_id = 2;
+}
+
+message ReleaseReservationResponse {
+  bool success = 1;
+}
+
+// Commit reservation request
+message CommitReservationRequest {
+  string reservation_id = 1;
+  string order_id = 2;
+}
+
+message CommitReservationResponse {
+  bool success = 1;
+}
+
+// Update stock request (Admin)
+message UpdateStockRequest {
+  string product_id = 1;
+  string variant_id = 2;
+  int32 quantity = 3;
+  StockOperation operation = 4;
+  string reason = 5;
+}
+
+enum StockOperation {
+  ADD = 0;
+  SUBTRACT = 1;
+  SET = 2;
+}
+
+message UpdateStockResponse {
+  Stock stock = 1;
+}
+
+// Get stock request
+message GetStockRequest {
+  string product_id = 1;
+  string variant_id = 2;
+}
+
+message GetStockResponse {
+  Stock stock = 1;
+}
+
+// Bulk check stock request
+message BulkCheckStockRequest {
+  repeated CheckStockRequest items = 1;
+}
+
+message BulkCheckStockResponse {
+  repeated BulkStockResult results = 1;
+}
+
+message BulkStockResult {
+  string product_id = 1;
+  string variant_id = 2;
+  bool available = 3;
+  int32 available_quantity = 4;
+}

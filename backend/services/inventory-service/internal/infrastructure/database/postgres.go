@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"os"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -25,6 +26,13 @@ func NewPostgresDB(host, port, user, password, dbname string, log pkglogger.Logg
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
+
+	// Set schema search path
+	schema := os.Getenv("DB_SCHEMA")
+	if schema == "" {
+		schema = "inventory"
+	}
+	db.Exec("SET search_path TO " + schema + ", public")
 
 	// Get underlying SQL DB for connection pool settings
 	sqlDB, err := db.DB()

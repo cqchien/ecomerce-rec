@@ -75,8 +75,9 @@ export class AuthService {
     }
 
     // Update last login
-    user.lastLoginAt = new Date();
-    await this.userRepository.save(user);
+    // Note: lastLoginAt column doesn't exist in database yet
+    // user.lastLoginAt = new Date();
+    // await this.userRepository.save(user);
 
     // Generate tokens
     const { accessToken, refreshToken } = await this.generateTokens(user, ipAddress, userAgent);

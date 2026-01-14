@@ -6,6 +6,7 @@ import (
 
 	"github.com/cqchien/ecomerce-rec/backend/services/product-service/internal/domain"
 	"github.com/cqchien/ecomerce-rec/backend/services/product-service/internal/infrastructure/database/models"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -281,9 +282,9 @@ func (r *productRepository) domainToModel(product *domain.Product) *models.Produ
 		Price:           product.Price,
 		OriginalPrice:   product.OriginalPrice,
 		CategoryID:      product.CategoryID,
-		Images:          product.Images,
+		Images:          pq.StringArray(product.Images),
 		Specifications:  product.Specifications,
-		Tags:            product.Tags,
+		Tags:            pq.StringArray(product.Tags),
 		Rating:          product.Rating,
 		ReviewCount:     product.ReviewCount,
 		IsFeatured:      product.IsFeatured,
@@ -330,9 +331,9 @@ func (r *productRepository) modelToDomain(dbProduct *models.Product) *domain.Pro
 		OriginalPrice:   dbProduct.OriginalPrice,
 		CategoryID:      dbProduct.CategoryID,
 		CategoryName:    categoryName,
-		Images:          dbProduct.Images,
+		Images:          []string(dbProduct.Images),
 		Specifications:  dbProduct.Specifications,
-		Tags:            dbProduct.Tags,
+		Tags:            []string(dbProduct.Tags),
 		Rating:          dbProduct.Rating,
 		ReviewCount:     dbProduct.ReviewCount,
 		IsFeatured:      dbProduct.IsFeatured,

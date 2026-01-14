@@ -19,6 +19,7 @@ type Config struct {
 	DBUser      string
 	DBPassword  string
 	DBName      string
+	DBSchema    string
 	DBSSLMode   string
 	DatabaseURL string
 
@@ -47,7 +48,8 @@ func Load() *Config {
 		DBPort:     getEnv("DB_PORT", "5432"),
 		DBUser:     getEnv("DB_USER", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", "postgres"),
-		DBName:     getEnv("DB_NAME", "event_db"),
+		DBName:     getEnv("DB_NAME", "ecommerce_db"),
+		DBSchema:   getEnv("DB_SCHEMA", "events"),
 		DBSSLMode:  getEnv("DB_SSL_MODE", "disable"),
 
 		RedisHost:     getEnv("REDIS_HOST", "localhost"),
@@ -62,7 +64,7 @@ func Load() *Config {
 
 	// Build composite URLs
 	cfg.DatabaseURL = fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		"host=%s port=%s user=%s password=%s dbname=%s search_path=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSLMode,
 	)
 	cfg.RedisURL = fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort)

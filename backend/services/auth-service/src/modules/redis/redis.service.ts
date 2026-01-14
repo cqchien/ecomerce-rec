@@ -3,12 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
 @Injectable()
-export class RedisService implements OnModuleInit, OnModuleDestroy {
+export class RedisService implements OnModuleDestroy {
   private client: Redis;
 
-  constructor(private configService: ConfigService) {}
-
-  onModuleInit() {
+  constructor(private configService: ConfigService) {
     this.client = new Redis({
       host: this.configService.get('REDIS_HOST') || 'localhost',
       port: this.configService.get('REDIS_PORT') || 6379,
@@ -24,7 +22,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.client.on('connect', () => {
-      console.log('✓ Connected to Redis');
+      console.log('Redis connected successfully');
     });
   }
 

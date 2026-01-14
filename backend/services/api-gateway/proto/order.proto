@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+package order;
+
+import "common.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
+
+// Order Service - manages order lifecycle
+service OrderService {
+  // Create new order
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+  
+  // Get order by ID
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+  
+  // List user orders
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+  
+  // Cancel order
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse);
+  
+  // Update order status (Internal/Admin)
+  rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (UpdateOrderStatusResponse);
+  
+  // Get order status history
+  rpc GetOrderStatusHistory(GetOrderStatusHistoryRequest) returns (GetOrderStatusHistoryResponse);
+}
+
+// Order message
+message Order {
+  string id = 1;
+  string user_id = 2;
+  repeated OrderItem items = 3;
+  common.Money subtotal = 4;
+  common.Money shipping = 5;
+  common.Money tax = 6;
+  common.Money discount = 7;
+  common.Money total = 8;
+  OrderStatus status = 9;
+  common.Address shipping_address = 10;
+  common.Address billing_address = 11;
+  string payment_method = 12;
+  string payment_id = 13;
+  TrackingInfo tracking = 14;
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
+}
+
+// Order item
+message OrderItem {
+  string id = 1;
+  string product_id = 2;
+  string variant_id = 3;
+  string name = 4;
+  string image = 5;
+  string sku = 6;
+  int32 quantity = 7;
+  common.Money unit_price = 8;
+  common.Money total_price = 9;
+}
+
+// Order status
+enum OrderStatus {
+  PENDING = 0;
+  PROCESSING = 1;
+  PAYMENT_PENDING = 2;
+  PAYMENT_FAILED = 3;
+  CONFIRMED = 4;
+  PREPARING = 5;
+  SHIPPED = 6;
+  DELIVERED = 7;
+  CANCELLED = 8;
+  REFUNDED = 9;
+}
+
+// Tracking information
+message TrackingInfo {
+  string tracking_number = 1;
+  string carrier = 2;
+  string url = 3;
+  common.Timestamp shipped_at = 4;
+  common.Timestamp estimated_delivery = 5;
+}
+
+// Create order request
+message CreateOrderRequest {
+  string user_id = 1;
+  repeated OrderItemRequest items = 2;
+  string shipping_address_id = 3;
+  string billing_address_id = 4;
+  string payment_method = 5;
+  string coupon_code = 6;
+}
+
+message OrderItemRequest {
+  string product_id = 1;
+  string variant_id = 2;
+  int32 quantity = 3;
+}
+
+message CreateOrderResponse {
+  Order order = 1;
+  string payment_intent_id = 2;
+}
+
+// Get order request
+message GetOrderRequest {
+  string id = 1;
+  string user_id = 2; // For authorization
+}
+
+message GetOrderResponse {
+  Order order = 1;
+}
+
+// List orders request
+message ListOrdersRequest {
+  string user_id = 1;
+  common.PaginationRequest pagination = 2;
+  OrderFilters filters = 3;
+}
+
+message OrderFilters {
+  OrderStatus status = 1;
+  common.Timestamp from_date = 2;
+  common.Timestamp to_date = 3;
+}
+
+message ListOrdersResponse {
+  repeated Order orders = 1;
+  common.PaginationResponse pagination = 2;
+}
+
+// Cancel order request
+message CancelOrderRequest {
+  string id = 1;
+  string user_id = 2;
+  string reason = 3;
+}
+
+message CancelOrderResponse {
+  bool success = 1;
+  Order order = 2;
+}
+
+// Update order status request
+message UpdateOrderStatusRequest {
+  string id = 1;
+  OrderStatus status = 2;
+  string note = 3;
+  TrackingInfo tracking = 4;
+}
+
+message UpdateOrderStatusResponse {
+  Order order = 1;
+}
+
+// Get order status history
+message GetOrderStatusHistoryRequest {
+  string order_id = 1;
+}
+
+message GetOrderStatusHistoryResponse {
+  repeated OrderStatusHistory history = 1;
+}
+
+message OrderStatusHistory {
+  OrderStatus status = 1;
+  string note = 2;
+  common.Timestamp timestamp = 3;
+  string updated_by = 4;
+}

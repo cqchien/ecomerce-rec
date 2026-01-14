@@ -1,0 +1,237 @@
+syntax = "proto3";
+
+package product;
+
+import "common.proto";
+
+option go_package = "github.com/cqchien/ecomerce-rec/backend/proto";
+
+// Product Service - manages product catalog
+service ProductService {
+  // Get product by ID
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  
+  // List products with filters
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+  
+  // Search products
+  rpc SearchProducts(SearchProductsRequest) returns (SearchProductsResponse);
+  
+  // Get product categories
+  rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse);
+  
+  // Get category by ID
+  rpc GetCategory(GetCategoryRequest) returns (GetCategoryResponse);
+  
+  // Get related products
+  rpc GetRelatedProducts(GetRelatedProductsRequest) returns (GetRelatedProductsResponse);
+  
+  // Admin: Create product
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+  
+  // Admin: Update product
+  rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
+  
+  // Admin: Delete product
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+  
+  // Bulk get products by IDs
+  rpc GetProductsByIds(GetProductsByIdsRequest) returns (GetProductsByIdsResponse);
+}
+
+// Product message
+message Product {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  string long_description = 5;
+  common.Money price = 6;
+  common.Money original_price = 7;
+  string category_id = 8;
+  string category_name = 9;
+  repeated string images = 10;
+  repeated ProductVariant variants = 11;
+  map<string, string> specifications = 12;
+  repeated string tags = 13;
+  double rating = 14;
+  int32 review_count = 15;
+  bool is_featured = 16;
+  bool is_new = 17;
+  bool is_on_sale = 18;
+  string sku = 19;
+  ProductStatus status = 20;
+  common.Timestamp created_at = 21;
+  common.Timestamp updated_at = 22;
+}
+
+// Product variant (size, color, etc.)
+message ProductVariant {
+  string id = 1;
+  string product_id = 2;
+  string name = 3;
+  string sku = 4;
+  common.Money price = 5;
+  int32 stock = 6;
+  map<string, string> attributes = 7; // e.g., {"size": "L", "color": "red"}
+}
+
+// Product status
+enum ProductStatus {
+  DRAFT = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+  OUT_OF_STOCK = 3;
+  DISCONTINUED = 4;
+}
+
+// Category
+message Category {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  string parent_id = 5;
+  string image = 6;
+  int32 product_count = 7;
+  int32 sort_order = 8;
+  bool is_active = 9;
+  common.Timestamp created_at = 10;
+  common.Timestamp updated_at = 11;
+}
+
+// Get product request
+message GetProductRequest {
+  string id = 1;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+// List products request
+message ListProductsRequest {
+  common.PaginationRequest pagination = 1;
+  ProductFilters filters = 2;
+  ProductSort sort = 3;
+}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+  common.PaginationResponse pagination = 2;
+}
+
+// Product filters
+message ProductFilters {
+  string category_id = 1;
+  int64 min_price_cents = 2;
+  int64 max_price_cents = 3;
+  double min_rating = 4;
+  repeated string tags = 5;
+  bool in_stock_only = 6;
+  bool featured_only = 7;
+  bool on_sale_only = 8;
+  ProductStatus status = 9;
+}
+
+// Product sort
+message ProductSort {
+  string field = 1; // price, rating, name, created_at
+  common.SortDirection direction = 2;
+}
+
+// Search products
+message SearchProductsRequest {
+  string query = 1;
+  common.PaginationRequest pagination = 2;
+  ProductFilters filters = 3;
+}
+
+message SearchProductsResponse {
+  repeated Product products = 1;
+  common.PaginationResponse pagination = 2;
+  repeated string suggestions = 3;
+}
+
+// List categories
+message ListCategoriesRequest {
+  string parent_id = 1; // Empty for root categories
+  bool include_product_count = 2;
+}
+
+message ListCategoriesResponse {
+  repeated Category categories = 1;
+}
+
+// Get category
+message GetCategoryRequest {
+  string id = 1;
+}
+
+message GetCategoryResponse {
+  Category category = 1;
+}
+
+// Get related products
+message GetRelatedProductsRequest {
+  string product_id = 1;
+  int32 limit = 2;
+}
+
+message GetRelatedProductsResponse {
+  repeated Product products = 1;
+}
+
+// Create product (Admin)
+message CreateProductRequest {
+  string name = 1;
+  string slug = 2;
+  string description = 3;
+  string long_description = 4;
+  common.Money price = 5;
+  common.Money original_price = 6;
+  string category_id = 7;
+  repeated string images = 8;
+  map<string, string> specifications = 9;
+  repeated string tags = 10;
+  string sku = 11;
+  bool is_featured = 12;
+}
+
+message CreateProductResponse {
+  Product product = 1;
+}
+
+// Update product (Admin)
+message UpdateProductRequest {
+  string id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional string long_description = 4;
+  optional common.Money price = 5;
+  optional string category_id = 6;
+  repeated string images = 7;
+  optional ProductStatus status = 8;
+}
+
+message UpdateProductResponse {
+  Product product = 1;
+}
+
+// Delete product (Admin)
+message DeleteProductRequest {
+  string id = 1;
+}
+
+message DeleteProductResponse {
+  bool success = 1;
+}
+
+// Get products by IDs
+message GetProductsByIdsRequest {
+  repeated string ids = 1;
+}
+
+message GetProductsByIdsResponse {
+  repeated Product products = 1;
+}

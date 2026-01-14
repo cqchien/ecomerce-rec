@@ -41,7 +41,7 @@ import { HealthController } from './controllers/health.controller';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Notification, UserPreference, NotificationTemplate],
+        schema: configService.get('DB_SCHEMA') || 'notifications',        entities: [Notification, UserPreference, NotificationTemplate],
         synchronize: true, // Set to false in production
         logging: false,
       }),

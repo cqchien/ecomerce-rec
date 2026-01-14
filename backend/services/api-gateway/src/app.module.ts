@@ -5,9 +5,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { RedisModule } from './infrastructure/redis.module';
+import { GrpcClientsModule } from './grpc-clients/grpc-clients.module';
 import { ProxyController } from './controllers/proxy.controller';
 import { AuthController } from './controllers/auth.controller';
 import { HealthController } from './controllers/health.controller';
+import { UserController } from './controllers/user.controller';
+import { ProductController } from './controllers/product.controller';
+import { CartController } from './controllers/cart.controller';
+import { OrderController } from './controllers/order.controller';
+import { CheckoutController } from './controllers/checkout.controller';
 import { ProxyService } from './services/proxy.service';
 import { AuthService } from './services/auth.service';
 import { HealthService } from './services/health.service';
@@ -38,8 +44,18 @@ import { JWT_CONFIG, RATE_LIMIT } from './common/constants';
       },
     ]),
     RedisModule,
+    GrpcClientsModule,
   ],
-  controllers: [ProxyController, AuthController, HealthController],
+  controllers: [
+    AuthController,
+    HealthController,
+    UserController,
+    ProductController,
+    CartController,
+    OrderController,
+    CheckoutController,
+    // ProxyController, // Remove old proxy controller as we now use direct gRPC
+  ],
   providers: [
     ProxyService,
     AuthService,

@@ -48,12 +48,22 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReque
 		}
 	}
 
+	// For now, use address IDs as placeholders (would normally lookup from user service)
+	shippingAddr := req.ShippingAddressId
+	if shippingAddr == "" {
+		shippingAddr = "default_shipping"
+	}
+	billingAddr := req.BillingAddressId
+	if billingAddr == "" {
+		billingAddr = shippingAddr // Use shipping as billing if not provided
+	}
+
 	// Create order
 	createdOrder, err := h.orderUseCase.CreateOrder(
 		ctx,
 		req.UserId,
-		"", // shipping address - will be retrieved from address IDs
-		"", // billing address
+		shippingAddr,
+		billingAddr,
 		req.PaymentMethod,
 		items,
 	)

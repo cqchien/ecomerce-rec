@@ -21,6 +21,7 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	DBSchema   string
 	DBSSLMode  string
 
 	// Redis
@@ -46,7 +47,8 @@ func Load() (*Config, error) {
 		DBPort:     getEnv("DB_PORT", "5432"),
 		DBUser:     getEnv("DB_USER", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", "postgres"),
-		DBName:     getEnv("DB_NAME", "cart_db"),
+		DBName:     getEnv("DB_NAME", "ecommerce_db"),
+		DBSchema:   getEnv("DB_SCHEMA", "carts"),
 		DBSSLMode:  getEnv("DB_SSL_MODE", "disable"),
 
 		RedisHost:     getEnv("REDIS_HOST", "localhost"),
@@ -64,8 +66,8 @@ func Load() (*Config, error) {
 // GetDSN returns the database connection string
 func (c *Config) GetDSN() string {
 	return fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		c.DBHost, c.DBPort, c.DBUser, c.DBPassword, c.DBName, c.DBSSLMode,
+		"host=%s port=%s user=%s password=%s dbname=%s search_path=%s sslmode=%s",
+		c.DBHost, c.DBPort, c.DBUser, c.DBPassword, c.DBName, c.DBSchema, c.DBSSLMode,
 	)
 }
 

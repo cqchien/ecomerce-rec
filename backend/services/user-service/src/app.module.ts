@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getDatabaseConfig } from './infrastructure/database/database.config';
 import { RedisModule } from './infrastructure/redis/redis.module';
 import { UserModule } from './application/user.module';
-import { HealthController } from './presentation/http/health.controller';
+import { UserGrpcController } from './presentation/grpc/user-grpc.controller';
 
 @Module({
   imports: [
@@ -16,6 +16,6 @@ import { HealthController } from './presentation/http/health.controller';
     RedisModule,
     UserModule,
   ],
-  controllers: [HealthController],
+  controllers: [UserGrpcController],
 })
 export class AppModule {}

@@ -1,3 +1,6 @@
+// API Base URL Configuration
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 // API Endpoints Configuration
 export const API_ENDPOINTS = {
   // Authentication
@@ -13,28 +16,39 @@ export const API_ENDPOINTS = {
 
   // User
   user: {
-    profile: '/user/profile',
-    updateProfile: '/user/profile',
-    addresses: '/user/addresses',
-    preferences: '/user/preferences',
-    wishlist: '/user/wishlist',
+    profile: '/users/profile',
+    updateProfile: '/users/profile',
+    addresses: '/users/addresses',
+    addAddress: '/users/addresses',
+    updateAddress: (id: string) => `/users/addresses/${id}`,
+    deleteAddress: (id: string) => `/users/addresses/${id}`,
+    preferences: '/users/preferences',
+    wishlist: '/users/wishlist',
+    addToWishlist: '/users/wishlist',
+    removeFromWishlist: (productId: string) => `/users/wishlist/${productId}`,
   },
 
   // Products
   products: {
     list: '/products',
     detail: (id: string) => `/products/${id}`,
+    bySlug: (slug: string) => `/products/slug/${slug}`,
     categories: '/products/categories',
+    category: (id: string) => `/products/categories/${id}`,
     search: '/products/search',
     recommended: '/products/recommended',
     trending: '/products/trending',
     related: (id: string) => `/products/${id}/related`,
     reviews: (id: string) => `/products/${id}/reviews`,
+    addReview: (id: string) => `/products/${id}/reviews`,
+    trackView: (id: string) => `/products/${id}/view`,
   },
 
   // Cart
   cart: {
     get: '/cart',
+    applyCoupon: '/cart/coupon',
+    removeCoupon: '/cart/coupon',
     add: '/cart/items',
     update: (itemId: string) => `/cart/items/${itemId}`,
     remove: (itemId: string) => `/cart/items/${itemId}`,
@@ -46,7 +60,15 @@ export const API_ENDPOINTS = {
     create: '/orders',
     list: '/orders',
     detail: (id: string) => `/orders/${id}`,
-    cancel: (id: string) => `/orders/${id}/cancel`,
+    paymentIntent: '/checkout/payment-intent',
+    confirm: '/checkout/confirm',
+  },
+  
+  // Recommendations (separate from products for clarity)
+  recommendations: {
+    personalized: '/products/recommended',
+    trending: '/products/trending',
+    similar: (productId: string) => `/products/${productId}/related`,
   },
 
   // Checkout

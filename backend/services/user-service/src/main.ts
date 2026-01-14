@@ -1,34 +1,31 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import { DEFAULT_HTTP_PORT } from './common/constants';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable validation
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  // Configure gRPC microservice
+  const grpcPort = process.env.GRPC_PORT || '5001';
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: 'user',
+      protoPath: join(__dirname, '../proto/user.proto'),
+      url: `0.0.0.0:${grpcPort}`,
+    },
+  });
 
-  // Enable CORS
-  app.enableCors();
-
-  const port = process.env.HTTP_PORT || DEFAULT_HTTP_PORT;
-  await app.listen(port);
+  await app.startAllMicroservices();
 
   const logData = {
     time: new Date().toISOString(),
     level: 'INFO',
-    msg: 'User Service started successfully',
+    msg: 'User Service started (gRPC only)',
     service: 'user-service',
-    http_port: port,
-    grpc_port: process.env.GRPC_PORT || '5001',
-    health: `/health`
+    grpcPort,
   };
   console.log(JSON.stringify(logData));
 }
