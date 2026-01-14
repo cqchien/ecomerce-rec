@@ -7,10 +7,10 @@ A production-ready, full-stack e-commerce platform built with modern microservic
 ### Home Page - Modern UI with Curated Collections
 ![Home Page](./images/home.png)
 
-### AI-Powered Product Recommendations
+### Product Recommendations
 ![Recommendations](./images/recommendation-section.png)
 
-### Smart Shopping Cart with Real-time Calculations
+### Shopping Cart
 ![Shopping Cart](./images/cart.png)
 
 ---
@@ -23,9 +23,9 @@ Vici is a complete e-commerce solution designed for scalability, performance, an
 
 - 🎨 **Modern UI/UX** - Beautiful, responsive design with gradient backgrounds and floating animations
 - 🛍️ **Product Management** - Browse, search, and filter products with real-time inventory
-- 🛒 **Smart Shopping Cart** - Persistent cart with Redis caching and coupon support
+- 🛒 **Shopping Cart** - Persistent cart with Redis caching and coupon support
 - 💳 **Payment Processing** - Secure payment integration (Stripe-ready)
-- 🤖 **AI Recommendations** - Real-time personalized product recommendations using ML
+- 🤖 **Product Recommendations** - Real-time personalized product recommendations using ML
 - 📊 **Event Tracking** - User behavior analytics and tracking
 - 🔐 **Authentication** - JWT-based secure authentication
 - 📧 **Notifications** - Email and SMS notifications
