@@ -1,7 +1,46 @@
-# Vici Backend - Microservices Architecture
+# Vici Backend - Microservices E-Commerce Platform
 
 ## 🎯 Overview
 Production-ready microservices backend for the Vici e-commerce platform with **hybrid Node.js + Go architecture**, real-time recommendations, event-driven architecture, and clean code principles.
+
+## 📸 Architecture Visualization
+
+The Vici platform consists of 11 microservices working together:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         API Gateway (Node.js)                    │
+│                         Port 3000 - HTTP/REST                    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+┌───────▼────────┐   ┌───────▼────────┐   ┌───────▼────────┐
+│   Auth Service │   │  User Service  │   │  Notification  │
+│   (Node.js)    │   │   (Node.js)    │   │   (Node.js)    │
+│   Port 3001    │   │   Port 5002    │   │   Port 3008    │
+└────────────────┘   └────────────────┘   └────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+┌───────▼────────┐   ┌───────▼────────┐   ┌───────▼────────┐
+│    Product     │   │   Inventory    │   │     Cart       │
+│   Service (Go) │   │  Service (Go)  │   │  Service (Go)  │
+│   Port 4001    │   │   Port 4002    │   │   Port 3003    │
+└────────────────┘   └────────────────┘   └────────────────┘
+        │                     │                     │
+┌───────▼────────┐   ┌───────▼────────┐   ┌───────▼────────┐
+│     Order      │   │    Payment     │   │     Event      │
+│  Service (Go)  │   │  Service (Go)  │   │  Service (Go)  │
+│   Port 3005    │   │   Port 3006    │   │   Port 3007    │
+└────────────────┘   └────────────────┘   └────────────────┘
+        │
+┌───────▼────────┐
+│ Recommendation │
+│  Service (Go)  │
+│   Port 4005    │
+└────────────────┘
+```
 
 ### 📚 Quick Links
 - **[Getting Started Guide](./GETTING_STARTED.md)** - Complete setup instructions
@@ -20,7 +59,9 @@ Production-ready microservices backend for the Vici e-commerce platform with **h
 ✅ **gRPC Communication**: Protocol Buffers for inter-service calls  
 ✅ **Event-Driven**: Kafka-based async messaging  
 ✅ **Docker Ready**: Complete containerization with Docker Compose  
-
+✅ **Database Isolation**: Each service has its own PostgreSQL schema  
+✅ **Caching Layer**: Redis for session management and caching  
+✅ **API Documentation**: Swagger/OpenAPI specifications  
 
 ## ⚡ Quick Start
 
@@ -48,14 +89,48 @@ This starts all infrastructure services with the **vici** naming convention:
 - `vici-minio` - MinIO S3 storage (ports 9000, 9001)
 - `vici-pgadmin` - pgAdmin at http://localhost:5050
 
-### 3. Verify Infrastructure
+### 3. Build All Services
+
+```bash
+cd deployment
+
+# Build all microservices Docker images
+./build-services.sh
+
+# Or build specific service
+./build-services.sh --service cart-service
+
+# Build with no cache (clean build)
+./build-services.sh --no-cache
+```
+
+### 4. Start All Services
+
+```bash
+# Start all services
+docker-compose -f deployment/services.docker-compose.yml up -d
+
+# View logs
+docker-compose -f deployment/services.docker-compose.yml logs -f
+
+# Check service status
+docker-compose -f deployment/services.docker-compose.yml ps
+```
+
+### 5. Verify Infrastructure
 
 ```bash
 # Check all containers are running
 docker ps
 
-# View logs
-docker-compose logs -f
+# Test API Gateway
+curl http://localhost:3000/health
+
+# View Kafka UI
+open http://localhost:8080
+
+# Access pgAdmin
+open http://localhost:5050
 ```
 
 **📖 Read First:** [GETTING_STARTED.md](./GETTING_STARTED.md) - Complete beginner guide
@@ -223,6 +298,263 @@ cart-service/  (or product-service, inventory-service)
 ### ✅ Documentation
 - Getting started guide
 - Detailed implementation guide
+- Redis recommendation schema
+- Service-specific READMEs
+
+## 🛠️ Development Tools
+
+### Build Scripts
+
+```bash
+# Build all services
+cd deployment
+./build-services.sh
+
+# Build specific service
+./build-services.sh --service product-service
+
+# Build without cache
+./build-services.sh --no-cache
+
+# Build in parallel (faster)
+./build-services.sh --parallel
+```
+
+### Rebuild Script
+
+```bash
+# Stop, remove, rebuild, and start services
+./rebuild-services.sh
+
+# Rebuild specific service
+./rebuild-services.sh --service cart-service
+
+# Just restart without rebuilding
+./rebuild-services.sh --restart-only
+```
+
+### Database Management
+
+```bash
+# Access PostgreSQL
+docker exec -it vici-postgres psql -U vici -d vici_db
+
+# Access Redis CLI
+docker exec -it vici-redis redis-cli
+
+# View Kafka topics
+docker exec -it vici-kafka kafka-topics --list --bootstrap-server localhost:9092
+
+# Access pgAdmin (http://localhost:5050)
+Email: admin@vici.com
+Password: admin123
+```
+
+### Service Management
+
+```bash
+# Start all services
+docker-compose -f deployment/services.docker-compose.yml up -d
+
+# Stop all services
+docker-compose -f deployment/services.docker-compose.yml down
+
+# View service logs
+docker-compose -f deployment/services.docker-compose.yml logs -f <service-name>
+
+# Restart specific service
+docker-compose -f deployment/services.docker-compose.yml restart <service-name>
+```
+
+## 📊 Service Health Checks
+
+All services expose health check endpoints:
+
+```bash
+# API Gateway
+curl http://localhost:3000/health
+
+# Product Service
+curl http://localhost:4001/health
+
+# Cart Service
+curl http://localhost:3003/health
+
+# Order Service
+curl http://localhost:3005/health
+```
+
+## 🔐 Authentication & Authorization
+
+### JWT Token Flow
+
+1. User logs in via `/api/auth/login`
+2. Auth service validates credentials
+3. Returns access token (15min) + refresh token (7days)
+4. Frontend includes access token in Authorization header
+5. API Gateway validates token before forwarding requests
+6. Refresh token used to get new access token when expired
+
+### Token Structure
+
+```json
+{
+  "sub": "user_id",
+  "email": "user@example.com",
+  "role": "customer|admin",
+  "iat": 1234567890,
+  "exp": 1234567890
+}
+```
+
+## 🔄 Event-Driven Architecture
+
+Services communicate via Kafka topics for async operations:
+
+| Topic | Producer | Consumer | Purpose |
+|-------|----------|----------|---------|
+| `product.events` | Product Service | Recommendation, Search | Product changes |
+| `order.events` | Order Service | Notification, Inventory | Order lifecycle |
+| `cart.events` | Cart Service | Recommendation | Cart activity |
+| `user.events` | User Service | Notification, Recommendation | User activity |
+| `payment.events` | Payment Service | Order, Notification | Payment status |
+| `inventory.events` | Inventory Service | Product, Order | Stock changes |
+
+## 🧪 Testing
+
+### Unit Tests
+
+```bash
+# Go services
+cd services/cart-service
+go test ./...
+
+# Node.js services
+cd services/api-gateway
+npm test
+```
+
+### Integration Tests
+
+```bash
+# Test full checkout flow
+npm run test:integration
+
+# Test specific service
+npm run test:integration -- --service=cart
+```
+
+### Load Testing
+
+```bash
+# Using k6 or Apache Bench
+k6 run scripts/load-test.js
+```
+
+## 📈 Monitoring & Observability
+
+### Metrics (Planned)
+- Prometheus for metrics collection
+- Grafana for visualization
+- Service-level metrics (latency, throughput, error rates)
+
+### Logging
+- Structured logging with slog (Go) and Winston (Node.js)
+- Log aggregation with ELK stack (planned)
+- Request tracing with correlation IDs
+
+### Tracing (Planned)
+- Distributed tracing with Jaeger
+- OpenTelemetry instrumentation
+- Full request flow visibility
+
+## 🚀 Deployment
+
+### Docker Build
+
+All services are containerized and ready for deployment:
+
+```bash
+# Build all images
+./deployment/build-services.sh
+
+# Images created:
+# - vici-services-api-gateway
+# - vici-services-auth-service
+# - vici-services-product-service
+# - vici-services-cart-service
+# ... (all 11 services)
+```
+
+### Kubernetes (Planned)
+
+```bash
+# Deploy to Kubernetes
+kubectl apply -f k8s/
+
+# Services will include:
+# - Horizontal Pod Autoscaling
+# - Load balancing
+# - Service mesh with Istio
+# - CI/CD with ArgoCD
+```
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Port conflicts**
+```bash
+# Check what's using the port
+lsof -i :3000
+
+# Kill the process
+kill -9 <PID>
+```
+
+**Database connection errors**
+```bash
+# Restart PostgreSQL
+docker-compose restart vici-postgres
+
+# Check logs
+docker logs vici-postgres
+```
+
+**Service won't start**
+```bash
+# Check service logs
+docker-compose -f deployment/services.docker-compose.yml logs <service-name>
+
+# Rebuild service
+./rebuild-services.sh --service <service-name>
+```
+
+## 📚 Additional Resources
+
+- **[API Documentation](./docs/API.md)** - Complete API reference
+- **[Database Schema](./docs/DATABASE.md)** - Database design and relationships  
+- **[Redis Schema](./docs/redis-recommendation-schema.md)** - Recommendation data structure
+- **[Architecture Diagrams](./docs/ARCHITECTURE_DIAGRAMS.md)** - Visual system overview
+- **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Follow clean architecture principles
+4. Write tests for new features
+5. Update documentation
+6. Submit pull request
+
+## 📝 License
+
+This project is part of the Vici e-commerce platform.
+
+---
+
+**Built with ❤️ using modern microservices architecture**
+````
 - Redis schema for ML team
 - Architecture diagrams
 

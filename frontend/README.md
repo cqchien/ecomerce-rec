@@ -1,10 +1,63 @@
-# Vici Frontend - E-Commerce Platform
+# Vici Shop Frontend - Modern E-Commerce Platform
 
 A modern, full-featured e-commerce frontend built with React 19, TypeScript, Vite, TanStack Router, Tailwind CSS, and Shadcn UI.
+
+## 📸 Application Screenshots
+
+Explore the beautiful, responsive interface of Vici Shop:
+
+### 🏠 Home Page
+![Home Page](../images/home.png)
+
+**Features showcased:**
+- Modern hero section with gradient backgrounds
+- Floating product images with animations
+- Featured product collections
+- Category navigation
+- Personalized recommendations section
+
+---
+
+### 🤖 AI-Powered Recommendations
+![Recommendations](../images/recommendation-section.png)
+
+**Features showcased:**
+- Personalized product suggestions
+- Machine learning-based recommendations
+- Beautiful product cards with ratings
+- Add to cart functionality
+- Sale badges and pricing display
+
+---
+
+### 🛒 Shopping Cart
+![Shopping Cart](../images/cart.png)
+
+**Features showcased:**
+- Real-time price calculations
+- Quantity adjustments
+- Coupon code support
+- Shipping and tax estimates
+- Order summary
+- Secure checkout button
+
+> 💡 **Live Demo**: The application runs on `http://localhost:3001` when started in development mode.
 
 ## 🎯 Overview
 
 The Vici frontend provides a responsive, user-friendly interface for the e-commerce platform, connecting to a microservices backend architecture. Built with modern web technologies for optimal performance and developer experience.
+
+## ✨ Key Features
+
+- 🎨 **Modern UI/UX** - Beautiful, responsive design with Tailwind CSS and Shadcn UI
+- 🚀 **Fast Performance** - Vite build tool with instant HMR and optimized production builds
+- 🔐 **Secure Authentication** - JWT-based auth with refresh tokens
+- 🛒 **Smart Shopping Cart** - Real-time updates with optimistic UI
+- 💳 **Payment Integration** - Stripe payment processing
+- 🤖 **AI Recommendations** - Personalized product suggestions
+- 📱 **Responsive Design** - Mobile-first approach, works on all devices
+- 🔍 **Advanced Search** - Fast product search with filters
+- 🎯 **Type Safety** - Full TypeScript coverage with strict mode
 
 ## 🚀 Quick Start
 
@@ -22,7 +75,7 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:3000`
+Visit `http://localhost:3001` (auto-switches to 3001 if 3000 is in use)
 
 ### Environment Setup
 
@@ -30,6 +83,7 @@ Create a `.env` file in the frontend directory:
 
 ```env
 # API Configuration
+VITE_API_URL=http://localhost:3000
 VITE_API_BASE_URL=http://localhost:3000/api
 
 # Feature Flags
@@ -37,8 +91,9 @@ VITE_USE_MOCK_DATA=false
 VITE_ENABLE_AI_FEATURES=true
 VITE_ENABLE_RECOMMENDATIONS=true
 
-# Development
-VITE_DEBUG_MODE=true
+# External Services
+VITE_GOOGLE_API_KEY=your_google_api_key
+VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key
 ```
 
 ## 🏗️ Backend Integration
@@ -51,98 +106,262 @@ Configured in [src/config/api.ts](src/config/api.ts):
 
 | Endpoint | Service | Purpose |
 |----------|---------|---------|
-| `/api/auth/*` | Auth Service | Login, register, logout |
-| `/api/users/*` | User Service | User profiles, addresses |
-| `/api/products/*` | Product Service | Product catalog, search |
-| `/api/cart/*` | Cart Service | Shopping cart operations |
-| `/api/orders/*` | Order Service | Order management |
-| `/api/payments/*` | Payment Service | Payment processing |
-| `/api/recommendations/*` | Recommendation Service | Product recommendations |
+| `/api/auth/*` | Auth Service | Login, register, logout, token refresh |
+| `/api/users/*` | User Service | User profiles, addresses, preferences |
+| `/api/products/*` | Product Service | Product catalog, search, categories |
+| `/api/cart/*` | Cart Service | Shopping cart operations, coupons |
+| `/api/orders/*` | Order Service | Order creation, history, tracking |
+| `/api/checkout/*` | Payment Service | Payment processing, Stripe integration |
+| `/api/recommendations/*` | Recommendation Service | AI-powered product recommendations |
 
 ### State Management
 
-- **Zustand stores** for global state
-- **React Query** for server state
-- **Local state** for UI components
+- **Zustand stores** for global state (auth, cart, user preferences)
+- **React Query** for server state and caching
+- **Local state** for UI components and forms
 
 ## 🛠️ Tech Stack
 
+### Core
 - **Framework**: React 19 + TypeScript
-- **Build Tool**: Vite (fast HMR, optimized builds)
-- **Router**: TanStack Router (type-safe routing)
-- **Styling**: Tailwind CSS (utility-first CSS)
-- **UI Components**: Shadcn UI (accessible components)
-- **State Management**: Zustand (lightweight state)
-- **API Client**: Axios (HTTP client)
+- **Build Tool**: Vite 6.4 (fast HMR, optimized builds)
+- **Router**: TanStack Router (type-safe routing with file-based routes)
+- **Styling**: Tailwind CSS 3.4 (utility-first CSS)
+- **UI Components**: Shadcn UI (accessible, customizable components)
+
+### State & Data
+- **State Management**: Zustand (lightweight, intuitive state)
+- **API Client**: Axios (HTTP client with interceptors)
+- **Server State**: TanStack Query (data fetching & caching)
 - **Forms**: React Hook Form + Zod (validation)
+
+### Additional Libraries
 - **Icons**: Lucide React
-
-## 📚 Documentation
-
-- **[Migration Plan](./docs/MIGRATION_PLAN.md)** - Current migration status and roadmap
-- **[Architecture](./docs/ARCHITECTURE.md)** - System architecture and data flow
-- **[Development Plan](./docs/DEVELOPMENT_PLAN.md)** - Comprehensive development guide
-- **[Implementation Summary](./docs/IMPLEMENTATION_SUMMARY.md)** - What's been implemented
-
-## 🛠️ Tech Stack
-
-- **Framework**: React 19 + TypeScript
-- **Build Tool**: Vite
-- **Router**: TanStack Router (planned)
-- **Styling**: Tailwind CSS
-- **UI Components**: Shadcn UI (planned)
-- **State**: Zustand (planned)
-- **API Client**: Axios (planned)
-- **Forms**: React Hook Form + Zod (planned)
-
-## 🎨 Features
-
-### Implemented Features
-- ✅ **Product Catalog** - Browse and search products
-- ✅ **Product Filtering** - Filter by category, price, rating
-- ✅ **Shopping Cart** - Add, remove, update quantities
-- ✅ **User Authentication** - Login, register, JWT tokens
-- ✅ **User Dashboard** - Profile management, order history
-- ✅ **Checkout Flow** - Address, shipping, payment
-- ✅ **Product Recommendations** - AI-powered suggestions
-- ✅ **Responsive Design** - Mobile-first approach
-- ✅ **AI Product Studio** - Unique feature for product creation
-
-### Planned Enhancements
-- 🔄 **Wishlist** - Save favorite products
-- 🔄 **Product Reviews** - User ratings and reviews
-- 🔄 **Order Tracking** - Real-time order status
-- 🔄 **Advanced Search** - Filters, sorting, faceted search
-- 🔄 **Social Sharing** - Share products on social media
-- 🔄 **Multi-language** - Internationalization support
+- **Charts**: Recharts
+- **Notifications**: Sonner (toast notifications)
+- **Date Handling**: date-fns
+- **AI Integration**: @google/genai
 
 ## 📁 Project Structure
 
 ```
 frontend/
 ├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── auth/           # Authentication components
-│   │   ├── cart/           # Shopping cart components
-│   │   ├── checkout/       # Checkout flow components
-│   │   ├── product/        # Product display components
-│   │   ├── common/         # Shared components (Header, Footer)
-│   │   └── ui/             # Shadcn UI components
-│   │
-│   ├── pages/              # Page components
-│   │   ├── Home.tsx
-│   │   ├── ProductList.tsx
-│   │   ├── ProductDetail.tsx
-│   │   ├── Cart.tsx
-│   │   ├── Checkout.tsx
-│   │   └── Dashboard.tsx
-│   │
-│   ├── services/           # API service layer
-│   │   ├── api.ts         # Axios instance
-│   │   ├── auth.service.ts
-│   │   ├── product.service.ts
-│   │   ├── cart.service.ts
-│   │   └── order.service.ts
+│   ├── app/            # App-wide setup
+│   ├── components/     # Reusable UI components
+│   │   ├── cart/       # Cart-related components
+│   │   ├── checkout/   # Checkout flow components
+│   │   ├── common/     # Shared components (Header, Footer)
+│   │   ├── product/    # Product display components
+│   │   └── ui/         # Shadcn UI components
+│   ├── config/         # Configuration files
+│   │   ├── api.ts      # API endpoints
+│   │   └── env.ts      # Environment variables
+│   ├── data/           # Mock data (JSON files)
+│   ├── hooks/          # Custom React hooks
+│   ├── lib/            # Utility functions
+│   ├── pages/          # Page components
+│   │   ├── auth/       # Login, Register pages
+│   │   ├── cart/       # Cart page
+│   │   ├── checkout/   # Checkout flow
+│   │   ├── dashboard/  # User dashboard
+│   │   ├── home/       # Home page
+│   │   ├── orders/     # Order history
+│   │   ├── product/    # Product detail page
+│   │   └── shop/       # Product listing page
+│   ├── routes/         # TanStack Router routes
+│   ├── services/       # API services
+│   │   ├── api/        # Real API calls
+│   │   └── mock/       # Mock services for development
+│   ├── stores/         # Zustand stores
+│   ├── styles/         # Global styles
+│   └── types/          # TypeScript type definitions
+├── images/             # Screenshots and documentation images
+├── docs/               # Additional documentation
+└── public/             # Static assets
+```
+
+## 🎨 Features
+
+### ✅ Implemented Features
+- **Product Catalog** - Browse products with beautiful card layouts
+- **Product Details** - Detailed product pages with image galleries
+- **Product Filtering** - Filter by category, price range, rating
+- **Advanced Search** - Fast search with real-time results
+- **Shopping Cart** - Add, remove, update quantities with optimistic UI
+- **User Authentication** - Secure login/register with JWT tokens
+- **User Dashboard** - Profile management, addresses, preferences
+- **Order History** - View past orders with detailed information
+- **Checkout Flow** - Multi-step checkout with address and payment
+- **Payment Integration** - Stripe payment processing
+- **AI Recommendations** - Personalized product suggestions based on behavior
+- **Responsive Design** - Mobile-first, works perfectly on all devices
+- **Dark Mode Support** - Beautiful UI in both light and dark themes
+- **Real-time Notifications** - Toast notifications for user actions
+- **Product Reviews** - User ratings and review system
+- **Category Navigation** - Browse by product categories
+
+### 🔄 Planned Enhancements
+- **Wishlist** - Save favorite products for later
+- **Order Tracking** - Real-time shipment tracking
+- **Multi-language** - Internationalization (i18n) support
+- **Social Sharing** - Share products on social media
+- **Product Comparison** - Compare multiple products side-by-side
+- **Advanced Filters** - More filtering options and faceted search
+- **Live Chat** - Customer support chat integration
+
+## 🎯 Pages & Routes
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Home | Hero section, featured products, recommendations |
+| `/shop` | Shop | Product listing with filters and search |
+| `/product/:slug` | Product Detail | Product information, images, reviews |
+| `/cart` | Shopping Cart | Cart items, coupon codes, price summary |
+| `/checkout` | Checkout | Multi-step checkout flow |
+| `/login` | Login | User authentication |
+| `/register` | Register | New user registration |
+| `/dashboard` | Dashboard | User profile and preferences |
+| `/orders` | Order History | Past orders and tracking |
+| `/contact` | Contact | Contact form and information |
+
+## 🔧 Available Scripts
+
+```bash
+# Development
+npm run dev              # Start development server with HMR
+npm run type-check       # Type-check without emitting files
+
+# Production
+npm run build            # Build for production
+npm run preview          # Preview production build locally
+
+# Code Quality
+npm run lint             # Run ESLint
+npm run format           # Format code with Prettier
+```
+
+## 🚀 Build & Deployment
+
+### Production Build
+
+```bash
+# Create optimized production build
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+The build output will be in the `dist/` directory, optimized and ready for deployment.
+
+### Deployment Options
+
+- **Vercel** - Recommended for Next.js/React apps (zero config)
+- **Netlify** - Easy deployment with continuous integration
+- **AWS S3 + CloudFront** - Scalable static hosting
+- **Docker** - Containerized deployment
+
+### Environment Variables for Production
+
+```env
+VITE_API_URL=https://api.yourdomain.com
+VITE_API_BASE_URL=https://api.yourdomain.com/api
+VITE_STRIPE_PUBLIC_KEY=pk_live_xxx
+VITE_GOOGLE_API_KEY=your_production_key
+```
+
+## 🔐 Authentication Flow
+
+1. User enters credentials on login page
+2. Frontend sends request to `/api/auth/login`
+3. Backend validates and returns JWT access token + refresh token
+4. Frontend stores tokens in localStorage
+5. Access token included in Authorization header for API requests
+6. Refresh token used to get new access token when expired
+
+## 🛒 Shopping Cart Flow
+
+1. User adds product to cart
+2. Cart state updated via Zustand store
+3. API call to `/api/cart/items` to sync with backend
+4. Real-time price calculations with tax and shipping
+5. Coupon code validation and discounts applied
+6. Cart persists across sessions
+
+## 📊 Data Flow
+
+```
+User Action → Component → Zustand Store → API Service → Backend
+                              ↓
+                        Local State Update (Optimistic UI)
+                              ↓
+                        Backend Response → Store Update → UI Update
+```
+
+## 🎨 UI Components
+
+All UI components are built with Shadcn UI and customized with Tailwind CSS:
+
+- **Buttons** - Primary, secondary, outline, ghost variants
+- **Forms** - Input, textarea, select, checkbox, radio
+- **Cards** - Product cards, info cards, dashboard cards
+- **Modals** - Dialog, drawer, sheet components
+- **Navigation** - Header, footer, breadcrumbs, tabs
+- **Feedback** - Toast notifications, loading states, error messages
+- **Data Display** - Tables, lists, badges, avatars
+
+## 🧪 Development Tips
+
+### Mock Data vs Real API
+
+Toggle between mock data and real API in `.env`:
+
+```env
+# Use mock data for development without backend
+VITE_USE_MOCK_DATA=true
+
+# Use real API (requires backend services running)
+VITE_USE_MOCK_DATA=false
+```
+
+### Hot Module Replacement (HMR)
+
+Vite provides instant HMR - changes reflect immediately without full page reload.
+
+### Type Safety
+
+TypeScript strict mode enabled for maximum type safety. All API responses and component props are fully typed.
+
+## 📚 Additional Documentation
+
+- **[Architecture Guide](./docs/ARCHITECTURE.md)** - System architecture and data flow
+- **[Development Plan](./docs/DEVELOPMENT_PLAN.md)** - Comprehensive development guide
+- **[Migration Plan](./docs/MIGRATION_PLAN.md)** - Migration status and roadmap
+- **[Implementation Summary](./docs/IMPLEMENTATION_SUMMARY.md)** - What's been implemented
+
+## 🤝 Contributing
+
+1. Create a feature branch from `main`
+2. Make your changes following the code style
+3. Add/update tests if applicable
+4. Update documentation as needed
+5. Submit a pull request
+
+## 📝 License
+
+This project is part of the Vici e-commerce platform.
+
+## 🔗 Related Links
+
+- [Backend Repository](../backend/README.md)
+- [API Documentation](../backend/docs/API.md)
+- [System Architecture](../docs/system-architecture.md)
+
+---
+
+**Built with ❤️ using React, TypeScript, and modern web technologies**
+````
 │   │
 │   ├── stores/            # Zustand state stores
 │   │   ├── auth.store.ts

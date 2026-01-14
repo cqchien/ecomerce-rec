@@ -2,20 +2,35 @@
 
 A production-ready, full-stack e-commerce platform built with modern microservices architecture, featuring real-time recommendations, event-driven design, and a responsive frontend.
 
+## 📸 Platform Screenshots
+
+### Home Page - Modern UI with Curated Collections
+![Home Page](./images/home.png)
+
+### AI-Powered Product Recommendations
+![Recommendations](./images/recommendation-section.png)
+
+### Smart Shopping Cart with Real-time Calculations
+![Shopping Cart](./images/cart.png)
+
+---
+
 ## 🎯 Overview
 
 Vici is a complete e-commerce solution designed for scalability, performance, and maintainability. The platform uses microservices architecture with Docker containerization, enabling independent service deployment and scaling.
 
-### Key Features
+### ✨ Key Features Demonstrated Above
 
+- 🎨 **Modern UI/UX** - Beautiful, responsive design with gradient backgrounds and floating animations
 - 🛍️ **Product Management** - Browse, search, and filter products with real-time inventory
-- 🛒 **Shopping Cart** - Persistent cart with Redis caching
+- 🛒 **Smart Shopping Cart** - Persistent cart with Redis caching and coupon support
 - 💳 **Payment Processing** - Secure payment integration (Stripe-ready)
-- 🤖 **AI Recommendations** - Real-time personalized product recommendations
+- 🤖 **AI Recommendations** - Real-time personalized product recommendations using ML
 - 📊 **Event Tracking** - User behavior analytics and tracking
 - 🔐 **Authentication** - JWT-based secure authentication
 - 📧 **Notifications** - Email and SMS notifications
 - 📦 **Order Management** - Complete order lifecycle management
+- 📱 **Responsive Design** - Works perfectly on desktop, tablet, and mobile devices
 
 ## 🏗️ Architecture
 
@@ -237,37 +252,3 @@ cd backend/services/<service-name>
 npm run test  # NestJS services
 go test ./... # Golang services
 ```
-
-## 🚢 Deployment
-
-### Production Checklist
-
-- [ ] Update `.env` with production credentials
-- [ ] Configure production database
-- [ ] Set up cloud storage (AWS S3, etc.)
-- [ ] Configure domain and SSL certificates
-- [ ] Set up monitoring and logging
-- [ ] Configure backup strategies
-- [ ] Review security settings
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
-## 👥 Team
-
-Built with ❤️ by the Vici development team.
-
----
-
-**Status**: Active Development  
-**Version**: 1.0.0  
-**Last Updated**: January 2026
