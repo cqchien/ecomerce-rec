@@ -18,9 +18,11 @@ import {
 export class AuthGrpcController {
   constructor(private readonly authService: AuthService) {}
 
+  /**
+   * Register user via gRPC
+   */
   @GrpcMethod('AuthService', 'Register')
   async register(data: RegisterRequest): Promise<RegisterResponse> {
-    // Map gRPC first_name and last_name to the name field
     const name = data.last_name 
       ? `${data.first_name} ${data.last_name}`.trim()
       : data.first_name;
@@ -39,6 +41,9 @@ export class AuthGrpcController {
     };
   }
 
+  /**
+   * Login user via gRPC
+   */
   @GrpcMethod('AuthService', 'Login')
   async login(data: LoginRequest): Promise<LoginResponse> {
     const result = await this.authService.login({
@@ -56,6 +61,9 @@ export class AuthGrpcController {
     };
   }
 
+  /**
+   * Refresh access token via gRPC
+   */
   @GrpcMethod('AuthService', 'RefreshToken')
   async refreshToken(data: RefreshTokenRequest): Promise<RefreshTokenResponse> {
     const result = await this.authService.refreshTokens(data.refresh_token);
@@ -67,16 +75,21 @@ export class AuthGrpcController {
     };
   }
 
+  /**
+   * Logout user via gRPC
+   */
   @GrpcMethod('AuthService', 'Logout')
   async logout(data: LogoutRequest): Promise<LogoutResponse> {
     await this.authService.logout(data.user_id, data.refresh_token);
     return { success: true };
   }
 
+  /**
+   * Verify JWT token via gRPC
+   */
   @GrpcMethod('AuthService', 'VerifyToken')
   async verifyToken(data: VerifyTokenRequest): Promise<VerifyTokenResponse> {
     try {
-      // Use jwtService directly to verify the token
       const payload = await this.authService['jwtService'].verify(data.token);
       return {
         valid: true,

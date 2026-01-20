@@ -74,5 +74,5 @@ export const GRPC_SERVICES = {
   ORDER_SERVICE: process.env.ORDER_SERVICE_GRPC_URL || 'order-service:50054',
   PAYMENT_SERVICE: process.env.PAYMENT_SERVICE_GRPC_URL || 'payment-service:50055',
   INVENTORY_SERVICE: process.env.INVENTORY_SERVICE_GRPC_URL || 'inventory-service:50052',
-  RECOMMENDATION_SERVICE: process.env.RECOMMENDATION_SERVICE_GRPC_URL || 'recommendation-service:50057',
+  RECOMMENDATION_SERVICE: process.env.RECOMMENDATION_SERVICE_GRPC_URL || 'recommendation-service:4005',
 } as const;

@@ -14,11 +14,19 @@ type productRepository struct {
 	db *gorm.DB
 }
 
-// NewProductRepository creates a new product repository using GORM
+/**
+ * Creates a new product repository instance
+ * @param db GORM database instance
+ * @return ProductRepository interface
+ */
 func NewProductRepository(db *gorm.DB) domain.ProductRepository {
 	return &productRepository{db: db}
 }
 
+/**
+ * Creates a new product in the database
+ * @param product Product entity to create
+ */
 func (r *productRepository) Create(ctx context.Context, product *domain.Product) error {
 	dbProduct := r.domainToModel(product)
 
@@ -26,9 +34,15 @@ func (r *productRepository) Create(ctx context.Context, product *domain.Product)
 		return fmt.Errorf("failed to create product: %w", err)
 	}
 
+	product.ID = dbProduct.ID
+
 	return nil
 }
 
+/**
+ * Updates an existing product in the database
+ * @param product Product entity with updated values
+ */
 func (r *productRepository) Update(ctx context.Context, product *domain.Product) error {
 	dbProduct := r.domainToModel(product)
 
@@ -48,6 +62,10 @@ func (r *productRepository) Update(ctx context.Context, product *domain.Product)
 	return nil
 }
 
+/**
+ * Deletes a product by ID
+ * @param id Product ID
+ */
 func (r *productRepository) Delete(ctx context.Context, id string) error {
 	result := r.db.WithContext(ctx).Delete(&models.Product{}, "id = ?", id)
 
@@ -62,6 +80,11 @@ func (r *productRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+/**
+ * Retrieves a product by ID with related data
+ * @param id Product ID
+ * @return Product entity
+ */
 func (r *productRepository) GetByID(ctx context.Context, id string) (*domain.Product, error) {
 	var dbProduct models.Product
 
@@ -80,6 +103,11 @@ func (r *productRepository) GetByID(ctx context.Context, id string) (*domain.Pro
 	return r.modelToDomain(&dbProduct), nil
 }
 
+/**
+ * Retrieves a product by slug with related data
+ * @param slug Product slug
+ * @return Product entity
+ */
 func (r *productRepository) GetBySlug(ctx context.Context, slug string) (*domain.Product, error) {
 	var dbProduct models.Product
 
@@ -98,6 +126,12 @@ func (r *productRepository) GetBySlug(ctx context.Context, slug string) (*domain
 	return r.modelToDomain(&dbProduct), nil
 }
 
+/**
+ * Lists products with filtering and pagination
+ * @param filter Product filter criteria
+ * @param pagination Pagination parameters
+ * @return Paginated products
+ */
 func (r *productRepository) List(ctx context.Context, filter *domain.ProductFilter, pagination *domain.Pagination) (*domain.PaginatedProducts, error) {
 	var dbProducts []models.Product
 	var total int64
@@ -140,6 +174,11 @@ func (r *productRepository) List(ctx context.Context, filter *domain.ProductFilt
 	}, nil
 }
 
+/**
+ * Retrieves multiple products by IDs
+ * @param ids List of product IDs
+ * @return List of products
+ */
 func (r *productRepository) GetByIDs(ctx context.Context, ids []string) ([]domain.Product, error) {
 	var dbProducts []models.Product
 
@@ -160,6 +199,13 @@ func (r *productRepository) GetByIDs(ctx context.Context, ids []string) ([]domai
 	return products, nil
 }
 
+/**
+ * Searches products with query and filtering
+ * @param query Search query string
+ * @param filter Product filter criteria
+ * @param pagination Pagination parameters
+ * @return Paginated products
+ */
 func (r *productRepository) Search(ctx context.Context, query string, filter *domain.ProductFilter, pagination *domain.Pagination) (*domain.PaginatedProducts, error) {
 	var dbProducts []models.Product
 	var total int64
@@ -206,6 +252,12 @@ func (r *productRepository) Search(ctx context.Context, query string, filter *do
 	}, nil
 }
 
+/**
+ * Updates product rating and review count
+ * @param productID Product ID
+ * @param rating New rating value
+ * @param reviewCount New review count
+ */
 func (r *productRepository) UpdateRating(ctx context.Context, productID string, rating float64, reviewCount int32) error {
 	result := r.db.WithContext(ctx).
 		Model(&models.Product{}).
@@ -302,7 +354,7 @@ func (r *productRepository) domainToModel(product *domain.Product) *models.Produ
 		for i, v := range product.Variants {
 			dbProduct.Variants[i] = models.ProductVariant{
 				ID:         v.ID,
-				ProductID:  v.ProductID,
+				ProductID:  product.ID,
 				Name:       v.Name,
 				SKU:        v.SKU,
 				Price:      v.Price,

@@ -20,41 +20,40 @@ export class UserMapper {
       ? entity.wishlist.map(item => WishlistItemMapper.toDomain(item))
       : [];
 
-    return new User(
-      entity.id,
-      entity.email,
-      entity.name,
-      entity.phone || null,
-      entity.avatar || null,
-      entity.createdAt,
-      entity.updatedAt,
-      entity.deletedAt || null,
+    return new User({
+      id: entity.id,
+      email: entity.email,
+      name: entity.name,
+      phone: entity.phone || null,
+      avatar: entity.avatar || null,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      deletedAt: entity.deletedAt || null,
       addresses,
       wishlist,
-    );
+    });
   }
 
   /**
    * Convert User domain model to UserEntity.
+   * ID is only set if it exists (for updates), otherwise TypeORM generates it.
    */
   static toEntity(model: User): UserEntity {
     const entity = new UserEntity();
-    entity.id = model.id;
+    // Only set ID if it exists, otherwise TypeORM auto-generates it
+    if (model.id !== undefined) {
+      entity.id = model.id;
+    }
     entity.email = model.email;
     entity.name = model.name;
-    entity.phone = model.phone;
-    entity.avatar = model.avatar;
+    entity.phone = model.phone ?? null;
+    entity.avatar = model.avatar ?? null;
     entity.createdAt = model.createdAt;
     entity.updatedAt = model.updatedAt;
-    entity.deletedAt = model.deletedAt;
+    entity.deletedAt = model.deletedAt ?? null;
 
-    if (model.addresses && model.addresses.length > 0) {
-      entity.addresses = model.addresses.map(addr => AddressMapper.toEntity(addr));
-    }
-
-    if (model.wishlist && model.wishlist.length > 0) {
-      entity.wishlist = model.wishlist.map(item => WishlistItemMapper.toEntity(item));
-    }
+    // Don't set empty arrays - causes issues with UUID validation
+    // Relationships will be loaded/saved separately if needed
 
     return entity;
   }

@@ -13,11 +13,19 @@ type categoryRepository struct {
 	db *gorm.DB
 }
 
-// NewCategoryRepository creates a new category repository using GORM
+/**
+ * Creates a new category repository instance
+ * @param db GORM database instance
+ * @return CategoryRepository interface
+ */
 func NewCategoryRepository(db *gorm.DB) domain.CategoryRepository {
 	return &categoryRepository{db: db}
 }
 
+/**
+ * Creates a new category in the database
+ * @param category Category entity to create
+ */
 func (r *categoryRepository) Create(ctx context.Context, category *domain.Category) error {
 	dbCategory := r.domainToModel(category)
 
@@ -25,9 +33,15 @@ func (r *categoryRepository) Create(ctx context.Context, category *domain.Catego
 		return fmt.Errorf("failed to create category: %w", err)
 	}
 
+	category.ID = dbCategory.ID
+
 	return nil
 }
 
+/**
+ * Updates an existing category in the database
+ * @param category Category entity with updated values
+ */
 func (r *categoryRepository) Update(ctx context.Context, category *domain.Category) error {
 	dbCategory := r.domainToModel(category)
 
@@ -47,6 +61,10 @@ func (r *categoryRepository) Update(ctx context.Context, category *domain.Catego
 	return nil
 }
 
+/**
+ * Deletes a category by ID
+ * @param id Category ID
+ */
 func (r *categoryRepository) Delete(ctx context.Context, id string) error {
 	result := r.db.WithContext(ctx).Delete(&models.Category{}, "id = ?", id)
 
@@ -61,6 +79,11 @@ func (r *categoryRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+/**
+ * Retrieves a category by ID
+ * @param id Category ID
+ * @return Category entity
+ */
 func (r *categoryRepository) GetByID(ctx context.Context, id string) (*domain.Category, error) {
 	var dbCategory models.Category
 
@@ -76,6 +99,11 @@ func (r *categoryRepository) GetByID(ctx context.Context, id string) (*domain.Ca
 	return r.modelToDomain(&dbCategory), nil
 }
 
+/**
+ * Retrieves a category by slug
+ * @param slug Category slug
+ * @return Category entity
+ */
 func (r *categoryRepository) GetBySlug(ctx context.Context, slug string) (*domain.Category, error) {
 	var dbCategory models.Category
 
@@ -91,6 +119,11 @@ func (r *categoryRepository) GetBySlug(ctx context.Context, slug string) (*domai
 	return r.modelToDomain(&dbCategory), nil
 }
 
+/**
+ * Lists categories with optional parent filter
+ * @param parentID Optional parent category ID
+ * @return List of categories
+ */
 func (r *categoryRepository) List(ctx context.Context, parentID *string) ([]domain.Category, error) {
 	var dbCategories []models.Category
 
@@ -115,6 +148,10 @@ func (r *categoryRepository) List(ctx context.Context, parentID *string) ([]doma
 	return categories, nil
 }
 
+/**
+ * Retrieves categories with product count for each
+ * @return List of categories with product counts
+ */
 func (r *categoryRepository) GetWithProductCount(ctx context.Context) ([]domain.Category, error) {
 	var results []struct {
 		models.Category

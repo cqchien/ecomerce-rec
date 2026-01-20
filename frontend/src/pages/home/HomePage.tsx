@@ -2,30 +2,16 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ProductCard } from '@/components/product/ProductCard';
-import { getProductService } from '@/services';
+import { useFeaturedProducts, useCategories, useRecommendedProducts } from '@/hooks';
+import { useAuthStore } from '@/stores/authStore';
 import { Skeleton } from '@/components/ui/skeleton';
-import categoriesData from '@/data/categories.json';
 
 export const HomePage: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [products, setProducts] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const productService = getProductService();
-
-  useEffect(() => {
-    const loadProducts = async () => {
-      setIsLoading(true);
-      try {
-        const data = await productService.getFeaturedProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error('Failed to load products:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadProducts();
-  }, []);
+  const { products = [], isLoading } = useFeaturedProducts();
+  const { user, isAuthenticated } = useAuthStore();
+  const { products: recommendedProducts = [], isLoading: recommendedLoading } = useRecommendedProducts(8);
+  const { categories: categoriesData = [] } = useCategories();
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -132,55 +118,61 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Recommended Products Section */}
-      <section className="py-24 bg-white overflow-hidden">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold font-display text-gray-900 mb-2">
-                Recommended for You
-              </h2>
-              <p className="text-gray-500">Curated selections based on your style.</p>
+      {/* Recommended Products Section - Only show for authenticated users */}
+      {isAuthenticated && (
+        <section className="py-24 bg-white overflow-hidden">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="flex justify-between items-end mb-12">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold font-display text-gray-900 mb-2">
+                  Recommended for You
+                </h2>
+                <p className="text-gray-500">Curated selections based on your style.</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => scroll('left')}
+                  className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => scroll('right')}
+                  className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => scroll('left')}
-                className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => scroll('right')}
-                className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
 
-          {isLoading ? (
-            <div className="flex gap-6 overflow-x-auto pb-8">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="min-w-[280px] md:min-w-[320px]">
-                  <Skeleton className="w-full h-[400px] rounded-3xl" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div
-              ref={scrollRef}
-              className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x snap-mandatory"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {products.map((product, idx) => (
-                <div key={`${product.id}-${idx}`} className="min-w-[280px] md:min-w-[320px] snap-start">
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+            {recommendedLoading ? (
+              <div className="flex gap-6 overflow-x-auto pb-8">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="min-w-[280px] md:min-w-[320px]">
+                    <Skeleton className="w-full h-[400px] rounded-3xl" />
+                  </div>
+                ))}
+              </div>
+            ) : recommendedProducts.length > 0 ? (
+              <div
+                ref={scrollRef}
+                className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x snap-mandatory"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {recommendedProducts.map((product, idx) => (
+                  <div key={`${product.id}-${idx}`} className="min-w-[280px] md:min-w-[320px] snap-start">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <p>No recommendations available yet. Start shopping to get personalized suggestions!</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

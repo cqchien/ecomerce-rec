@@ -1,10 +1,10 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
 import { AddressEntity } from './address.entity';
 import { WishlistItemEntity } from './wishlist-item.entity';
 
 @Entity('users')
 export class UserEntity {
-  @PrimaryColumn('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ unique: true })
@@ -28,9 +28,9 @@ export class UserEntity {
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: Date;
 
-  @OneToMany(() => AddressEntity, address => address.user, { cascade: true })
-  addresses: AddressEntity[];
+  @OneToMany(() => AddressEntity, address => address.user)
+  addresses?: AddressEntity[];
 
-  @OneToMany(() => WishlistItemEntity, item => item.user, { cascade: true })
-  wishlist: WishlistItemEntity[];
+  @OneToMany(() => WishlistItemEntity, item => item.user)
+  wishlist?: WishlistItemEntity[];
 }

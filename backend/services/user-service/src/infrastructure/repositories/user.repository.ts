@@ -56,10 +56,21 @@ export class UserRepository implements IUserRepository {
     };
   }
 
+  /**
+   * Save user entity
+   * Reloads with relations after save to ensure proper domain mapping
+   */
   async save(user: User): Promise<User> {
     const entity = UserMapper.toEntity(user);
     const saved = await this.typeormRepository.save(entity);
-    return UserMapper.toDomain(saved);
+    
+    // Reload with relations to properly map back to domain
+    const reloaded = await this.typeormRepository.findOne({
+      where: { id: saved.id },
+      relations: ['addresses', 'wishlist'],
+    });
+    
+    return UserMapper.toDomain(reloaded!);
   }
 
   async delete(id: string): Promise<void> {

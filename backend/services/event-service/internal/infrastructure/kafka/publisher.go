@@ -40,11 +40,11 @@ func (p *Publisher) Publish(ctx context.Context, event *domain.Event) error {
 
 	// Create Kafka message
 	msg := kafka.Message{
-		Key:   []byte(event.ID.String()),
+		Key:   []byte(event.ID),
 		Value: payload,
 		Headers: []kafka.Header{
 			{Key: "event_type", Value: []byte(event.Type)},
-			{Key: "aggregate_id", Value: []byte(event.AggregateID.String())},
+			{Key: "aggregate_id", Value: []byte(event.AggregateID)},
 		},
 		Time: event.CreatedAt,
 	}

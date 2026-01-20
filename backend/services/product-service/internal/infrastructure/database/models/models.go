@@ -68,14 +68,14 @@ const (
 
 // Product represents the products table
 type Product struct {
-	ID              string            `gorm:"type:varchar(36);primaryKey"`
+	ID              string            `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
 	Name            string            `gorm:"type:varchar(255);not null"`
 	Slug            string            `gorm:"type:varchar(255);uniqueIndex;not null"`
 	Description     string            `gorm:"type:text"`
 	LongDescription string            `gorm:"type:text"`
 	Price           int64             `gorm:"not null"` // in cents
 	OriginalPrice   int64             // in cents
-	CategoryID      string            `gorm:"type:varchar(36);not null;index"`
+	CategoryID      string            `gorm:"type:uuid;not null;index"`
 	Category        *Category         `gorm:"foreignKey:CategoryID"`
 	Images          pq.StringArray    `gorm:"type:text[]"`
 	Specifications  map[string]string `gorm:"type:jsonb;serializer:json"`
@@ -100,8 +100,8 @@ func (Product) TableName() string {
 
 // ProductVariant represents the product_variants table
 type ProductVariant struct {
-	ID         string            `gorm:"type:varchar(36);primaryKey"`
-	ProductID  string            `gorm:"type:varchar(36);not null;index"`
+	ID         string            `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
+	ProductID  string            `gorm:"type:uuid;not null;index"`
 	Name       string            `gorm:"type:varchar(255);not null"`
 	SKU        string            `gorm:"type:varchar(100);uniqueIndex;not null"`
 	Price      int64             `gorm:"not null"`
@@ -118,11 +118,11 @@ func (ProductVariant) TableName() string {
 
 // Category represents the categories table
 type Category struct {
-	ID           string    `gorm:"type:varchar(36);primaryKey"`
+	ID           string    `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
 	Name         string    `gorm:"type:varchar(255);not null"`
 	Slug         string    `gorm:"type:varchar(255);uniqueIndex;not null"`
 	Description  string    `gorm:"type:text"`
-	ParentID     *string   `gorm:"type:varchar(36);index"`
+	ParentID     *string   `gorm:"type:uuid;index"`
 	Parent       *Category `gorm:"foreignKey:ParentID"`
 	Image        string    `gorm:"type:text"`
 	ProductCount int32     `gorm:"-"` // Not a database column, computed

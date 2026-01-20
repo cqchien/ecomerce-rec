@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -8,8 +9,22 @@ import (
 )
 
 type Config struct {
-	DatabaseURL          string
-	RedisURL             string
+	// Database
+	DBHost      string
+	DBPort      string
+	DBUser      string
+	DBPassword  string
+	DBName      string
+	DBSchema    string
+	DBSSLMode   string
+	DatabaseURL string
+
+	// Redis
+	RedisHost     string
+	RedisPort     string
+	RedisPassword string
+	RedisURL      string
+
 	HTTPPort             string
 	GRPCPort             string
 	ProductServiceAddr   string
@@ -23,15 +38,34 @@ func LoadConfig() *Config {
 		log.Println("No .env file found, using environment variables")
 	}
 
-	return &Config{
-		DatabaseURL:          getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/order_db?sslmode=disable"),
-		RedisURL:             getEnv("REDIS_URL", "localhost:6379"),
-		HTTPPort:             getEnv("PORT", "3005"),
-		GRPCPort:             getEnv("GRPC_PORT", "50054"),
+	cfg := &Config{
+		DBHost:     getEnv("DB_HOST", "localhost"),
+		DBPort:     getEnv("DB_PORT", "5432"),
+		DBUser:     getEnv("DB_USER", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", "postgres"),
+		DBName:     getEnv("DB_NAME", "ecommerce_db"),
+		DBSchema:   getEnv("DB_SCHEMA", "orders"),
+		DBSSLMode:  getEnv("DB_SSL_MODE", "disable"),
+
+		RedisHost:     getEnv("REDIS_HOST", "localhost"),
+		RedisPort:     getEnv("REDIS_PORT", "6379"),
+		RedisPassword: getEnv("REDIS_PASSWORD", ""),
+
+		HTTPPort:             getEnv("HTTP_PORT", "3004"),
+		GRPCPort:             getEnv("GRPC_PORT", "50053"),
 		ProductServiceAddr:   getEnv("PRODUCT_SERVICE_ADDR", "localhost:50051"),
 		InventoryServiceAddr: getEnv("INVENTORY_SERVICE_ADDR", "localhost:50052"),
-		PaymentServiceAddr:   getEnv("PAYMENT_SERVICE_ADDR", "localhost:50053"),
+		PaymentServiceAddr:   getEnv("PAYMENT_SERVICE_ADDR", "localhost:50055"),
 	}
+
+	// Build composite URLs
+	cfg.DatabaseURL = fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s search_path=%s sslmode=%s",
+		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSchema, cfg.DBSSLMode,
+	)
+	cfg.RedisURL = fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort)
+
+	return cfg
 }
 
 func getEnv(key, defaultValue string) string {

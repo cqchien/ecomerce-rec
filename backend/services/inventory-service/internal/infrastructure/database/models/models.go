@@ -74,9 +74,9 @@ const (
 
 // Stock represents inventory stock levels
 type Stock struct {
-	ID          string `gorm:"type:varchar(36);primaryKey"`
-	ProductID   string `gorm:"type:varchar(36);not null;index:idx_product_variant"`
-	VariantID   string `gorm:"type:varchar(36);index:idx_product_variant"`
+	ID          string `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
+	ProductID   string `gorm:"type:uuid;not null;index:idx_product_variant"`
+	VariantID   string `gorm:"type:uuid;index:idx_product_variant"`
 	Available   int    `gorm:"not null;default:0"`
 	Reserved    int    `gorm:"not null;default:0"`
 	Total       int    `gorm:"not null;default:0"`
@@ -93,10 +93,10 @@ func (Stock) TableName() string {
 
 // Reservation represents a stock reservation
 type Reservation struct {
-	ID        string    `gorm:"type:varchar(36);primaryKey"`
-	OrderID   string    `gorm:"type:varchar(36);not null;index"`
-	ProductID string    `gorm:"type:varchar(36);not null;index"`
-	VariantID string    `gorm:"type:varchar(36);index"`
+	ID        string    `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
+	OrderID   string    `gorm:"type:uuid;not null;index"`
+	ProductID string    `gorm:"type:uuid;not null;index"`
+	VariantID string    `gorm:"type:uuid;index"`
 	Quantity  int       `gorm:"not null"`
 	Status    string    `gorm:"type:varchar(20);not null;index"`
 	ExpiresAt time.Time `gorm:"not null;index"`
@@ -112,10 +112,10 @@ func (Reservation) TableName() string {
 
 // StockMovement tracks all stock changes for audit purposes
 type StockMovement struct {
-	ID          string `gorm:"type:varchar(36);primaryKey"`
-	ProductID   string `gorm:"type:varchar(36);not null;index"`
-	VariantID   string `gorm:"type:varchar(36);index"`
-	WarehouseID string `gorm:"type:varchar(36);index"`
+	ID          string `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
+	ProductID   string `gorm:"type:uuid;not null;index"`
+	VariantID   string `gorm:"type:uuid;index"`
+	WarehouseID string `gorm:"type:uuid;index"`
 	Quantity    int    `gorm:"not null"`
 	Operation   string `gorm:"type:varchar(20);not null"`
 	Reason      string `gorm:"type:text"`

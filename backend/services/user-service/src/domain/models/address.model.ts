@@ -3,23 +3,25 @@
  * Pure TypeScript class with no framework dependencies.
  */
 export class Address {
-  constructor(
-    public readonly id: string,
-    public readonly userId: string,
-    public firstName: string,
-    public lastName: string,
-    public addressLine1: string,
-    public addressLine2: string | null,
-    public city: string,
-    public state: string,
-    public postalCode: string,
-    public country: string,
-    public phone: string,
-    public isDefault: boolean,
-    public readonly createdAt: Date,
-    public updatedAt: Date,
-    public deletedAt: Date | null,
-  ) {}
+  id?: string;
+  userId!: string;
+  firstName!: string;
+  lastName!: string;
+  addressLine1!: string;
+  addressLine2!: string | null;
+  city!: string;
+  state!: string;
+  postalCode!: string;
+  country!: string;
+  phone!: string;
+  isDefault!: boolean;
+  createdAt!: Date;
+  updatedAt!: Date;
+  deletedAt!: Date | null;
+
+  constructor(partial: Partial<Address>) {
+    Object.assign(this, partial);
+  }
 
   /**
    * Update address information.

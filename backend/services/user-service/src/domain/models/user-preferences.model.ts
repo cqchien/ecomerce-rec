@@ -3,15 +3,17 @@
  * Pure TypeScript class with no framework dependencies.
  */
 export class UserPreferences {
-  constructor(
-    public readonly userId: string,
-    public emailNotifications: boolean,
-    public smsNotifications: boolean,
-    public marketingEmails: boolean,
-    public language: string,
-    public currency: string,
-    public updatedAt: Date,
-  ) {}
+  userId!: string;
+  emailNotifications!: boolean;
+  smsNotifications!: boolean;
+  marketingEmails!: boolean;
+  language!: string;
+  currency!: string;
+  updatedAt!: Date;
+
+  constructor(partial: Partial<UserPreferences>) {
+    Object.assign(this, partial);
+  }
 
   /**
    * Update notification preferences.

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from '@tanstack/react-router';
 import { Mail, Lock, Eye, EyeOff, Chrome, Facebook } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
+import { useCartStore } from '@/stores/cartStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +10,7 @@ import { Label } from '@/components/ui/label';
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuthStore();
+  const { fetchCart } = useCartStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +24,8 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login(email, password);
+      // Fetch cart after successful login
+      await fetchCart();
       navigate({ to: '/dashboard' });
     } catch (err) {
       setError('Invalid email or password. Please try again.');

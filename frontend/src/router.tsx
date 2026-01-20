@@ -1,4 +1,5 @@
 import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { Header } from '@/components/common/Header';
 import { Footer } from '@/components/common/Footer';
 import { HomePage } from '@/pages/home/HomePage';
@@ -11,17 +12,35 @@ import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { DashboardPage } from '@/pages/dashboard/DashboardPage';
 import { OrdersPage } from '@/pages/orders/OrdersPage';
 import { ContactPage } from '@/pages/contact/ContactPage';
+import { useAuthStore } from '@/stores/authStore';
+import { useCartStore } from '@/stores/cartStore';
 
-// Root Route with Layout
-const rootRoute = createRootRoute({
-  component: () => (
+// Root Layout Component with Cart Initialization
+const RootLayout = () => {
+  const { isAuthenticated } = useAuthStore();
+  const { fetchCart } = useCartStore();
+
+  useEffect(() => {
+    // Fetch cart when user is authenticated
+    if (isAuthenticated) {
+      fetchCart();
+    }
+  }, [isAuthenticated, fetchCart]);
+
+  return (
     <div className="min-h-screen bg-white">
       <Header />
       <Outlet />
       <Footer />
     </div>
-  ),
+  );
+};
+
+// Root Route with Layout
+const rootRoute = createRootRoute({
+  component: RootLayout,
 });
+
 
 // Home Route
 const indexRoute = createRoute({

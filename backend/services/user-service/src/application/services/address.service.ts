@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { Address } from '../../domain/models/address.model';
 import { IAddressRepository } from '../../domain/interfaces/address-repository.interface';
 import { AddAddressDto, UpdateAddressDto } from '../dto/address.dto';
@@ -15,7 +14,9 @@ export class AddressService {
   ) {}
 
   /**
-   * List all addresses for a user.
+   * List all addresses for a user
+   * @param userId User ID
+   * @return List of user addresses
    */
   async listAddresses(userId: string): Promise<Address[]> {
     const cacheKey = `${CACHE_KEY_ADDRESSES}${userId}`;
@@ -33,37 +34,38 @@ export class AddressService {
   }
 
   /**
-   * Add a new address for a user.
+   * Add a new address for a user
+   * @param dto Address data transfer object
+   * @return Created address
    */
   async addAddress(dto: AddAddressDto): Promise<Address> {
-    const address = new Address(
-      uuidv4(),
-      dto.userId,
-      dto.firstName,
-      dto.lastName,
-      dto.addressLine1,
-      dto.addressLine2 || null,
-      dto.city,
-      dto.state,
-      dto.postalCode,
-      dto.country,
-      dto.phone,
-      dto.isDefault || false,
-      new Date(),
-      new Date(),
-      null,
-    );
+    const address = new Address({
+      userId: dto.userId,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      addressLine1: dto.addressLine1,
+      addressLine2: dto.addressLine2 || null,
+      city: dto.city,
+      state: dto.state,
+      postalCode: dto.postalCode,
+      country: dto.country,
+      phone: dto.phone,
+      isDefault: dto.isDefault || false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    });
 
     const validation = address.validate();
     if (!validation.valid) {
       throw new BadRequestException(validation.errors.join(', '));
     }
 
-    if (dto.isDefault) {
-      await this.addressRepository.setAsDefault(address.id, dto.userId);
-    }
-
     const savedAddress = await this.addressRepository.save(address);
+
+    if (dto.isDefault) {
+      await this.addressRepository.setAsDefault(savedAddress.id!, dto.userId);
+    }
 
     await this.invalidateAddressCache(dto.userId);
 
@@ -71,7 +73,9 @@ export class AddressService {
   }
 
   /**
-   * Update an existing address.
+   * Update an existing address
+   * @param dto Update address data transfer object
+   * @return Updated address
    */
   async updateAddress(dto: UpdateAddressDto): Promise<Address> {
     const address = await this.addressRepository.findById(dto.addressId);
@@ -110,7 +114,9 @@ export class AddressService {
   }
 
   /**
-   * Delete an address (soft delete).
+   * Delete an address (soft delete)
+   * @param userId User ID
+   * @param addressId Address ID
    */
   async deleteAddress(userId: string, addressId: string): Promise<void> {
     const address = await this.addressRepository.findById(addressId);
@@ -125,7 +131,9 @@ export class AddressService {
   }
 
   /**
-   * Invalidate address cache for a user.
+   * Invalidate address cache for a user
+   * @param userId User ID
+   * @param addressId Optional address ID
    */
   private async invalidateAddressCache(userId: string, addressId?: string): Promise<void> {
     const keys = [`${CACHE_KEY_ADDRESSES}${userId}`];

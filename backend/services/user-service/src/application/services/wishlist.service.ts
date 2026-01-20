@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException, ConflictException, Inject } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { IWishlistRepository } from '../../domain/interfaces/wishlist-repository.interface';
 import { ICacheService } from '../../domain/interfaces/cache.interface';
 import { WishlistItem } from '../../domain/models/wishlist-item.model';
@@ -28,7 +27,10 @@ export class WishlistService {
   ) {}
 
   /**
-   * Get paginated wishlist for a user.
+   * Get paginated wishlist for a user
+   * @param userId User ID
+   * @param pagination Pagination parameters
+   * @return Paginated wishlist
    */
   async getWishlist(userId: string, pagination?: PaginationParams): Promise<PaginatedWishlist> {
     const page = pagination?.page || DEFAULT_PAGE;
@@ -67,7 +69,10 @@ export class WishlistService {
   }
 
   /**
-   * Add product to user's wishlist.
+   * Add product to user's wishlist
+   * @param userId User ID
+   * @param productId Product ID
+   * @return Created wishlist item
    */
   async addToWishlist(userId: string, productId: string): Promise<WishlistItem> {
     const isInWishlist = await this.wishlistRepository.isInWishlist(userId, productId);
@@ -76,12 +81,11 @@ export class WishlistService {
       throw new ConflictException('Product already in wishlist');
     }
 
-    const item = new WishlistItem(
-      uuidv4(),
+    const item = new WishlistItem({
       userId,
       productId,
-      new Date(),
-    );
+      addedAt: new Date(),
+    });
 
     const validation = item.validate();
     if (!validation.valid) {
@@ -95,7 +99,9 @@ export class WishlistService {
   }
 
   /**
-   * Remove product from user's wishlist.
+   * Remove product from user's wishlist
+   * @param userId User ID
+   * @param productId Product ID
    */
   async removeFromWishlist(userId: string, productId: string): Promise<void> {
     const item = await this.wishlistRepository.findByUserAndProduct(userId, productId);
@@ -109,7 +115,8 @@ export class WishlistService {
   }
 
   /**
-   * Invalidate cached wishlist for a user.
+   * Invalidate cached wishlist for a user
+   * @param userId User ID
    */
   private async invalidateWishlistCache(userId: string): Promise<void> {
     const cacheKey = `${CACHE_KEY_WISHLIST}${userId}`;

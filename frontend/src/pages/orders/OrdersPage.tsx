@@ -16,54 +16,37 @@ import {
   DollarSign,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import orders from '@/data/orders.json';
+import { useOrders } from '@/hooks';
+import type { OrderStatus as ApiOrderStatus } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-type OrderStatus = 'All' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+type OrderStatus = 'All' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
 const statusConfig = {
-  Processing: { color: 'bg-yellow-100 text-yellow-700', icon: Clock },
-  Shipped: { color: 'bg-blue-100 text-blue-700', icon: Truck },
-  Delivered: { color: 'bg-green-100 text-green-700', icon: CheckCircle },
-  Cancelled: { color: 'bg-red-100 text-red-700', icon: XCircle },
+  PROCESSING: { color: 'bg-yellow-100 text-yellow-700', icon: Clock },
+  SHIPPED: { color: 'bg-blue-100 text-blue-700', icon: Truck },
+  DELIVERED: { color: 'bg-green-100 text-green-700', icon: CheckCircle },
+  CANCELLED: { color: 'bg-red-100 text-red-700', icon: XCircle },
 };
 
 export const OrdersPage: React.FC = () => {
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus>('All');
-  const [sortBy, setSortBy] = useState<'date' | 'total'>('date');
+  const { orders = [], isLoading } = useOrders(1, 50, statusFilter !== 'All' ? statusFilter as ApiOrderStatus : undefined);
 
-  // Filter and sort orders
+  // Client-side search filter
   const filteredOrders = useMemo(() => {
-    let result = user ? orders.filter((order) => order.userId === user.id) : orders;
-
-    // Search filter
-    if (searchQuery) {
-      result = result.filter(
-        (order) =>
-          order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          order.items.some((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'All') {
-      result = result.filter((order) => order.status === statusFilter);
-    }
-
-    // Sort
-    result.sort((a, b) => {
-      if (sortBy === 'date') {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      }
-      return b.total - a.total;
-    });
-
-    return result;
-  }, [user, searchQuery, statusFilter, sortBy]);
+    if (!searchQuery) return orders;
+    
+    return orders.filter(
+      (order) =>
+        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.items.some((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [orders, searchQuery]);
 
   if (!isAuthenticated) {
     return (
@@ -86,9 +69,9 @@ export const OrdersPage: React.FC = () => {
 
   const stats = {
     total: filteredOrders.length,
-    processing: filteredOrders.filter((o) => o.status === 'Processing').length,
-    shipped: filteredOrders.filter((o) => o.status === 'Shipped').length,
-    delivered: filteredOrders.filter((o) => o.status === 'Delivered').length,
+    processing: filteredOrders.filter((o) => o.status === 'PROCESSING').length,
+    shipped: filteredOrders.filter((o) => o.status === 'SHIPPED').length,
+    delivered: filteredOrders.filter((o) => o.status === 'DELIVERED').length,
   };
 
   return (

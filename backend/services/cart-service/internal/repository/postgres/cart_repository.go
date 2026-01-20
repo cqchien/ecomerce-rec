@@ -24,6 +24,14 @@ func (r *cartRepository) Create(ctx context.Context, cart *domain.Cart) error {
 	if err := r.db.WithContext(ctx).Create(dbCart).Error; err != nil {
 		return fmt.Errorf("failed to create cart: %w", err)
 	}
+
+	// Reload to get database-generated IDs
+	if err := r.db.WithContext(ctx).Preload("Items").First(dbCart, "id = ?", dbCart.ID).Error; err != nil {
+		return fmt.Errorf("failed to reload cart: %w", err)
+	}
+
+	// Update the domain object with generated IDs
+	*cart = *r.modelToDomain(dbCart)
 	return nil
 }
 

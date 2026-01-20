@@ -4,15 +4,14 @@ import (
 	"time"
 
 	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/domain"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Event represents the GORM model for events
 type Event struct {
-	ID           uuid.UUID `gorm:"type:uuid;primary_key"`
+	ID           string    `gorm:"type:uuid;primary_key;default:uuid_generate_v7()"`
 	Type         string    `gorm:"type:varchar(100);not null;index"`
-	AggregateID  uuid.UUID `gorm:"type:uuid;not null;index"`
+	AggregateID  string    `gorm:"type:uuid;not null;index"`
 	Payload      string    `gorm:"type:text;not null"`
 	Status       string    `gorm:"type:varchar(50);not null;index"`
 	RetryCount   int       `gorm:"default:0"`

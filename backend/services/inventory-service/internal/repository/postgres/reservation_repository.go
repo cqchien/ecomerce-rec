@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/domain"
@@ -23,9 +22,6 @@ func NewReservationRepository(db *gorm.DB) domain.ReservationRepository {
 // Create creates a new reservation
 func (r *reservationRepository) Create(reservation *domain.Reservation) error {
 	dbReservation := domainToReservationModel(reservation)
-	if dbReservation.ID == "" {
-		dbReservation.ID = uuid.New().String()
-	}
 	dbReservation.CreatedAt = time.Now()
 	dbReservation.UpdatedAt = time.Now()
 
@@ -117,7 +113,7 @@ func (r *reservationRepository) ReserveStock(orderID string, items []domain.Rese
 		}
 	}()
 
-	reservationID := uuid.New().String()
+	var reservationID string
 	results := make([]domain.ReservationResult, 0, len(items))
 	expiresAt := time.Now().Add(time.Duration(ttlSeconds) * time.Second)
 
@@ -172,7 +168,6 @@ func (r *reservationRepository) ReserveStock(orderID string, items []domain.Rese
 
 		// Create reservation record
 		reservation := &models.Reservation{
-			ID:        uuid.New().String(),
 			OrderID:   orderID,
 			ProductID: item.ProductID,
 			VariantID: item.VariantID,
@@ -186,6 +181,11 @@ func (r *reservationRepository) ReserveStock(orderID string, items []domain.Rese
 		if err := tx.Create(reservation).Error; err != nil {
 			tx.Rollback()
 			return "", nil, fmt.Errorf("failed to create reservation: %w", err)
+		}
+
+		// Use the first reservation ID as the bulk reservation ID
+		if reservationID == "" {
+			reservationID = reservation.ID
 		}
 
 		results = append(results, domain.ReservationResult{

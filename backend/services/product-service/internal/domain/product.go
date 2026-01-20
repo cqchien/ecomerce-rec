@@ -1,16 +1,17 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
-// Product represents a product entity
 type Product struct {
 	ID              string
 	Name            string
 	Slug            string
 	Description     string
 	LongDescription string
-	Price           int64 // in cents
-	OriginalPrice   int64 // in cents
+	Price           int64
+	OriginalPrice   int64
 	CategoryID      string
 	CategoryName    string
 	Images          []string
@@ -28,7 +29,6 @@ type Product struct {
 	UpdatedAt       time.Time
 }
 
-// ProductVariant represents product variants (size, color, etc.)
 type ProductVariant struct {
 	ID         string
 	ProductID  string
@@ -39,7 +39,6 @@ type ProductVariant struct {
 	Attributes map[string]string
 }
 
-// ProductStatus represents product status enum
 type ProductStatus string
 
 const (
@@ -50,7 +49,6 @@ const (
 	ProductStatusDiscontinued ProductStatus = "DISCONTINUED"
 )
 
-// Category represents a product category
 type Category struct {
 	ID           string
 	Name         string
@@ -65,7 +63,6 @@ type Category struct {
 	UpdatedAt    time.Time
 }
 
-// ProductFilter represents filter criteria for products
 type ProductFilter struct {
 	CategoryID   *string
 	MinPrice     *int64
@@ -79,13 +76,11 @@ type ProductFilter struct {
 	SearchQuery  *string
 }
 
-// Pagination represents pagination parameters
 type Pagination struct {
 	Page  int32
 	Limit int32
 }
 
-// PaginatedProducts represents paginated product result
 type PaginatedProducts struct {
 	Products   []Product
 	Total      int64

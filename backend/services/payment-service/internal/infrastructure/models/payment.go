@@ -4,22 +4,21 @@ import (
 	"time"
 
 	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/domain"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Payment represents the GORM model for payments
 type Payment struct {
-	ID               uuid.UUID `gorm:"type:uuid;primary_key"`
-	OrderID          uuid.UUID `gorm:"type:uuid;not null;uniqueIndex"`
-	UserID           uuid.UUID `gorm:"type:uuid;not null;index"`
-	Amount           float64   `gorm:"type:decimal(10,2);not null"`
-	Currency         string    `gorm:"type:varchar(3);not null"`
-	Status           string    `gorm:"type:varchar(50);not null;index"`
-	Method           string    `gorm:"type:varchar(50);not null"`
-	ProviderID       string    `gorm:"type:varchar(255);index"`
-	ProviderResponse string    `gorm:"type:text"`
-	FailureReason    string    `gorm:"type:text"`
+	ID               string  `gorm:"type:uuid;primary_key;default:uuid_generate_v7()"`
+	OrderID          string  `gorm:"type:uuid;not null;uniqueIndex"`
+	UserID           string  `gorm:"type:uuid;not null;index"`
+	Amount           float64 `gorm:"type:decimal(10,2);not null"`
+	Currency         string  `gorm:"type:varchar(3);not null"`
+	Status           string  `gorm:"type:varchar(50);not null;index"`
+	Method           string  `gorm:"type:varchar(50);not null"`
+	ProviderID       string  `gorm:"type:varchar(255);index"`
+	ProviderResponse string  `gorm:"type:text"`
+	FailureReason    string  `gorm:"type:text"`
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	DeletedAt        gorm.DeletedAt `gorm:"index"`

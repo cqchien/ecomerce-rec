@@ -15,12 +15,18 @@ import { Request } from 'express';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  /**
+   * Register a new user account
+   */
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
+  /**
+   * Authenticate user and create session
+   */
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto, @Req() req: Request) {
@@ -29,12 +35,18 @@ export class AuthController {
     return this.authService.login(loginDto, ipAddress, userAgent);
   }
 
+  /**
+   * Refresh access token
+   */
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshTokens(refreshTokenDto.refreshToken);
   }
 
+  /**
+   * Logout user and invalidate session
+   */
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -44,12 +56,18 @@ export class AuthController {
     return { message: 'Logged out successfully' };
   }
 
+  /**
+   * Request password reset
+   */
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto.email);
   }
 
+  /**
+   * Reset password with token
+   */
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
@@ -59,12 +77,18 @@ export class AuthController {
     );
   }
 
+  /**
+   * Verify email address
+   */
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
   async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
     return this.authService.verifyEmail(verifyEmailDto.token);
   }
 
+  /**
+   * Get authenticated user profile
+   */
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req: any) {

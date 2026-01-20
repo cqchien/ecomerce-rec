@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 
+	pb "github.com/cqchien/ecomerce-rec/backend/proto"
 	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/delivery/grpc"
 	httpDelivery "github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/delivery/http"
 	"github.com/cqchien/ecomerce-rec/backend/services/payment-service/internal/infrastructure/database"
@@ -72,8 +73,7 @@ func main() {
 	}
 
 	grpcSrv := grpcServer.NewServer()
-	// TODO: Payment handler needs to implement all PaymentServiceServer methods
-	// pb.RegisterPaymentServiceServer(grpcSrv, paymentHandler)
+	pb.RegisterPaymentServiceServer(grpcSrv, paymentHandler)
 
 	log.Info("gRPC server listening", "port", cfg.GRPCPort)
 	if err := grpcSrv.Serve(lis); err != nil {

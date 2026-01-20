@@ -9,8 +9,8 @@ import (
 
 // Order represents the database model for orders
 type Order struct {
-	ID              string `gorm:"primaryKey;type:varchar(36)"`
-	UserID          string `gorm:"type:varchar(36);not null;index"`
+	ID              string `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
+	UserID          string `gorm:"type:uuid;not null;index"`
 	Status          string `gorm:"type:varchar(20);not null;index"`
 	TotalAmount     float64
 	ShippingAddress string `gorm:"type:text"`
@@ -28,9 +28,9 @@ type Order struct {
 
 // OrderItem represents the database model for order items
 type OrderItem struct {
-	ID        string `gorm:"primaryKey;type:varchar(36)"`
-	OrderID   string `gorm:"type:varchar(36);not null;index"`
-	ProductID string `gorm:"type:varchar(36);not null;index"`
+	ID        string `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
+	OrderID   string `gorm:"type:uuid;not null;index"`
+	ProductID string `gorm:"type:uuid;not null;index"`
 	Quantity  int32  `gorm:"not null"`
 	Price     float64
 	Subtotal  float64

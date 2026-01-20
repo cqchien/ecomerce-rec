@@ -6,18 +6,20 @@ import { WishlistItem } from './wishlist-item.model';
  * Pure TypeScript class with no framework dependencies.
  */
 export class User {
-  constructor(
-    public readonly id: string,
-    public email: string,
-    public name: string,
-    public phone: string | null,
-    public avatar: string | null,
-    public readonly createdAt: Date,
-    public updatedAt: Date,
-    public deletedAt: Date | null,
-    public addresses: Address[] = [],
-    public wishlist: WishlistItem[] = [],
-  ) {}
+  id?: string;
+  email!: string;
+  name!: string;
+  phone!: string | null;
+  avatar!: string | null;
+  createdAt!: Date;
+  updatedAt!: Date;
+  deletedAt!: Date | null;
+  addresses?: Address[];
+  wishlist?: WishlistItem[];
+
+  constructor(partial: Partial<User>) {
+    Object.assign(this, partial);
+  }
 
   /**
    * Update user profile information.

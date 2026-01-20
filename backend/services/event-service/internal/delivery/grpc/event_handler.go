@@ -7,7 +7,6 @@ import (
 	pb "github.com/cqchien/ecomerce-rec/backend/proto"
 	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/domain"
 	"github.com/cqchien/ecomerce-rec/backend/services/event-service/internal/usecase"
-	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -27,18 +26,13 @@ func NewEventHandler(useCase *usecase.EventUseCase) *EventHandler {
 
 // PublishEvent publishes a new event
 func (h *EventHandler) PublishEvent(ctx context.Context, req *pb.PublishEventRequest) (*pb.PublishEventResponse, error) {
-	aggregateID, err := uuid.Parse(req.AggregateId)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid aggregate ID")
-	}
-
 	// Convert payload map to JSON string
 	payloadBytes, err := json.Marshal(req.Payload)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid payload format")
 	}
 
-	event, err := h.useCase.CreateEvent(ctx, domain.EventType(req.Type), aggregateID, string(payloadBytes))
+	event, err := h.useCase.CreateEvent(ctx, domain.EventType(req.Type), req.AggregateId, string(payloadBytes))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -50,12 +44,7 @@ func (h *EventHandler) PublishEvent(ctx context.Context, req *pb.PublishEventReq
 
 // GetEvent retrieves an event by ID
 func (h *EventHandler) GetEvent(ctx context.Context, req *pb.GetEventRequest) (*pb.GetEventResponse, error) {
-	id, err := uuid.Parse(req.Id)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid event ID")
-	}
-
-	event, err := h.useCase.GetEvent(ctx, id)
+	event, err := h.useCase.GetEvent(ctx, req.Id)
 	if err != nil {
 		if err == domain.ErrEventNotFound {
 			return nil, status.Error(codes.NotFound, "event not found")
@@ -100,7 +89,7 @@ func (h *EventHandler) TrackEvent(ctx context.Context, req *pb.TrackEventRequest
 
 	// Create event
 	eventType := domain.EventType("USER_EVENT_" + req.EventType.String())
-	aggregateID := uuid.New() // or parse from user_id if it's a UUID
+	aggregateID := req.UserId // Use user ID as aggregate ID
 
 	event, err := h.useCase.CreateEvent(ctx, eventType, aggregateID, string(payloadBytes))
 	if err != nil {
@@ -109,7 +98,7 @@ func (h *EventHandler) TrackEvent(ctx context.Context, req *pb.TrackEventRequest
 
 	return &pb.TrackEventResponse{
 		Success: true,
-		EventId: event.ID.String(),
+		EventId: event.ID,
 	}, nil
 }
 
@@ -154,9 +143,9 @@ func (h *EventHandler) eventToProto(event *domain.Event) *pb.Event {
 	}
 
 	return &pb.Event{
-		Id:          event.ID.String(),
+		Id:          event.ID,
 		Type:        string(event.Type),
-		AggregateId: event.AggregateID.String(),
+		AggregateId: event.AggregateID,
 		Payload:     payload,
 		Status:      string(event.Status),
 		CreatedAt:   event.CreatedAt.Unix(),

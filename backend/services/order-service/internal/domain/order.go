@@ -3,8 +3,6 @@ package domain
 import (
 	"errors"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // OrderStatus represents the state of an order
@@ -61,13 +59,10 @@ func NewOrder(userID, shippingAddress, billingAddress, paymentMethod string, ite
 		return nil, errors.New("shipping address is required")
 	}
 
-	orderID := uuid.New().String()
 	now := time.Now()
 
 	var totalAmount float64
 	for i := range items {
-		items[i].ID = uuid.New().String()
-		items[i].OrderID = orderID
 		items[i].Subtotal = float64(items[i].Quantity) * items[i].Price
 		items[i].CreatedAt = now
 		items[i].UpdatedAt = now
@@ -75,7 +70,7 @@ func NewOrder(userID, shippingAddress, billingAddress, paymentMethod string, ite
 	}
 
 	return &Order{
-		ID:              orderID,
+		ID:              "",
 		UserID:          userID,
 		Status:          OrderStatusPending,
 		Items:           items,

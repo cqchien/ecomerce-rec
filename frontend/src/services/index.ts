@@ -1,21 +1,11 @@
-import { env } from '@/config/env';
-import { mockProductService } from './mock/products';
-import { mockAuthService } from './mock/auth';
-import { mockOrderService } from './mock/orders';
+import { productService } from './api/product.service';
+import { authService } from './api/auth.service';
+import { orderService } from './api/order.service';
 
-// Service factory - switches between mock and real API based on env
-export const getProductService = () => {
-  return mockProductService;
-  // When API is ready: return env.useMockData ? mockProductService : apiProductService;
-};
+// Service getters - always return real API services
+export const getProductService = () => productService;
+export const getAuthService = () => authService;
+export const getOrderService = () => orderService;
 
-export const getAuthService = () => {
-  return mockAuthService;
-};
-
-export const getOrderService = () => {
-  return mockOrderService;
-};
-
-// Export services for direct use
-export { mockProductService, mockAuthService, mockOrderService };
+// Export all API services for direct use
+export * from './api';

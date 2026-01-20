@@ -9,7 +9,6 @@ import (
 	"github.com/cqchien/ecomerce-rec/backend/services/cart-service/internal/domain"
 	"github.com/cqchien/ecomerce-rec/backend/services/cart-service/internal/infrastructure/database/models"
 	"github.com/cqchien/ecomerce-rec/backend/services/cart-service/pkg/logger"
-	"github.com/google/uuid"
 )
 
 // RedisClient defines redis operations needed
@@ -62,7 +61,7 @@ func (uc *cartUseCase) GetCart(ctx context.Context, userID string) (*domain.Cart
 	// Create new cart if doesn't exist
 	if cart == nil {
 		cart = &domain.Cart{
-			ID:     uuid.New().String(),
+			ID:     "",
 			UserID: userID,
 			Items:  []domain.CartItem{},
 		}
@@ -85,7 +84,7 @@ func (uc *cartUseCase) AddToCart(ctx context.Context, userID, productID string, 
 	}
 
 	item := domain.CartItem{
-		ID:        uuid.New().String(),
+		ID:        "",
 		CartID:    cart.ID,
 		ProductID: productID,
 		VariantID: variantID,

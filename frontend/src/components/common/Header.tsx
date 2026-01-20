@@ -78,7 +78,7 @@ export const Header: React.FC = () => {
 
             <Link to="/cart" className="relative p-2.5 bg-gray-50 rounded-full text-gray-600 hover:text-[#FF6B8B] hover:bg-[#FFF0F3] transition-all group">
               <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              {items.length > 0 && (
+              {user && items.length > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF6B8B] text-[10px] font-bold text-white ring-2 ring-white animate-bounce">
                   {getItemCount()}
                 </span>

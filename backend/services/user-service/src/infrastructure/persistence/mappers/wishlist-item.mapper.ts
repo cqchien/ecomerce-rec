@@ -10,20 +10,24 @@ export class WishlistItemMapper {
    * Convert WishlistItemEntity to WishlistItem domain model.
    */
   static toDomain(entity: WishlistItemEntity): WishlistItem {
-    return new WishlistItem(
-      entity.id,
-      entity.userId,
-      entity.productId,
-      entity.addedAt,
-    );
+    return new WishlistItem({
+      id: entity.id,
+      userId: entity.userId,
+      productId: entity.productId,
+      addedAt: entity.addedAt,
+    });
   }
 
   /**
    * Convert WishlistItem domain model to WishlistItemEntity.
+   * ID is only set if it exists (for updates), otherwise TypeORM generates it.
    */
   static toEntity(model: WishlistItem): WishlistItemEntity {
     const entity = new WishlistItemEntity();
-    entity.id = model.id;
+    // Only set ID if it exists, otherwise TypeORM auto-generates it
+    if (model.id !== undefined) {
+      entity.id = model.id;
+    }
     entity.userId = model.userId;
     entity.productId = model.productId;
     entity.addedAt = model.addedAt;

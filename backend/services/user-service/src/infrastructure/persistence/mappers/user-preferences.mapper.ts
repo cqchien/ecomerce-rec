@@ -10,15 +10,15 @@ export class UserPreferencesMapper {
    * Convert UserPreferencesEntity to UserPreferences domain model.
    */
   static toDomain(entity: UserPreferencesEntity): UserPreferences {
-    return new UserPreferences(
-      entity.userId,
-      entity.emailNotifications,
-      entity.smsNotifications,
-      entity.marketingEmails,
-      entity.language,
-      entity.currency,
-      entity.updatedAt,
-    );
+    return new UserPreferences({
+      userId: entity.userId,
+      emailNotifications: entity.emailNotifications,
+      smsNotifications: entity.smsNotifications,
+      marketingEmails: entity.marketingEmails,
+      language: entity.language,
+      currency: entity.currency,
+      updatedAt: entity.updatedAt,
+    });
   }
 
   /**

@@ -5,6 +5,7 @@ import { ProductGrpcClient } from './product-grpc.client';
 import { CartGrpcClient } from './cart-grpc.client';
 import { OrderGrpcClient } from './order-grpc.client';
 import { PaymentGrpcClient } from './payment-grpc.client';
+import { RecommendationGrpcClient } from './recommendation.grpc-client';
 
 @Global()
 @Module({
@@ -15,6 +16,7 @@ import { PaymentGrpcClient } from './payment-grpc.client';
     CartGrpcClient,
     OrderGrpcClient,
     PaymentGrpcClient,
+    RecommendationGrpcClient,
   ],
   exports: [
     AuthGrpcClient,
@@ -23,6 +25,7 @@ import { PaymentGrpcClient } from './payment-grpc.client';
     CartGrpcClient,
     OrderGrpcClient,
     PaymentGrpcClient,
+    RecommendationGrpcClient,
   ],
 })
 export class GrpcClientsModule {}

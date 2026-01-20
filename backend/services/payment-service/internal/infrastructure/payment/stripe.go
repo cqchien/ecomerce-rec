@@ -31,9 +31,9 @@ func (p *StripeProvider) ProcessPayment(ctx context.Context, payment *domain.Pay
 		Amount:   stripe.Int64(amountInCents),
 		Currency: stripe.String(payment.Currency),
 		Metadata: map[string]string{
-			"order_id":   payment.OrderID.String(),
-			"user_id":    payment.UserID.String(),
-			"payment_id": payment.ID.String(),
+			"order_id":   payment.OrderID,
+			"user_id":    payment.UserID,
+			"payment_id": payment.ID,
 		},
 	}
 

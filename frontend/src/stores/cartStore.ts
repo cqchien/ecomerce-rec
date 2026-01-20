@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { cartService, type Cart, type CartItem as ApiCartItem } from '@/services';
 
 interface Product {
   id: string;
@@ -17,61 +18,217 @@ interface CartItem extends Product {
 
 interface CartStore {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number, variant?: string) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  clearCart: () => void;
+  cart: Cart | null;
+  isLoading: boolean;
+  addItem: (product: Product, quantity?: number, variant?: string) => Promise<void>;
+  removeItem: (productId: string) => Promise<void>;
+  updateQuantity: (productId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  fetchCart: () => Promise<void>;
   getTotal: () => number;
   getItemCount: () => number;
+  applyCoupon: (code: string) => Promise<void>;
+  removeCoupon: () => Promise<void>;
 }
 
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      cart: null,
+      isLoading: false,
 
-      addItem: (product: Product, quantity = 1, variant?: string) => {
-        set((state) => {
-          const existingItem = state.items.find(
-            (item) => item.id === product.id && item.selectedVariant === variant
-          );
-
-          if (existingItem) {
-            return {
-              items: state.items.map((item) =>
-                item.id === product.id && item.selectedVariant === variant
-                  ? { ...item, quantity: item.quantity + quantity }
-                  : item
-              ),
-            };
+      fetchCart: async () => {
+        try {
+          // Check if user is authenticated by checking for access token
+          const token = localStorage.getItem('access_token');
+          if (!token) {
+            // User not authenticated, clear cart
+            set({ cart: null, items: [], isLoading: false });
+            return;
           }
-
-          return {
-            items: [...state.items, { ...product, quantity, selectedVariant: variant }],
-          };
-        });
+          
+          set({ isLoading: true });
+          const cart = await cartService.getCart();
+          
+          // Transform API cart items to local format
+          const items = cart.items.map((item: ApiCartItem) => ({
+            id: item.productId,
+            name: item.name,
+            price: item.unitPrice,
+            image: item.image,
+            quantity: item.quantity,
+            category: '', // Not provided by API
+            stock: 0, // Not provided by API
+            selectedVariant: item.variantId,
+          }));
+          
+          set({ cart, items, isLoading: false });
+        } catch (error: any) {
+          console.error('Failed to fetch cart:', error);
+          // If unauthorized or forbidden, clear cart data
+          if (error?.status === 401 || error?.status === 403) {
+            set({ cart: null, items: [], isLoading: false });
+          } else {
+            set({ isLoading: false });
+          }
+        }
       },
 
-      removeItem: (productId: string) => {
-        set((state) => ({
-          items: state.items.filter((item) => item.id !== productId),
-        }));
+      addItem: async (product: Product, quantity = 1, variant?: string) => {
+        try {
+          set({ isLoading: true });
+          const cart = await cartService.addToCart({
+            productId: product.id,
+            variantId: variant,
+            quantity,
+          });
+          
+          // Transform API cart items to local format
+          const items = cart.items.map((item: ApiCartItem) => ({
+            id: item.productId,
+            name: item.name,
+            price: item.unitPrice,
+            image: item.image,
+            quantity: item.quantity,
+            category: product.category || '',
+            stock: product.stock || 0,
+            selectedVariant: item.variantId,
+          }));
+          
+          set({ cart, items, isLoading: false });
+        } catch (error) {
+          console.error('Failed to add item to cart:', error);
+          set({ isLoading: false });
+          throw error;
+        }
       },
 
-      updateQuantity: (productId: string, quantity: number) => {
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.id === productId ? { ...item, quantity } : item
-          ),
-        }));
+      removeItem: async (productId: string) => {
+        try {
+          set({ isLoading: true });
+          const currentCart = get().cart;
+          const item = currentCart?.items.find((item: ApiCartItem) => item.productId === productId);
+          
+          if (item) {
+            const cart = await cartService.removeCartItem(item.id);
+            
+            const items = cart.items.map((item: ApiCartItem) => ({
+              id: item.productId,
+              name: item.name,
+              price: item.unitPrice,
+              image: item.image,
+              quantity: item.quantity,
+              category: '',
+              stock: 0,
+              selectedVariant: item.variantId,
+            }));
+            
+            set({ cart, items, isLoading: false });
+          } else {
+            set({ isLoading: false });
+          }
+        } catch (error) {
+          console.error('Failed to remove item from cart:', error);
+          set({ isLoading: false });
+          throw error;
+        }
       },
 
-      clearCart: () => {
-        set({ items: [] });
+      updateQuantity: async (productId: string, quantity: number) => {
+        try {
+          set({ isLoading: true });
+          const currentCart = get().cart;
+          const item = currentCart?.items.find((item: ApiCartItem) => item.productId === productId);
+          
+          if (item) {
+            const cart = await cartService.updateCartItem(item.id, { quantity });
+            
+            const items = cart.items.map((item: ApiCartItem) => ({
+              id: item.productId,
+              name: item.name,
+              price: item.unitPrice,
+              image: item.image,
+              quantity: item.quantity,
+              category: '',
+              stock: 0,
+              selectedVariant: item.variantId,
+            }));
+            
+            set({ cart, items, isLoading: false });
+          } else {
+            set({ isLoading: false });
+          }
+        } catch (error) {
+          console.error('Failed to update cart item quantity:', error);
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      clearCart: async () => {
+        try {
+          set({ isLoading: true });
+          await cartService.clearCart();
+          set({ items: [], cart: null, isLoading: false });
+        } catch (error) {
+          console.error('Failed to clear cart:', error);
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      applyCoupon: async (code: string) => {
+        try {
+          set({ isLoading: true });
+          const cart = await cartService.applyCoupon(code);
+          
+          const items = cart.items.map((item: ApiCartItem) => ({
+            id: item.productId,
+            name: item.name,
+            price: item.unitPrice,
+            image: item.image,
+            quantity: item.quantity,
+            category: '',
+            stock: 0,
+            selectedVariant: item.variantId,
+          }));
+          
+          set({ cart, items, isLoading: false });
+        } catch (error) {
+          console.error('Failed to apply coupon:', error);
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      removeCoupon: async () => {
+        try {
+          set({ isLoading: true });
+          const cart = await cartService.removeCoupon();
+          
+          const items = cart.items.map((item: ApiCartItem) => ({
+            id: item.productId,
+            name: item.name,
+            price: item.unitPrice,
+            image: item.image,
+            quantity: item.quantity,
+            category: '',
+            stock: 0,
+            selectedVariant: item.variantId,
+          }));
+          
+          set({ cart, items, isLoading: false });
+        } catch (error) {
+          console.error('Failed to remove coupon:', error);
+          set({ isLoading: false });
+          throw error;
+        }
       },
 
       getTotal: () => {
-        return get().items.reduce((total, item) => total + item.price * item.quantity, 0);
+        const cart = get().cart;
+        return cart ? cart.total : 0;
       },
 
       getItemCount: () => {

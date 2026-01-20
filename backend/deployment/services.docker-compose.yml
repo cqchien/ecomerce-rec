@@ -125,7 +125,7 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ecommerce_db
-      DB_SCHEMA: products
+      # DB_SCHEMA: products  # Using public schema with init scripts
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_SSL_MODE: disable

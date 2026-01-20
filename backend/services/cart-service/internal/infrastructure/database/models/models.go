@@ -25,8 +25,8 @@ const (
 
 // Cart database model
 type Cart struct {
-	ID          string         `gorm:"type:uuid;primaryKey"`
-	UserID      string         `gorm:"type:varchar(255);not null;index"`
+	ID          string         `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
+	UserID      string         `gorm:"type:uuid;not null;index"`
 	Subtotal    int64          `gorm:"type:bigint;not null;default:0"`
 	Discount    int64          `gorm:"type:bigint;not null;default:0"`
 	Total       int64          `gorm:"type:bigint;not null;default:0"`
@@ -45,9 +45,9 @@ func (Cart) TableName() string {
 
 // CartItem database model
 type CartItem struct {
-	ID         string         `gorm:"type:uuid;primaryKey"`
+	ID         string         `gorm:"type:uuid;primaryKey;default:uuid_generate_v7()"`
 	CartID     string         `gorm:"type:uuid;not null;index"`
-	ProductID  string         `gorm:"type:varchar(255);not null"`
+	ProductID  string         `gorm:"type:uuid;not null"`
 	VariantID  *string        `gorm:"type:varchar(255)"`
 	Name       string         `gorm:"type:varchar(500);not null"`
 	Image      string         `gorm:"type:text"`

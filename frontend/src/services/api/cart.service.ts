@@ -39,8 +39,15 @@ export interface UpdateCartItemData {
 export const cartService = {
   /**
    * Get user's cart
+   * Only works for authenticated users
    */
   async getCart(): Promise<Cart> {
+    // Check if user is authenticated
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      throw new Error('User not authenticated');
+    }
+    
     const response = await apiClient.get<ApiResponse<Cart>>(
       API_ENDPOINTS.cart.get
     );

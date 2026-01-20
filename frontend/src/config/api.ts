@@ -1,5 +1,5 @@
 // API Base URL Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // API Endpoints Configuration
 export const API_ENDPOINTS = {
@@ -60,6 +60,7 @@ export const API_ENDPOINTS = {
     create: '/orders',
     list: '/orders',
     detail: (id: string) => `/orders/${id}`,
+    cancel: (id: string) => `/orders/${id}/cancel`,
     paymentIntent: '/checkout/payment-intent',
     confirm: '/checkout/confirm',
   },

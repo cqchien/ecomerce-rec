@@ -1,10 +1,10 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { UserEntity } from './user.entity';
 
 @Entity('wishlist_items')
 @Index(['userId', 'productId'], { unique: true })
 export class WishlistItemEntity {
-  @PrimaryColumn('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ name: 'user_id' })

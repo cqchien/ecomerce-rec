@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { User } from '../../domain/models/user.model';
 import { IUserRepository } from '../../domain/interfaces/user-repository.interface';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
@@ -16,9 +15,9 @@ export class UserService {
   ) {}
 
   /**
-   * Get user profile by ID.
-   * @param userId - The user ID
-   * @returns User profile
+   * Get user profile by ID
+   * @param userId The user ID
+   * @return User profile
    */
   async getProfile(userId: string): Promise<User> {
     const cacheKey = `${CACHE_KEY_USER}${userId}`;
@@ -40,9 +39,9 @@ export class UserService {
   }
 
   /**
-   * Update user profile information.
-   * @param dto - Update profile data transfer object
-   * @returns Updated user profile
+   * Update user profile information
+   * @param dto Update profile data transfer object
+   * @return Updated user profile
    */
   async updateProfile(dto: UpdateProfileDto): Promise<User> {
     const user = await this.userRepository.findById(dto.userId);
@@ -66,29 +65,28 @@ export class UserService {
   }
 
   /**
-   * Create a new user.
-   * @param email - User email address
-   * @param name - User name
-   * @returns Created user
+   * Create a new user
+   * @param email User email address
+   * @param name User name
+   * @return Created user
    */
   async createUser(email: string, name: string): Promise<User> {
-    const user = new User(
-      uuidv4(),
+    const user = new User({
       email,
       name,
-      null,
-      null,
-      new Date(),
-      new Date(),
-      null,
-    );
+      phone: null,
+      avatar: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    });
 
     return this.userRepository.save(user);
   }
 
   /**
-   * Delete user account (soft delete).
-   * @param userId - The user ID
+   * Delete user account (soft delete)
+   * @param userId The user ID
    */
   async deleteUser(userId: string): Promise<void> {
     const user = await this.userRepository.findById(userId);

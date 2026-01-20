@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from '@tanstack/react-router';
 import {
   Star,
@@ -15,7 +15,7 @@ import {
   CreditCard,
   RotateCcw,
 } from 'lucide-react';
-import products from '@/data/products.json';
+import { useProduct } from '@/hooks';
 import { useCartStore } from '@/stores/cartStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +24,7 @@ type TabType = 'description' | 'specifications' | 'reviews';
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams({ from: '/product/$slug' });
-  const product = useMemo(() => products.find((p) => p.slug === slug), [slug]);
+  const { product, isLoading } = useProduct(undefined, slug);
   const { addItem } = useCartStore();
 
   const [activeImage, setActiveImage] = useState(0);
@@ -33,6 +33,14 @@ export const ProductDetailPage: React.FC = () => {
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState('M');
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-32 text-center">
+        <p className="text-gray-500">Loading product...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -48,11 +56,6 @@ export const ProductDetailPage: React.FC = () => {
   const images = product.images || [product.image];
   const galleryImages = images.length < 4 ? [...images, ...Array(4 - images.length).fill(images[0])] : images;
 
-  const relatedProducts = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
-  const bundleProduct = relatedProducts[0] || products[0];
-
   const colors = ['#000000', '#FFFFFF', '#FF6B8B'];
   const sizes = ['XS', 'S', 'M', 'L', 'XL'];
 
@@ -61,29 +64,15 @@ export const ProductDetailPage: React.FC = () => {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image,
-      category: product.category,
+      image: images[0],
+      category: product.categoryName || product.categoryId,
       stock: product.stock,
     }, quantity);
   };
 
   const handleAddBundle = () => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      category: product.category,
-      stock: product.stock,
-    }, 1);
-    addItem({
-      id: bundleProduct.id,
-      name: bundleProduct.name,
-      price: bundleProduct.price,
-      image: bundleProduct.image,
-      category: bundleProduct.category,
-      stock: bundleProduct.stock,
-    }, 1);
+    // Bundle functionality would need related products from API
+    handleAddToCart();
   };
 
   return (

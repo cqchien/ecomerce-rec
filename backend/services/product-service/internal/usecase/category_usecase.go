@@ -9,7 +9,6 @@ import (
 	"github.com/cqchien/ecomerce-rec/backend/services/product-service/internal/domain"
 	"github.com/cqchien/ecomerce-rec/backend/services/product-service/internal/infrastructure/database/models"
 	"github.com/cqchien/ecomerce-rec/backend/services/product-service/pkg/logger"
-	"github.com/google/uuid"
 )
 
 type CategoryUseCase struct {
@@ -19,7 +18,13 @@ type CategoryUseCase struct {
 	cacheTTL     time.Duration
 }
 
-// NewCategoryUseCase creates a new category use case
+/**
+ * Creates a new category use case
+ * @param categoryRepo Category repository instance
+ * @param redis Redis client instance
+ * @param logger Logger instance
+ * @return CategoryUseCase instance
+ */
 func NewCategoryUseCase(
 	categoryRepo domain.CategoryRepository,
 	redis RedisClient,
@@ -33,8 +38,12 @@ func NewCategoryUseCase(
 	}
 }
 
+/**
+ * Retrieves a category by ID with caching
+ * @param id Category ID
+ * @return Category entity
+ */
 func (uc *CategoryUseCase) GetCategory(ctx context.Context, id string) (*domain.Category, error) {
-	// Try cache first
 	cacheKey := fmt.Sprintf("%s%s", models.CacheKeyCategory, id)
 	cached, err := uc.redis.Get(ctx, cacheKey)
 	if err == nil && cached != "" {
@@ -45,22 +54,24 @@ func (uc *CategoryUseCase) GetCategory(ctx context.Context, id string) (*domain.
 		}
 	}
 
-	// Get from database
 	category, err := uc.categoryRepo.GetByID(ctx, id)
 	if err != nil {
 		uc.logger.Error("Failed to get category", "id", id, "error", err)
 		return nil, fmt.Errorf("get category: %w", err)
 	}
 
-	// Cache the result
 	categoryJSON, _ := json.Marshal(category)
 	uc.redis.Set(ctx, cacheKey, categoryJSON, uc.cacheTTL)
 
 	return category, nil
 }
 
+/**
+ * Retrieves a category by slug with caching
+ * @param slug Category slug
+ * @return Category entity
+ */
 func (uc *CategoryUseCase) GetCategoryBySlug(ctx context.Context, slug string) (*domain.Category, error) {
-	// Try cache first
 	cacheKey := fmt.Sprintf("%s%s", models.CacheKeyCategorySlug, slug)
 	cached, err := uc.redis.Get(ctx, cacheKey)
 	if err == nil && cached != "" {
@@ -71,22 +82,24 @@ func (uc *CategoryUseCase) GetCategoryBySlug(ctx context.Context, slug string) (
 		}
 	}
 
-	// Get from database
 	category, err := uc.categoryRepo.GetBySlug(ctx, slug)
 	if err != nil {
 		uc.logger.Error("Failed to get category by slug", "slug", slug, "error", err)
 		return nil, fmt.Errorf("get category by slug: %w", err)
 	}
 
-	// Cache the result
 	categoryJSON, _ := json.Marshal(category)
 	uc.redis.Set(ctx, cacheKey, categoryJSON, uc.cacheTTL)
 
 	return category, nil
 }
 
+/**
+ * Lists categories with optional parent filter and caching
+ * @param parentID Optional parent category ID
+ * @return List of categories
+ */
 func (uc *CategoryUseCase) ListCategories(ctx context.Context, parentID *string) ([]domain.Category, error) {
-	// Try cache first
 	cacheKey := models.CacheKeyCategoriesAll
 	if parentID != nil {
 		cacheKey = fmt.Sprintf("%s%s", models.CacheKeyCategoriesParent, *parentID)
@@ -101,22 +114,23 @@ func (uc *CategoryUseCase) ListCategories(ctx context.Context, parentID *string)
 		}
 	}
 
-	// Get from database
 	categories, err := uc.categoryRepo.List(ctx, parentID)
 	if err != nil {
 		uc.logger.Error("Failed to list categories", "error", err)
 		return nil, fmt.Errorf("list categories: %w", err)
 	}
 
-	// Cache the result
 	categoriesJSON, _ := json.Marshal(categories)
-	uc.redis.Set(ctx, cacheKey, categoriesJSON, uc.cacheTTL)
+	uc.redis.Set(ctx, cacheKey, categoriesJSON, models.CategoryListCacheTTL)
 
 	return categories, nil
 }
 
+/**
+ * Retrieves categories with product counts
+ * @return List of categories with product counts
+ */
 func (uc *CategoryUseCase) GetCategoriesWithProductCount(ctx context.Context) ([]domain.Category, error) {
-	// Try cache first
 	cacheKey := models.CacheKeyCategoriesCount
 	cached, err := uc.redis.Get(ctx, cacheKey)
 	if err == nil && cached != "" {
@@ -127,27 +141,23 @@ func (uc *CategoryUseCase) GetCategoriesWithProductCount(ctx context.Context) ([
 		}
 	}
 
-	// Get from database
 	categories, err := uc.categoryRepo.GetWithProductCount(ctx)
 	if err != nil {
 		uc.logger.Error("Failed to get categories with count", "error", err)
 		return nil, fmt.Errorf("get categories with count: %w", err)
 	}
 
-	// Cache the result
 	categoriesJSON, _ := json.Marshal(categories)
-	uc.redis.Set(ctx, cacheKey, categoriesJSON, models.CategoryCountsCacheTTL) // Shorter TTL due to product counts
+	uc.redis.Set(ctx, cacheKey, categoriesJSON, models.CategoryCountsCacheTTL)
 
 	return categories, nil
 }
 
+/**
+ * Creates a new category
+ * @param category Category entity to create
+ */
 func (uc *CategoryUseCase) CreateCategory(ctx context.Context, category *domain.Category) error {
-	// Generate ID and timestamps
-	category.ID = uuid.New().String()
-	category.CreatedAt = time.Now()
-	category.UpdatedAt = time.Now()
-
-	// Validate parent category if provided
 	if category.ParentID != nil {
 		_, err := uc.categoryRepo.GetByID(ctx, *category.ParentID)
 		if err != nil {
@@ -155,96 +165,81 @@ func (uc *CategoryUseCase) CreateCategory(ctx context.Context, category *domain.
 		}
 	}
 
-	// Create category
 	if err := uc.categoryRepo.Create(ctx, category); err != nil {
 		uc.logger.Error("Failed to create category", "error", err)
 		return fmt.Errorf("create category: %w", err)
 	}
 
-	// Invalidate category cache
-	uc.invalidateCategoryCache(ctx, category.ParentID)
+	uc.invalidateCache(ctx)
 
 	uc.logger.Info("Category created", "id", category.ID, "name", category.Name)
 	return nil
 }
 
+/**
+ * Updates an existing category
+ * @param category Category entity with updated values
+ */
 func (uc *CategoryUseCase) UpdateCategory(ctx context.Context, category *domain.Category) error {
-	// Validate category exists
-	existing, err := uc.categoryRepo.GetByID(ctx, category.ID)
+	_, err := uc.categoryRepo.GetByID(ctx, category.ID)
 	if err != nil {
 		return fmt.Errorf("category not found: %w", err)
 	}
 
-	// Validate parent category if changed
 	if category.ParentID != nil {
-		// Prevent self-reference
 		if *category.ParentID == category.ID {
 			return fmt.Errorf("category cannot be its own parent")
 		}
-
 		_, err := uc.categoryRepo.GetByID(ctx, *category.ParentID)
 		if err != nil {
 			return fmt.Errorf("invalid parent category: %w", err)
 		}
 	}
 
-	category.UpdatedAt = time.Now()
-
-	// Update category
 	if err := uc.categoryRepo.Update(ctx, category); err != nil {
 		uc.logger.Error("Failed to update category", "id", category.ID, "error", err)
 		return fmt.Errorf("update category: %w", err)
 	}
 
-	// Invalidate cache
-	uc.redis.Del(ctx,
-		fmt.Sprintf("%s%s", models.CacheKeyCategory, category.ID),
-		fmt.Sprintf("%s%s", models.CacheKeyCategorySlug, category.Slug),
-	)
-	uc.invalidateCategoryCache(ctx, existing.ParentID)
-	uc.invalidateCategoryCache(ctx, category.ParentID)
+	uc.invalidateCache(ctx)
 
 	uc.logger.Info("Category updated", "id", category.ID, "name", category.Name)
 	return nil
 }
 
+/**
+ * Deletes a category by ID
+ * @param id Category ID
+ */
 func (uc *CategoryUseCase) DeleteCategory(ctx context.Context, id string) error {
-	// Validate category exists
 	category, err := uc.categoryRepo.GetByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("category not found: %w", err)
 	}
 
-	// Check if category has children
 	children, err := uc.categoryRepo.List(ctx, &id)
 	if err != nil {
-		return fmt.Errorf("check category children: %w", err)
+		return fmt.Errorf("failed to check children: %w", err)
 	}
 	if len(children) > 0 {
-		return fmt.Errorf("cannot delete category with subcategories")
+		return fmt.Errorf("cannot delete category with children")
 	}
 
-	// Delete category
 	if err := uc.categoryRepo.Delete(ctx, id); err != nil {
 		uc.logger.Error("Failed to delete category", "id", id, "error", err)
 		return fmt.Errorf("delete category: %w", err)
 	}
 
-	// Invalidate cache
-	uc.redis.Del(ctx,
-		fmt.Sprintf("%s%s", models.CacheKeyCategory, id),
-		fmt.Sprintf("%s%s", models.CacheKeyCategorySlug, category.Slug),
-	)
-	uc.invalidateCategoryCache(ctx, category.ParentID)
+	uc.invalidateCache(ctx)
 
-	uc.logger.Info("Category deleted", "id", id)
+	uc.logger.Info("Category deleted", "id", id, "name", category.Name)
 	return nil
 }
 
-func (uc *CategoryUseCase) invalidateCategoryCache(ctx context.Context, parentID *string) {
-	keys := []string{models.CacheKeyCategoriesAll, models.CacheKeyCategoriesCount}
-	if parentID != nil {
-		keys = append(keys, fmt.Sprintf("%s%s", models.CacheKeyCategoriesParent, *parentID))
+func (uc *CategoryUseCase) invalidateCache(ctx context.Context) {
+	cacheKeys := []string{
+		models.CacheKeyCategoriesAll,
+		models.CacheKeyCategoriesCount,
 	}
-	uc.redis.Del(ctx, keys...)
+	uc.redis.Del(ctx, cacheKeys...)
 }

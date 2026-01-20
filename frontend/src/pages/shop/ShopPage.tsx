@@ -5,8 +5,7 @@ import {
   X, SlidersHorizontal 
 } from 'lucide-react';
 import { ProductCard } from '@/components/product/ProductCard';
-import products from '@/data/products.json';
-import categories from '@/data/categories.json';
+import { useProducts, useCategories } from '@/hooks';
 import { useCartStore } from '@/stores/cartStore';
 
 type ViewMode = 'grid' | 'list';
@@ -20,45 +19,18 @@ export const ShopPage: React.FC = () => {
   const [selectedRating, setSelectedRating] = useState<number>(0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { addItem } = useCartStore();
+  
+  const { categories = [] } = useCategories();
+  const { products = [], isLoading } = useProducts({
+    category: selectedCategory !== 'all' ? selectedCategory : undefined,
+    minPrice: priceRange[0],
+    maxPrice: priceRange[1],
+    rating: selectedRating > 0 ? selectedRating : undefined,
+    sort: sortBy as any,
+  });
 
-  // Filter and sort products
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
-
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      result = result.filter((p) => p.category === selectedCategory);
-    }
-
-    // Filter by price range
-    result = result.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
-
-    // Filter by rating
-    if (selectedRating > 0) {
-      result = result.filter((p) => p.rating >= selectedRating);
-    }
-
-    // Sort
-    switch (sortBy) {
-      case 'price-asc':
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'newest':
-        result = result.filter((p) => p.isNew);
-        break;
-      default:
-        // Featured - show featured products first
-        result.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
-    }
-
-    return result;
-  }, [selectedCategory, priceRange, selectedRating, sortBy]);
+  // Products are already filtered by the API based on the filters passed to useProducts
+  const filteredProducts = products;
 
   const handleAddToCart = (product: any) => {
     addItem(product);

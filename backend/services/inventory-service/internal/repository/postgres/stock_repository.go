@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/cqchien/ecomerce-rec/backend/services/inventory-service/internal/domain"
@@ -23,9 +22,6 @@ func NewStockRepository(db *gorm.DB) domain.StockRepository {
 // Create creates a new stock record
 func (r *stockRepository) Create(stock *domain.Stock) error {
 	dbStock := domainToStockModel(stock)
-	if dbStock.ID == "" {
-		dbStock.ID = uuid.New().String()
-	}
 	dbStock.CreatedAt = time.Now()
 	dbStock.UpdatedAt = time.Now()
 
@@ -182,7 +178,6 @@ func (r *stockRepository) UpdateQuantity(productID, variantID string, quantity i
 
 	// Create movement record
 	movement := &models.StockMovement{
-		ID:          uuid.New().String(),
 		ProductID:   productID,
 		VariantID:   variantID,
 		WarehouseID: dbStock.WarehouseID,
@@ -246,7 +241,6 @@ func (r *stockRepository) BulkCheckAvailability(items []domain.ReservationItem) 
 // CreateMovement creates a stock movement audit record
 func (r *stockRepository) CreateMovement(movement *domain.StockMovement) error {
 	dbMovement := &models.StockMovement{
-		ID:          uuid.New().String(),
 		ProductID:   movement.ProductID,
 		VariantID:   movement.VariantID,
 		WarehouseID: movement.WarehouseID,

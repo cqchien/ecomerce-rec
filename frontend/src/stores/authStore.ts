@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { getAuthService } from '@/services';
 
 interface User {
   id: string;
@@ -14,7 +15,7 @@ interface AuthStore {
   isAuthenticated: boolean;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   setUser: (user: User) => void;
 }
 
@@ -26,25 +27,23 @@ export const useAuthStore = create<AuthStore>()(
       token: null,
 
       login: async (email: string, password: string) => {
-        // Mock login - will be replaced with actual API call
-        const users = await import('@/data/users.json');
-        const user = users.default.find(
-          (u) => u.email === email && u.password === password
-        );
-
-        if (user) {
-          const { password: _, ...userWithoutPassword } = user;
-          set({
-            user: userWithoutPassword,
-            isAuthenticated: true,
-            token: 'mock-jwt-token',
-          });
-        } else {
-          throw new Error('Invalid credentials');
-        }
+        const authService = getAuthService();
+        const response = await authService.login({ email, password });
+        
+        set({
+          user: response.user,
+          isAuthenticated: true,
+          token: response.token,
+        });
       },
 
-      logout: () => {
+      logout: async () => {
+        const authService = getAuthService();
+        await authService.logout();
+        
+        // Clear cart storage when logging out
+        localStorage.removeItem('cart-storage');
+        
         set({
           user: null,
           isAuthenticated: false,

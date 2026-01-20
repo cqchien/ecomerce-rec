@@ -1,8 +1,9 @@
 package domain
 
-import "context"
+import (
+	"context"
+)
 
-// ProductRepository defines the interface for product data access
 type ProductRepository interface {
 	Create(ctx context.Context, product *Product) error
 	Update(ctx context.Context, product *Product) error
@@ -15,7 +16,6 @@ type ProductRepository interface {
 	UpdateRating(ctx context.Context, productID string, rating float64, reviewCount int32) error
 }
 
-// CategoryRepository defines the interface for category data access
 type CategoryRepository interface {
 	Create(ctx context.Context, category *Category) error
 	Update(ctx context.Context, category *Category) error

@@ -16,7 +16,7 @@ import {
   Save,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import orders from '@/data/orders.json';
+import { useOrders } from '@/hooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,6 +27,7 @@ export const DashboardPage: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const { orders: userOrders = [], isLoading } = useOrders(1, 10);
 
   if (!isAuthenticated || !user) {
     return (
@@ -42,9 +43,6 @@ export const DashboardPage: React.FC = () => {
       </div>
     );
   }
-
-  // Filter orders for current user
-  const userOrders = orders.filter((order) => order.userId === user.id);
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] pt-24 pb-20">

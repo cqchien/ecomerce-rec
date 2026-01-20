@@ -65,7 +65,7 @@ func Load() *Config {
 	// Build composite URLs
 	cfg.DatabaseURL = fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s search_path=%s sslmode=%s",
-		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSLMode,
+		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSchema, cfg.DBSSLMode,
 	)
 	cfg.RedisURL = fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort)
 

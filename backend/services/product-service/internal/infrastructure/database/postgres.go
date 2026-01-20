@@ -13,9 +13,7 @@ import (
 
 // NewPostgresDB creates a new PostgreSQL database connection using GORM
 func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
-	dsn := cfg.GetDSN()
-
-	// Configure GORM
+	// Just use the DSN directly without pgx configuration
 	gormConfig := &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		NowFunc: func() time.Time {
@@ -23,8 +21,8 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 		},
 	}
 
-	// Connect to database
-	db, err := gorm.Open(postgres.Open(dsn), gormConfig)
+	// Connect to database using standard postgres driver
+	db, err := gorm.Open(postgres.Open(cfg.GetDSN()), gormConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -50,18 +48,20 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 
 // RunMigrations runs database migrations using GORM AutoMigrate
 func RunMigrations(db *gorm.DB) error {
-	// Auto migrate all models
-	err := db.AutoMigrate(
-		&models.Category{},
-		&models.Product{},
-		&models.ProductVariant{},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to run migrations: %w", err)
+	// Skip AutoMigrate since we use init scripts for schema creation
+	// Verify tables exist
+	if !db.Migrator().HasTable(&models.Category{}) {
+		return fmt.Errorf("categories table not found - ensure init scripts have run")
+	}
+	if !db.Migrator().HasTable(&models.Product{}) {
+		return fmt.Errorf("products table not found - ensure init scripts have run")
+	}
+	if !db.Migrator().HasTable(&models.ProductVariant{}) {
+		return fmt.Errorf("product_variants table not found - ensure init scripts have run")
 	}
 
 	// Create GIN index for tags (GORM doesn't support this automatically)
-	err = db.Exec("CREATE INDEX IF NOT EXISTS idx_products_tags ON products USING GIN(tags)").Error
+	err := db.Exec("CREATE INDEX IF NOT EXISTS idx_products_tags ON products USING GIN(tags)").Error
 	if err != nil {
 		return fmt.Errorf("failed to create GIN index: %w", err)
 	}

@@ -21,7 +21,13 @@ type productServer struct {
 	logger     logger.Logger
 }
 
-// NewServer creates a new gRPC server
+/**
+ * Creates a new gRPC server
+ * @param productUC Product use case instance
+ * @param categoryUC Category use case instance
+ * @param logger Logger instance
+ * @return gRPC server instance
+ */
 func NewServer(productUC *usecase.ProductUseCase, categoryUC *usecase.CategoryUseCase, logger logger.Logger) *grpc.Server {
 	grpcServer := grpc.NewServer()
 
@@ -36,7 +42,12 @@ func NewServer(productUC *usecase.ProductUseCase, categoryUC *usecase.CategoryUs
 	return grpcServer
 }
 
-// GetProduct retrieves a product by ID
+/**
+ * Retrieves a product by ID
+ * @param ctx Context
+ * @param req GetProduct request
+ * @return Product response
+ */
 func (s *productServer) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.GetProductResponse, error) {
 	if req.Id == "" {
 		return nil, status.Error(codes.InvalidArgument, "product id is required")
@@ -53,7 +64,12 @@ func (s *productServer) GetProduct(ctx context.Context, req *pb.GetProductReques
 	}, nil
 }
 
-// ListProducts lists products with filters and pagination
+/**
+ * Lists products with filters and pagination
+ * @param ctx Context
+ * @param req ListProducts request
+ * @return Products list response
+ */
 func (s *productServer) ListProducts(ctx context.Context, req *pb.ListProductsRequest) (*pb.ListProductsResponse, error) {
 	filter := s.protoToFilter(req.Filters)
 	pagination := s.protoToPagination(req.Pagination)
@@ -80,7 +96,12 @@ func (s *productServer) ListProducts(ctx context.Context, req *pb.ListProductsRe
 	}, nil
 }
 
-// SearchProducts searches products by query
+/**
+ * Searches products by query
+ * @param ctx Context
+ * @param req SearchProducts request
+ * @return Search results response
+ */
 func (s *productServer) SearchProducts(ctx context.Context, req *pb.SearchProductsRequest) (*pb.SearchProductsResponse, error) {
 	if req.Query == "" {
 		return nil, status.Error(codes.InvalidArgument, "search query is required")
@@ -112,7 +133,12 @@ func (s *productServer) SearchProducts(ctx context.Context, req *pb.SearchProduc
 	}, nil
 }
 
-// ListCategories lists product categories
+/**
+ * Lists product categories
+ * @param ctx Context
+ * @param req ListCategories request
+ * @return Categories list response
+ */
 func (s *productServer) ListCategories(ctx context.Context, req *pb.ListCategoriesRequest) (*pb.ListCategoriesResponse, error) {
 	var parentID *string
 	if req.ParentId != "" {
@@ -143,7 +169,12 @@ func (s *productServer) ListCategories(ctx context.Context, req *pb.ListCategori
 	}, nil
 }
 
-// GetCategory retrieves a category by ID
+/**
+ * Retrieves a category by ID
+ * @param ctx Context
+ * @param req GetCategory request
+ * @return Category response
+ */
 func (s *productServer) GetCategory(ctx context.Context, req *pb.GetCategoryRequest) (*pb.GetCategoryResponse, error) {
 	if req.Id == "" {
 		return nil, status.Error(codes.InvalidArgument, "category id is required")
@@ -160,7 +191,12 @@ func (s *productServer) GetCategory(ctx context.Context, req *pb.GetCategoryRequ
 	}, nil
 }
 
-// GetRelatedProducts gets products related to a specific product
+/**
+ * Gets products related to a specific product
+ * @param ctx Context
+ * @param req GetRelatedProducts request
+ * @return Related products response
+ */
 func (s *productServer) GetRelatedProducts(ctx context.Context, req *pb.GetRelatedProductsRequest) (*pb.GetRelatedProductsResponse, error) {
 	if req.ProductId == "" {
 		return nil, status.Error(codes.InvalidArgument, "product id is required")
@@ -168,7 +204,7 @@ func (s *productServer) GetRelatedProducts(ctx context.Context, req *pb.GetRelat
 
 	limit := req.Limit
 	if limit == 0 {
-		limit = 10 // Default for related products
+		limit = 10
 	}
 
 	products, err := s.productUC.GetRelatedProducts(ctx, req.ProductId, limit)
@@ -187,7 +223,12 @@ func (s *productServer) GetRelatedProducts(ctx context.Context, req *pb.GetRelat
 	}, nil
 }
 
-// CreateProduct creates a new product (Admin)
+/**
+ * Creates a new product (Admin)
+ * @param ctx Context
+ * @param req CreateProduct request
+ * @return Created product response
+ */
 func (s *productServer) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.CreateProductResponse, error) {
 	if req.Name == "" || req.CategoryId == "" {
 		return nil, status.Error(codes.InvalidArgument, "name and category_id are required")
@@ -219,19 +260,22 @@ func (s *productServer) CreateProduct(ctx context.Context, req *pb.CreateProduct
 	}, nil
 }
 
-// UpdateProduct updates an existing product (Admin)
+/**
+ * Updates an existing product (Admin)
+ * @param ctx Context
+ * @param req UpdateProduct request
+ * @return Updated product response
+ */
 func (s *productServer) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.UpdateProductResponse, error) {
 	if req.Id == "" {
 		return nil, status.Error(codes.InvalidArgument, "product id is required")
 	}
 
-	// Get existing product
 	existing, err := s.productUC.GetProduct(ctx, req.Id)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "product not found")
 	}
 
-	// Update fields if provided
 	if req.Name != nil {
 		existing.Name = *req.Name
 	}
@@ -264,7 +308,12 @@ func (s *productServer) UpdateProduct(ctx context.Context, req *pb.UpdateProduct
 	}, nil
 }
 
-// DeleteProduct deletes a product (Admin)
+/**
+ * Deletes a product (Admin)
+ * @param ctx Context
+ * @param req DeleteProduct request
+ * @return Delete success response
+ */
 func (s *productServer) DeleteProduct(ctx context.Context, req *pb.DeleteProductRequest) (*pb.DeleteProductResponse, error) {
 	if req.Id == "" {
 		return nil, status.Error(codes.InvalidArgument, "product id is required")
@@ -280,7 +329,12 @@ func (s *productServer) DeleteProduct(ctx context.Context, req *pb.DeleteProduct
 	}, nil
 }
 
-// GetProductsByIds retrieves multiple products by their IDs
+/**
+ * Retrieves multiple products by their IDs
+ * @param ctx Context
+ * @param req GetProductsByIds request
+ * @return Products list response
+ */
 func (s *productServer) GetProductsByIds(ctx context.Context, req *pb.GetProductsByIdsRequest) (*pb.GetProductsByIdsResponse, error) {
 	if len(req.Ids) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "at least one product id is required")

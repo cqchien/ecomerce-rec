@@ -8,6 +8,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { User, UserRole } from '../../common/entities/user.entity';
 import { RefreshToken } from '../../common/entities/refresh-token.entity';
 import { RegisterDto, LoginDto } from '../../common/dto/auth.dto';
+import {
+  RegisterResponseDto,
+  LoginResponseDto,
+  RefreshTokenResponseDto,
+  ForgotPasswordResponseDto,
+  ResetPasswordResponseDto,
+  VerifyEmailResponseDto,
+  UserResponseDto,
+} from '../../common/dto/auth-response.dto';
 import { RedisService } from '../redis/redis.service';
 
 @Injectable()
@@ -22,8 +31,12 @@ export class AuthService {
     private readonly redisService: RedisService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<{ user: Partial<User>; accessToken: string; refreshToken: string }> {
-    // Check if user already exists
+  /**
+   * Register a new user account
+   * @param registerDto User registration data
+   * @return Registration response with user data and tokens
+   */
+  async register(registerDto: RegisterDto): Promise<RegisterResponseDto> {
     const existingUser = await this.userRepository.findOne({
       where: { email: registerDto.email },
     });
@@ -32,13 +45,9 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-
-    // Create verification token
     const verificationToken = uuidv4();
 
-    // Create user
     const user = this.userRepository.create({
       email: registerDto.email,
       password: hashedPassword,
@@ -50,51 +59,42 @@ export class AuthService {
 
     await this.userRepository.save(user);
 
-    // Generate tokens
     const { accessToken, refreshToken } = await this.generateTokens(user);
-
-    // Store session in Redis
     await this.storeSession(user.id, accessToken);
 
-    // Remove password from response
     const { password, verificationToken: _, resetPasswordToken, ...userWithoutSensitiveData } = user;
 
-    return {
-      user: userWithoutSensitiveData,
-      accessToken,
-      refreshToken,
-    };
+    return new RegisterResponseDto(userWithoutSensitiveData, accessToken, refreshToken);
   }
 
-  async login(loginDto: LoginDto, ipAddress?: string, userAgent?: string): Promise<{ user: Partial<User>; accessToken: string; refreshToken: string }> {
-    // Validate user
+  /**
+   * Authenticate user and create session
+   * @param loginDto User login credentials
+   * @param ipAddress Client IP address
+   * @param userAgent Client user agent
+   * @return Login response with user data and tokens
+   */
+  async login(loginDto: LoginDto, ipAddress?: string, userAgent?: string): Promise<LoginResponseDto> {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Update last login
-    // Note: lastLoginAt column doesn't exist in database yet
-    // user.lastLoginAt = new Date();
-    // await this.userRepository.save(user);
-
-    // Generate tokens
     const { accessToken, refreshToken } = await this.generateTokens(user, ipAddress, userAgent);
-
-    // Store session in Redis
     await this.storeSession(user.id, accessToken);
 
-    // Remove password from response
     const { password, verificationToken, resetPasswordToken, ...userWithoutSensitiveData } = user;
 
-    return {
-      user: userWithoutSensitiveData,
-      accessToken,
-      refreshToken,
-    };
+    return new LoginResponseDto(userWithoutSensitiveData, accessToken, refreshToken);
   }
 
+  /**
+   * Validate user credentials
+   * @param email User email
+   * @param password User password
+   * @return User entity if valid, null otherwise
+   */
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userRepository.findOne({ where: { email } });
 
@@ -115,8 +115,12 @@ export class AuthService {
     return user;
   }
 
-  async refreshTokens(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
-    // Find refresh token
+  /**
+   * Refresh access token using refresh token
+   * @param refreshToken Refresh token string
+   * @return New access and refresh tokens
+   */
+  async refreshTokens(refreshToken: string): Promise<RefreshTokenResponseDto> {
     const storedToken = await this.refreshTokenRepository.findOne({
       where: { token: refreshToken, revoked: false },
       relations: ['user'],
@@ -126,31 +130,30 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    // Check if expired
     if (new Date() > storedToken.expiresAt) {
       throw new UnauthorizedException('Refresh token expired');
     }
 
-    // Revoke old token
     storedToken.revoked = true;
     storedToken.revokedAt = new Date();
     await this.refreshTokenRepository.save(storedToken);
 
-    // Generate new tokens
     const tokens = await this.generateTokens(storedToken.user);
 
-    // Update replaced token reference
     storedToken.replacedByToken = tokens.refreshToken;
     await this.refreshTokenRepository.save(storedToken);
 
-    return tokens;
+    return new RefreshTokenResponseDto(tokens.accessToken, tokens.refreshToken);
   }
 
+  /**
+   * Logout user and invalidate session
+   * @param userId User ID
+   * @param refreshToken Optional refresh token to revoke
+   */
   async logout(userId: string, refreshToken?: string): Promise<void> {
-    // Remove session from Redis
     await this.redisService.del(`session:${userId}`);
 
-    // Revoke refresh token if provided
     if (refreshToken) {
       const storedToken = await this.refreshTokenRepository.findOne({
         where: { token: refreshToken, userId },
@@ -164,28 +167,34 @@ export class AuthService {
     }
   }
 
-  async forgotPassword(email: string): Promise<{ message: string }> {
+  /**
+   * Initiate password reset process
+   * @param email User email address
+   * @return Confirmation message
+   */
+  async forgotPassword(email: string): Promise<ForgotPasswordResponseDto> {
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
-      // Don't reveal if user exists
-      return { message: 'If the email exists, a reset link will be sent' };
+      return new ForgotPasswordResponseDto('If the email exists, a reset link will be sent');
     }
 
-    // Generate reset token
     const resetToken = uuidv4();
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
+    user.resetPasswordExpires = new Date(Date.now() + 3600000);
 
     await this.userRepository.save(user);
 
-    // TODO: Send email with reset link
-    // await this.emailService.sendPasswordReset(user.email, resetToken);
-
-    return { message: 'If the email exists, a reset link will be sent' };
+    return new ForgotPasswordResponseDto('If the email exists, a reset link will be sent');
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  /**
+   * Reset user password with token
+   * @param token Password reset token
+   * @param newPassword New password
+   * @return Confirmation message
+   */
+  async resetPassword(token: string, newPassword: string): Promise<ResetPasswordResponseDto> {
     const user = await this.userRepository.findOne({
       where: { resetPasswordToken: token },
     });
@@ -194,23 +203,26 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired reset token');
     }
 
-    // Hash new password
     user.password = await bcrypt.hash(newPassword, 10);
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
 
     await this.userRepository.save(user);
 
-    // Revoke all refresh tokens for security
     await this.refreshTokenRepository.update(
       { userId: user.id, revoked: false },
       { revoked: true, revokedAt: new Date() }
     );
 
-    return { message: 'Password reset successful' };
+    return new ResetPasswordResponseDto();
   }
 
-  async verifyEmail(token: string): Promise<{ message: string }> {
+  /**
+   * Verify user email address
+   * @param token Email verification token
+   * @return Verification confirmation
+   */
+  async verifyEmail(token: string): Promise<VerifyEmailResponseDto> {
     const user = await this.userRepository.findOne({
       where: { verificationToken: token },
     });
@@ -224,33 +236,39 @@ export class AuthService {
 
     await this.userRepository.save(user);
 
-    return { message: 'Email verified successfully' };
+    return new VerifyEmailResponseDto();
   }
 
-  async getUserById(id: string): Promise<Partial<User>> {
+  /**
+   * Get user profile by ID
+   * @param id User ID
+   * @return User profile without sensitive data
+   */
+  async getUserById(id: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
-    const { password, verificationToken, resetPasswordToken, ...userWithoutSensitiveData } = user;
-
-    return userWithoutSensitiveData;
+    return new UserResponseDto(user);
   }
 
+  /**
+   * Generate access and refresh tokens for user
+   * @param user User entity
+   * @param ipAddress Client IP address
+   * @param userAgent Client user agent
+   * @return Access and refresh tokens
+   */
   private async generateTokens(user: User, ipAddress?: string, userAgent?: string): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = { sub: user.id, email: user.email, role: user.role };
 
-    // Generate access token
     const accessToken = this.jwtService.sign(payload);
-
-    // Generate refresh token
     const refreshTokenValue = uuidv4();
     const refreshTokenExpiry = new Date();
-    refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 days
+    refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7);
 
-    // Store refresh token in database
     const refreshToken = this.refreshTokenRepository.create({
       token: refreshTokenValue,
       userId: user.id,
@@ -267,6 +285,11 @@ export class AuthService {
     };
   }
 
+  /**
+   * Store user session in Redis
+   * @param userId User ID
+   * @param accessToken Access token
+   */
   private async storeSession(userId: string, accessToken: string): Promise<void> {
     const expiresIn = this.configService.get('JWT_ACCESS_EXPIRATION') || '15m';
     const ttl = this.parseTTL(expiresIn);
@@ -278,6 +301,11 @@ export class AuthService {
     );
   }
 
+  /**
+   * Parse TTL string to seconds
+   * @param expiration Expiration string (e.g., '15m', '1h', '7d')
+   * @return TTL in seconds
+   */
   private parseTTL(expiration: string): number {
     const unit = expiration.slice(-1);
     const value = parseInt(expiration.slice(0, -1));
@@ -292,7 +320,7 @@ export class AuthService {
       case 'd':
         return value * 86400;
       default:
-        return 900; // 15 minutes default
+        return 900;
     }
   }
 }

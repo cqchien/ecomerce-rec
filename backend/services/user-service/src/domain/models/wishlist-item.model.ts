@@ -3,12 +3,14 @@
  * Pure TypeScript class with no framework dependencies.
  */
 export class WishlistItem {
-  constructor(
-    public readonly id: string,
-    public readonly userId: string,
-    public readonly productId: string,
-    public readonly addedAt: Date,
-  ) {}
+  id?: string;
+  userId!: string;
+  productId!: string;
+  addedAt!: Date;
+
+  constructor(partial: Partial<WishlistItem>) {
+    Object.assign(this, partial);
+  }
 
   /**
    * Check if item was added recently (within 24 hours).

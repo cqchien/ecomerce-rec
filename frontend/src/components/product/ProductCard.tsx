@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { Plus, Star, Heart, Eye } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
+import { useAuthStore } from '@/stores/authStore';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn, formatPrice } from '@/lib/utils';
@@ -13,10 +14,13 @@ interface Product {
   price: number;
   originalPrice?: number;
   rating: number;
-  reviews: number;
+  reviews?: number;
+  reviewCount?: number;
   image: string;
   images?: string[];
-  category: string;
+  category?: string;
+  categoryName?: string;
+  categoryId?: string;
   stock: number;
   description: string;
   isNew?: boolean;
@@ -32,21 +36,41 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid', onAddToCart }) => {
   const { addItem } = useCartStore();
+  const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      category: product.category,
-      stock: product.stock,
-    });
-    if (onAddToCart) {
-      onAddToCart();
+    
+    // Require login before adding to cart
+    if (!isAuthenticated) {
+      navigate({ to: '/auth/login', search: { redirect: window.location.pathname } });
+      return;
+    }
+    
+    try {
+      await addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price || 0,
+        image: product.image,
+        category: product.category || product.categoryName || product.categoryId || '',
+        stock: product.stock || 0,
+      });
+      if (onAddToCart) {
+        onAddToCart();
+      }
+    } catch (error) {
+      // If auth error, redirect to login
+      if ((error as any)?.response?.status === 401) {
+        navigate({ to: '/auth/login', search: { redirect: window.location.pathname } });
+      }
+      console.error('Failed to add to cart:', error);
     }
   };
+
+  const reviewCount = product.reviews || product.reviewCount || 0;
+  const categoryDisplay = product.category || product.categoryName || '';
 
   if (viewMode === 'list') {
     return (
@@ -76,7 +100,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
 
         <div className="flex-1 py-4 pr-4 flex flex-col">
           <div className="text-xs text-gray-400 mb-1 uppercase tracking-wide font-bold">
-            {product.category}
+            {categoryDisplay}
           </div>
           <Link to={`/product/${product.slug}`}>
             <h3 className="font-display font-bold text-gray-900 text-xl mb-2 group-hover:text-[#FF6B8B] transition-colors">
@@ -98,10 +122,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
                     />
                   ))}
                 </div>
-                <span className="text-xs text-gray-400 ml-1">({product.reviews})</span>
+                <span className="text-xs text-gray-400 ml-1">({reviewCount})</span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-gray-900">{formatPrice(product.price)}</span>
+                <span className="text-2xl font-bold text-gray-900">{formatPrice(product.price || 0)}</span>
                 {product.originalPrice && (
                   <span className="text-sm text-gray-400 line-through font-medium">
                     {formatPrice(product.originalPrice)}
@@ -166,13 +190,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
       </div>
       <Link to={`/product/${product.slug}`} className="px-5 pb-5 pt-2 flex flex-col flex-grow">
         <div className="text-xs text-gray-400 mb-1 uppercase tracking-wide font-bold">
-          {product.category}
+          {categoryDisplay}
         </div>
         <h3 className="font-display font-bold text-gray-900 text-lg mb-1 leading-tight group-hover:text-[#FF6B8B] transition-colors">
           {product.name}
         </h3>
         <div className="mt-auto flex items-center justify-between">
-          <span className="font-bold text-xl text-[#FF6B8B]">{formatPrice(product.price)}</span>
+          <span className="font-bold text-xl text-[#FF6B8B]">{formatPrice(product.price || 0)}</span>
           <div className="flex items-center gap-1 text-xs text-yellow-400 bg-yellow-50 px-2 py-1 rounded-lg">
             <Star className="w-3 h-3 fill-current" />
             <span className="text-gray-600 font-bold">{product.rating}</span>

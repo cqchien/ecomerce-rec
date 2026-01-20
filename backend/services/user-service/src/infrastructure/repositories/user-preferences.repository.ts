@@ -35,15 +35,15 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
   }
 
   async createDefault(userId: string): Promise<UserPreferences> {
-    const defaultPreferences = new UserPreferences(
+    const defaultPreferences = new UserPreferences({
       userId,
-      true,
-      false,
-      false,
-      'en',
-      'USD',
-      new Date(),
-    );
+      emailNotifications: true,
+      smsNotifications: false,
+      marketingEmails: false,
+      language: 'en',
+      currency: 'USD',
+      updatedAt: new Date(),
+    });
     return await this.save(defaultPreferences);
   }
 }

@@ -38,6 +38,14 @@ func (r *OrderRepository) Create(ctx context.Context, order *domain.Order) error
 		return fmt.Errorf("failed to create order: %w", err)
 	}
 
+	// Reload to get database-generated IDs
+	if err := r.db.WithContext(ctx).Preload("Items").First(dbOrder, "id = ?", dbOrder.ID).Error; err != nil {
+		return fmt.Errorf("failed to reload order: %w", err)
+	}
+
+	// Update the domain object with generated IDs
+	*order = *dbOrder.ToDomain()
+
 	// Cache the order
 	r.cacheOrder(ctx, order)
 	return nil
