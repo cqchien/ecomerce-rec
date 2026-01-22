@@ -264,10 +264,10 @@ func (s *productServer) GetPriceRange(ctx context.Context, req *pb.GetPriceRange
 	}
 
 	return &pb.GetPriceRangeResponse{
-		MinPriceCents:  priceRange.MinPrice,
-		MaxPriceCents:  priceRange.MaxPrice,
-		AvgPriceCents:  priceRange.AvgPrice,
-		ProductCount:   priceRange.ProductCount,
+		MinPriceCents: priceRange.MinPrice,
+		MaxPriceCents: priceRange.MaxPrice,
+		AvgPriceCents: priceRange.AvgPrice,
+		ProductCount:  priceRange.ProductCount,
 	}, nil
 }
 

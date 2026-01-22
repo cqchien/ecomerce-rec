@@ -68,7 +68,7 @@ func (r *cartRepository) Update(ctx context.Context, cart *domain.Cart) error {
 		// Clear IDs and timestamps to let database generate new ones
 		now := time.Now()
 		for i := range dbCart.Items {
-			dbCart.Items[i].ID = "" // Let database generate new ID
+			dbCart.Items[i].ID = ""          // Let database generate new ID
 			dbCart.Items[i].CartID = cart.ID // Ensure correct cart ID
 			dbCart.Items[i].CreatedAt = now
 			dbCart.Items[i].UpdatedAt = now
