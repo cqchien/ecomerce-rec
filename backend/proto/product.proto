@@ -11,6 +11,9 @@ service ProductService {
   // Get product by ID
   rpc GetProduct(GetProductRequest) returns (GetProductResponse);
   
+  // Get product by slug
+  rpc GetProductBySlug(GetProductBySlugRequest) returns (GetProductBySlugResponse);
+  
   // List products with filters
   rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
   
@@ -25,6 +28,9 @@ service ProductService {
   
   // Get related products
   rpc GetRelatedProducts(GetRelatedProductsRequest) returns (GetRelatedProductsResponse);
+  
+  // Get price range statistics
+  rpc GetPriceRange(GetPriceRangeRequest) returns (GetPriceRangeResponse);
   
   // Admin: Create product
   rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
@@ -109,6 +115,15 @@ message GetProductResponse {
   Product product = 1;
 }
 
+// Get product by slug request
+message GetProductBySlugRequest {
+  string slug = 1;
+}
+
+message GetProductBySlugResponse {
+  Product product = 1;
+}
+
 // List products request
 message ListProductsRequest {
   common.PaginationRequest pagination = 1;
@@ -180,6 +195,18 @@ message GetRelatedProductsRequest {
 
 message GetRelatedProductsResponse {
   repeated Product products = 1;
+}
+
+// Get price range
+message GetPriceRangeRequest {
+  string category_id = 1; // Optional: filter by category
+}
+
+message GetPriceRangeResponse {
+  int64 min_price_cents = 1;
+  int64 max_price_cents = 2;
+  double avg_price_cents = 3;
+  int32 product_count = 4;
 }
 
 // Create product (Admin)

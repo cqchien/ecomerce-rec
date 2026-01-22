@@ -20,6 +20,10 @@ export class ProductGrpcClient implements OnModuleInit {
     return this.client.call('GetProduct', { id: productId });
   }
 
+  async getProductBySlug(slug: string): Promise<any> {
+    return this.client.call('GetProductBySlug', { slug });
+  }
+
   async listProducts(params: {
     page?: number;
     page_size?: number;
@@ -109,5 +113,11 @@ export class ProductGrpcClient implements OnModuleInit {
 
   async getProductsByIds(productIds: string[]): Promise<any> {
     return this.client.call('GetProductsByIds', { product_ids: productIds });
+  }
+
+  async getPriceRange(categoryId?: string): Promise<any> {
+    return this.client.call('GetPriceRange', {
+      category_id: categoryId || '',
+    });
   }
 }

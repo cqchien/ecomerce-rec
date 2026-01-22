@@ -14,6 +14,7 @@ type ProductRepository interface {
 	GetByIDs(ctx context.Context, ids []string) ([]Product, error)
 	Search(ctx context.Context, query string, filter *ProductFilter, pagination *Pagination) (*PaginatedProducts, error)
 	UpdateRating(ctx context.Context, productID string, rating float64, reviewCount int32) error
+	GetPriceRange(ctx context.Context, categoryID *string) (*PriceRange, error)
 }
 
 type CategoryRepository interface {

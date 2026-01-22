@@ -20,11 +20,13 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ProductService_GetProduct_FullMethodName         = "/product.ProductService/GetProduct"
+	ProductService_GetProductBySlug_FullMethodName   = "/product.ProductService/GetProductBySlug"
 	ProductService_ListProducts_FullMethodName       = "/product.ProductService/ListProducts"
 	ProductService_SearchProducts_FullMethodName     = "/product.ProductService/SearchProducts"
 	ProductService_ListCategories_FullMethodName     = "/product.ProductService/ListCategories"
 	ProductService_GetCategory_FullMethodName        = "/product.ProductService/GetCategory"
 	ProductService_GetRelatedProducts_FullMethodName = "/product.ProductService/GetRelatedProducts"
+	ProductService_GetPriceRange_FullMethodName      = "/product.ProductService/GetPriceRange"
 	ProductService_CreateProduct_FullMethodName      = "/product.ProductService/CreateProduct"
 	ProductService_UpdateProduct_FullMethodName      = "/product.ProductService/UpdateProduct"
 	ProductService_DeleteProduct_FullMethodName      = "/product.ProductService/DeleteProduct"
@@ -39,6 +41,8 @@ const (
 type ProductServiceClient interface {
 	// Get product by ID
 	GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*GetProductResponse, error)
+	// Get product by slug
+	GetProductBySlug(ctx context.Context, in *GetProductBySlugRequest, opts ...grpc.CallOption) (*GetProductBySlugResponse, error)
 	// List products with filters
 	ListProducts(ctx context.Context, in *ListProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error)
 	// Search products
@@ -49,6 +53,8 @@ type ProductServiceClient interface {
 	GetCategory(ctx context.Context, in *GetCategoryRequest, opts ...grpc.CallOption) (*GetCategoryResponse, error)
 	// Get related products
 	GetRelatedProducts(ctx context.Context, in *GetRelatedProductsRequest, opts ...grpc.CallOption) (*GetRelatedProductsResponse, error)
+	// Get price range statistics
+	GetPriceRange(ctx context.Context, in *GetPriceRangeRequest, opts ...grpc.CallOption) (*GetPriceRangeResponse, error)
 	// Admin: Create product
 	CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error)
 	// Admin: Update product
@@ -71,6 +77,16 @@ func (c *productServiceClient) GetProduct(ctx context.Context, in *GetProductReq
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetProductResponse)
 	err := c.cc.Invoke(ctx, ProductService_GetProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetProductBySlug(ctx context.Context, in *GetProductBySlugRequest, opts ...grpc.CallOption) (*GetProductBySlugResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProductBySlugResponse)
+	err := c.cc.Invoke(ctx, ProductService_GetProductBySlug_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -127,6 +143,16 @@ func (c *productServiceClient) GetRelatedProducts(ctx context.Context, in *GetRe
 	return out, nil
 }
 
+func (c *productServiceClient) GetPriceRange(ctx context.Context, in *GetPriceRangeRequest, opts ...grpc.CallOption) (*GetPriceRangeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPriceRangeResponse)
+	err := c.cc.Invoke(ctx, ProductService_GetPriceRange_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *productServiceClient) CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateProductResponse)
@@ -175,6 +201,8 @@ func (c *productServiceClient) GetProductsByIds(ctx context.Context, in *GetProd
 type ProductServiceServer interface {
 	// Get product by ID
 	GetProduct(context.Context, *GetProductRequest) (*GetProductResponse, error)
+	// Get product by slug
+	GetProductBySlug(context.Context, *GetProductBySlugRequest) (*GetProductBySlugResponse, error)
 	// List products with filters
 	ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error)
 	// Search products
@@ -185,6 +213,8 @@ type ProductServiceServer interface {
 	GetCategory(context.Context, *GetCategoryRequest) (*GetCategoryResponse, error)
 	// Get related products
 	GetRelatedProducts(context.Context, *GetRelatedProductsRequest) (*GetRelatedProductsResponse, error)
+	// Get price range statistics
+	GetPriceRange(context.Context, *GetPriceRangeRequest) (*GetPriceRangeResponse, error)
 	// Admin: Create product
 	CreateProduct(context.Context, *CreateProductRequest) (*CreateProductResponse, error)
 	// Admin: Update product
@@ -206,6 +236,9 @@ type UnimplementedProductServiceServer struct{}
 func (UnimplementedProductServiceServer) GetProduct(context.Context, *GetProductRequest) (*GetProductResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetProduct not implemented")
 }
+func (UnimplementedProductServiceServer) GetProductBySlug(context.Context, *GetProductBySlugRequest) (*GetProductBySlugResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProductBySlug not implemented")
+}
 func (UnimplementedProductServiceServer) ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListProducts not implemented")
 }
@@ -220,6 +253,9 @@ func (UnimplementedProductServiceServer) GetCategory(context.Context, *GetCatego
 }
 func (UnimplementedProductServiceServer) GetRelatedProducts(context.Context, *GetRelatedProductsRequest) (*GetRelatedProductsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRelatedProducts not implemented")
+}
+func (UnimplementedProductServiceServer) GetPriceRange(context.Context, *GetPriceRangeRequest) (*GetPriceRangeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPriceRange not implemented")
 }
 func (UnimplementedProductServiceServer) CreateProduct(context.Context, *CreateProductRequest) (*CreateProductResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateProduct not implemented")
@@ -268,6 +304,24 @@ func _ProductService_GetProduct_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ProductServiceServer).GetProduct(ctx, req.(*GetProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_GetProductBySlug_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProductBySlugRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetProductBySlug(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_GetProductBySlug_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetProductBySlug(ctx, req.(*GetProductBySlugRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -362,6 +416,24 @@ func _ProductService_GetRelatedProducts_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductService_GetPriceRange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPriceRangeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetPriceRange(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_GetPriceRange_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetPriceRange(ctx, req.(*GetPriceRangeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ProductService_CreateProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateProductRequest)
 	if err := dec(in); err != nil {
@@ -446,6 +518,10 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ProductService_GetProduct_Handler,
 		},
 		{
+			MethodName: "GetProductBySlug",
+			Handler:    _ProductService_GetProductBySlug_Handler,
+		},
+		{
 			MethodName: "ListProducts",
 			Handler:    _ProductService_ListProducts_Handler,
 		},
@@ -464,6 +540,10 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRelatedProducts",
 			Handler:    _ProductService_GetRelatedProducts_Handler,
+		},
+		{
+			MethodName: "GetPriceRange",
+			Handler:    _ProductService_GetPriceRange_Handler,
 		},
 		{
 			MethodName: "CreateProduct",

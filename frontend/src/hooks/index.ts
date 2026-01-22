@@ -10,6 +10,7 @@ export {
   useCategories,
   useFeaturedProducts,
   useRecommendedProducts,
+  useRelatedProducts,
 } from './useProducts';
 
 // Orders hooks

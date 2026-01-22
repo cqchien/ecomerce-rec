@@ -415,3 +415,52 @@ func (r *productRepository) modelToDomain(dbProduct *models.Product) *domain.Pro
 
 	return product
 }
+
+/**
+ * Gets the price range statistics for products
+ * @param ctx Context
+ * @param categoryID Optional category ID to filter by
+ * @return PriceRange statistics
+ */
+func (r *productRepository) GetPriceRange(ctx context.Context, categoryID *string) (*domain.PriceRange, error) {
+	type Result struct {
+		MinPrice     int64
+		MaxPrice     int64
+		AvgPrice     float64
+		ProductCount int64
+	}
+
+	var result Result
+	query := r.db.WithContext(ctx).
+		Model(&models.Product{}).
+		Where("status = ?", string(domain.ProductStatusActive))
+
+	if categoryID != nil && *categoryID != "" {
+		query = query.Where("category_id = ?", *categoryID)
+	}
+
+	err := query.
+		Select("MIN(price) as min_price, MAX(price) as max_price, AVG(price) as avg_price, COUNT(*) as product_count").
+		Scan(&result).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get price range: %w", err)
+	}
+
+	// If no products found, return zero values
+	if result.ProductCount == 0 {
+		return &domain.PriceRange{
+			MinPrice:     0,
+			MaxPrice:     0,
+			AvgPrice:     0,
+			ProductCount: 0,
+		}, nil
+	}
+
+	return &domain.PriceRange{
+		MinPrice:     result.MinPrice,
+		MaxPrice:     result.MaxPrice,
+		AvgPrice:     result.AvgPrice,
+		ProductCount: int32(result.ProductCount),
+	}, nil
+}

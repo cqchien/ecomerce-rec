@@ -65,6 +65,28 @@ func (s *productServer) GetProduct(ctx context.Context, req *pb.GetProductReques
 }
 
 /**
+ * Retrieves a product by slug
+ * @param ctx Context
+ * @param req GetProductBySlug request
+ * @return Product response
+ */
+func (s *productServer) GetProductBySlug(ctx context.Context, req *pb.GetProductBySlugRequest) (*pb.GetProductBySlugResponse, error) {
+	if req.Slug == "" {
+		return nil, status.Error(codes.InvalidArgument, "product slug is required")
+	}
+
+	product, err := s.productUC.GetProductBySlug(ctx, req.Slug)
+	if err != nil {
+		s.logger.Error("Failed to get product by slug", "slug", req.Slug, "error", err)
+		return nil, status.Error(codes.NotFound, "product not found")
+	}
+
+	return &pb.GetProductBySlugResponse{
+		Product: s.domainToProtoProduct(product),
+	}, nil
+}
+
+/**
  * Lists products with filters and pagination
  * @param ctx Context
  * @param req ListProducts request
@@ -220,6 +242,32 @@ func (s *productServer) GetRelatedProducts(ctx context.Context, req *pb.GetRelat
 
 	return &pb.GetRelatedProductsResponse{
 		Products: pbProducts,
+	}, nil
+}
+
+/**
+ * Gets price range statistics for products
+ * @param ctx Context
+ * @param req GetPriceRange request
+ * @return Price range response
+ */
+func (s *productServer) GetPriceRange(ctx context.Context, req *pb.GetPriceRangeRequest) (*pb.GetPriceRangeResponse, error) {
+	var categoryID *string
+	if req.CategoryId != "" {
+		categoryID = &req.CategoryId
+	}
+
+	priceRange, err := s.productUC.GetPriceRange(ctx, categoryID)
+	if err != nil {
+		s.logger.Error("Failed to get price range", "error", err)
+		return nil, status.Error(codes.Internal, "failed to get price range")
+	}
+
+	return &pb.GetPriceRangeResponse{
+		MinPriceCents:  priceRange.MinPrice,
+		MaxPriceCents:  priceRange.MaxPrice,
+		AvgPriceCents:  priceRange.AvgPrice,
+		ProductCount:   priceRange.ProductCount,
 	}, nil
 }
 

@@ -286,3 +286,39 @@ func (uc *ProductUseCase) UpdateRating(ctx context.Context, productID string, ra
 func ptrProductStatus(s domain.ProductStatus) *domain.ProductStatus {
 	return &s
 }
+
+/**
+ * Gets price range statistics for products
+ * @param ctx Context
+ * @param categoryID Optional category ID to filter by
+ * @return PriceRange statistics
+ */
+func (uc *ProductUseCase) GetPriceRange(ctx context.Context, categoryID *string) (*domain.PriceRange, error) {
+	// Create cache key
+	cacheKey := "price_range:all"
+	if categoryID != nil && *categoryID != "" {
+		cacheKey = fmt.Sprintf("price_range:%s", *categoryID)
+	}
+
+	// Try to get from cache
+	if cached, err := uc.redis.Get(ctx, cacheKey); err == nil && cached != "" {
+		var priceRange domain.PriceRange
+		if err := json.Unmarshal([]byte(cached), &priceRange); err == nil {
+			return &priceRange, nil
+		}
+	}
+
+	// Get from database
+	priceRange, err := uc.productRepo.GetPriceRange(ctx, categoryID)
+	if err != nil {
+		uc.logger.Error("Failed to get price range", "error", err)
+		return nil, fmt.Errorf("get price range: %w", err)
+	}
+
+	// Cache the result for 1 hour
+	if data, err := json.Marshal(priceRange); err == nil {
+		uc.redis.Set(ctx, cacheKey, string(data), 1*time.Hour)
+	}
+
+	return priceRange, nil
+}

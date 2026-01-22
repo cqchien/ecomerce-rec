@@ -24,12 +24,13 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login(email, password);
-      // Fetch cart after successful login
+      // Fetch cart and user details after successful login
       await fetchCart();
-      navigate({ to: '/dashboard' });
-    } catch (err) {
-      setError('Invalid email or password. Please try again.');
-    } finally {
+      navigate({ to: '/' });
+    } catch (err: any) {
+      console.error('Login error:', err);
+      const errorMessage = err?.message || 'Invalid email or password. Please try again.';
+      setError(errorMessage);
       setIsLoading(false);
     }
   };

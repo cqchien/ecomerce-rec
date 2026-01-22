@@ -58,7 +58,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
       <div className="space-y-3 pt-4 border-t border-gray-100">
         <div className="flex justify-between text-gray-600">
           <span>Subtotal</span>
-          <span className="font-semibold">${subtotal.toFixed(2)}</span>
+          <span className="font-semibold">${(Number(subtotal) || 0).toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-gray-600">
           <span>Shipping</span>
@@ -66,19 +66,19 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
             {shipping === 0 ? (
               <span className="text-green-600 font-bold">FREE</span>
             ) : (
-              `$${shipping.toFixed(2)}`
+              `$${(Number(shipping) || 0).toFixed(2)}`
             )}
           </span>
         </div>
         {remainingForFreeShipping > 0 && (
           <div className="flex items-center gap-2 text-xs text-[#FF6B8B] bg-[#FFF0F3] p-2 rounded-lg">
             <Tag className="w-4 h-4" />
-            Add ${remainingForFreeShipping.toFixed(2)} more for FREE shipping!
+            Add ${(Number(remainingForFreeShipping) || 0).toFixed(2)} more for FREE shipping!
           </div>
         )}
         <div className="flex justify-between text-gray-600">
           <span>Tax (8%)</span>
-          <span className="font-semibold">${tax.toFixed(2)}</span>
+          <span className="font-semibold">${(Number(tax) || 0).toFixed(2)}</span>
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
       <div className="pt-4 border-t-2 border-gray-900">
         <div className="flex justify-between items-baseline mb-6">
           <span className="text-lg font-bold text-gray-900">Total</span>
-          <span className="text-3xl font-bold text-gray-900">${total.toFixed(2)}</span>
+          <span className="text-3xl font-bold text-gray-900">${(Number(total) || 0).toFixed(2)}</span>
         </div>
 
         <Link to="/checkout">

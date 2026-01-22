@@ -29,6 +29,16 @@ export interface AuthResponse {
   refreshToken?: string;
 }
 
+export interface BackendAuthResponse {
+  user: {
+    id: string;
+    email: string;
+    name?: string;
+  };
+  accessToken: string;
+  refreshToken?: string;
+}
+
 export interface ForgotPasswordData {
   email: string;
 }
@@ -43,42 +53,84 @@ export const authService = {
    * User login
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>(
+    const response = await apiClient.post<ApiResponse<BackendAuthResponse>>(
       API_ENDPOINTS.auth.login,
       credentials
     );
     
     // Store tokens and user data
     if (response.success && response.data) {
-      localStorage.setItem('access_token', response.data.token);
+      localStorage.setItem('access_token', response.data.accessToken);
       if (response.data.refreshToken) {
         localStorage.setItem('refresh_token', response.data.refreshToken);
       }
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Transform backend response to match frontend User interface
+      const user: User = {
+        id: response.data.user.id,
+        email: response.data.user.email,
+        name: response.data.user.name || response.data.user.email.split('@')[0],
+        role: 'customer',
+      };
+      
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      // Return in expected format
+      return {
+        user,
+        token: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+      };
     }
     
-    return response.data;
+    throw new Error('Login failed');
   },
 
   /**
    * User registration
    */
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>(
+    // Split name into firstName and lastName for backend API
+    const nameParts = data.name.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || nameParts[0] || 'User';
+    
+    const response = await apiClient.post<ApiResponse<BackendAuthResponse>>(
       API_ENDPOINTS.auth.register,
-      data
+      {
+        email: data.email,
+        password: data.password,
+        firstName,
+        lastName,
+      }
     );
     
     // Store tokens and user data
     if (response.success && response.data) {
-      localStorage.setItem('access_token', response.data.token);
+      localStorage.setItem('access_token', response.data.accessToken);
       if (response.data.refreshToken) {
         localStorage.setItem('refresh_token', response.data.refreshToken);
       }
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Transform backend response to match frontend User interface
+      const user: User = {
+        id: response.data.user.id,
+        email: response.data.user.email,
+        name: response.data.user.name || data.name || response.data.user.email.split('@')[0],
+        role: 'customer',
+      };
+      
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      // Return in expected format
+      return {
+        user,
+        token: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+      };
     }
     
-    return response.data;
+    throw new Error('Registration failed');
   },
 
   /**

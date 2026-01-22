@@ -27,7 +27,7 @@ export const CartItem: React.FC<CartItemProps> = ({
   onQuantityChange,
   onRemove,
 }) => {
-  const itemTotal = price * quantity;
+  const itemTotal = (Number(price) || 0) * quantity;
 
   return (
     <div className="p-6 hover:bg-gray-50 transition-colors">
@@ -59,7 +59,7 @@ export const CartItem: React.FC<CartItemProps> = ({
 
         {/* Price */}
         <div className="col-span-1 md:col-span-2 text-left md:text-center">
-          <span className="font-bold text-gray-900">${price.toFixed(2)}</span>
+          <span className="font-bold text-gray-900">${(Number(price) || 0).toFixed(2)}</span>
         </div>
 
         {/* Quantity */}
@@ -73,7 +73,7 @@ export const CartItem: React.FC<CartItemProps> = ({
 
         {/* Total */}
         <div className="col-span-1 md:col-span-2 flex items-center justify-between md:justify-end gap-4">
-          <span className="font-bold text-lg text-gray-900">${itemTotal.toFixed(2)}</span>
+          <span className="font-bold text-lg text-gray-900">${(Number(itemTotal) || 0).toFixed(2)}</span>
           <button
             onClick={() => onRemove(id)}
             className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"

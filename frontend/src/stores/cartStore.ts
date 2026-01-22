@@ -58,8 +58,8 @@ export const useCartStore = create<CartStore>()(
             price: item.unitPrice,
             image: item.image,
             quantity: item.quantity,
-            category: '', // Not provided by API
-            stock: 0, // Not provided by API
+            category: 'product', // Default category
+            stock: 999, // Default high stock to avoid stock warnings
             selectedVariant: item.variantId,
           }));
           
@@ -78,23 +78,47 @@ export const useCartStore = create<CartStore>()(
       addItem: async (product: Product, quantity = 1, variant?: string) => {
         try {
           set({ isLoading: true });
+          
+          // Ensure price is a valid number - must be positive
+          const productPrice = Number(product.price) || 0;
+          const productStock = Number(product.stock) || 0;
+          
+          if (productPrice === 0) {
+            console.error('Error: Cannot add product with $0 price:', product);
+            throw new Error('Product price is not available. Please refresh the page and try again.');
+          }
+          
+          if (productStock === 0) {
+            throw new Error('Product is out of stock');
+          }
+          
           const cart = await cartService.addToCart({
             productId: product.id,
             variantId: variant,
             quantity,
+            name: product.name,
+            image: product.image,
+            sku: product.id,
+            price: productPrice,
+            currency: 'USD',
           });
           
           // Transform API cart items to local format
-          const items = cart.items.map((item: ApiCartItem) => ({
-            id: item.productId,
-            name: item.name,
-            price: item.unitPrice,
-            image: item.image,
-            quantity: item.quantity,
-            category: product.category || '',
-            stock: product.stock || 0,
-            selectedVariant: item.variantId,
-          }));
+          // Keep existing stock values for items already in cart, use product stock for new/updated item
+          const existingItems = get().items;
+          const items = cart.items.map((item: ApiCartItem) => {
+            const existingItem = existingItems.find(ei => ei.id === item.productId);
+            return {
+              id: item.productId,
+              name: item.name,
+              price: item.unitPrice,
+              image: item.image,
+              quantity: item.quantity,
+              category: item.productId === product.id ? (product.category || 'product') : (existingItem?.category || 'product'),
+              stock: item.productId === product.id ? productStock : (existingItem?.stock || 999),
+              selectedVariant: item.variantId,
+            };
+          });
           
           set({ cart, items, isLoading: false });
         } catch (error) {
@@ -119,8 +143,8 @@ export const useCartStore = create<CartStore>()(
               price: item.unitPrice,
               image: item.image,
               quantity: item.quantity,
-              category: '',
-              stock: 0,
+              category: 'product',
+              stock: 999,
               selectedVariant: item.variantId,
             }));
             
@@ -141,6 +165,10 @@ export const useCartStore = create<CartStore>()(
           const currentCart = get().cart;
           const item = currentCart?.items.find((item: ApiCartItem) => item.productId === productId);
           
+          console.log('UpdateQuantity - Looking for productId:', productId);
+          console.log('UpdateQuantity - Found cart item:', item);
+          console.log('UpdateQuantity - All cart items:', currentCart?.items);
+          
           if (item) {
             const cart = await cartService.updateCartItem(item.id, { quantity });
             
@@ -150,8 +178,8 @@ export const useCartStore = create<CartStore>()(
               price: item.unitPrice,
               image: item.image,
               quantity: item.quantity,
-              category: '',
-              stock: 0,
+              category: 'product',
+              stock: 999,
               selectedVariant: item.variantId,
             }));
             
@@ -228,7 +256,8 @@ export const useCartStore = create<CartStore>()(
 
       getTotal: () => {
         const cart = get().cart;
-        return cart ? cart.total : 0;
+        const total = cart?.total;
+        return Number(total) || 0;
       },
 
       getItemCount: () => {

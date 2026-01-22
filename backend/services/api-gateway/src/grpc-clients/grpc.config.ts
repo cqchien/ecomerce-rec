@@ -54,9 +54,13 @@ export class GrpcClient {
     request: TRequest,
   ): Promise<TResponse> {
     return new Promise((resolve, reject) => {
-      this.client[method](request, (error: Error, response: TResponse) => {
+      this.client[method](request, (error: any, response: TResponse) => {
         if (error) {
-          reject(error);
+          // Transform gRPC error to a more useful format
+          const grpcError = new Error(error.details || error.message);
+          grpcError['code'] = error.code;
+          grpcError['metadata'] = error.metadata;
+          reject(grpcError);
         } else {
           resolve(response);
         }

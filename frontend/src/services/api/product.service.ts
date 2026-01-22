@@ -73,6 +73,13 @@ export interface AddReviewData {
   images?: string[];
 }
 
+export interface PriceRange {
+  minPrice: number;
+  maxPrice: number;
+  avgPrice: number;
+  productCount: number;
+}
+
 export const productService = {
   /**
    * Get products with filters and pagination
@@ -140,11 +147,11 @@ export const productService = {
    * Get personalized product recommendations
    */
   async getRecommendedProducts(limit = 10): Promise<Product[]> {
-    const response = await apiClient.get<ApiResponse<{ products: Product[]; algorithm: string }>>(
+    const response = await apiClient.get<ApiResponse<Product[]>>(
       API_ENDPOINTS.products.recommended,
       { params: { limit } }
     );
-    return response.data.products;
+    return response.data;
   },
 
   /**
@@ -239,5 +246,16 @@ export const productService = {
       { params: { isOnSale: true, limit } }
     );
     return response.data.data;
+  },
+
+  /**
+   * Get price range for products (optionally filtered by category)
+   */
+  async getPriceRange(category?: string): Promise<PriceRange> {
+    const response = await apiClient.get<ApiResponse<PriceRange>>(
+      API_ENDPOINTS.products.priceRange,
+      { params: category ? { category } : {} }
+    );
+    return response.data;
   },
 };

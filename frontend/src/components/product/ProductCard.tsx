@@ -38,9 +38,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
   const { addItem } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
+  const [isAdding, setIsAdding] = React.useState(false);
+
+  // Get image from images array or fallback to image property
+  const productImage = product.images?.[0] || product.image || '/placeholder-product.jpg';
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Prevent double-click
+    if (isAdding) return;
+    setIsAdding(true);
     
     // Require login before adding to cart
     if (!isAuthenticated) {
@@ -53,7 +62,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
         id: product.id,
         name: product.name,
         price: product.price || 0,
-        image: product.image,
+        image: productImage,
         category: product.category || product.categoryName || product.categoryId || '',
         stock: product.stock || 0,
       });
@@ -66,6 +75,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
         navigate({ to: '/auth/login', search: { redirect: window.location.pathname } });
       }
       console.error('Failed to add to cart:', error);
+    } finally {
+      // Reset after a short delay to prevent accidental double-clicks
+      setTimeout(() => setIsAdding(false), 500);
     }
   };
 
@@ -77,7 +89,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
       <div className="bg-white rounded-3xl shadow-card hover:shadow-card-hover transition-all duration-300 border border-gray-100 overflow-hidden group flex gap-4 hover:-translate-y-1">
         <div className="relative w-64 h-64 overflow-hidden bg-gray-50 m-4 rounded-2xl flex-shrink-0">
           <img
-            src={product.image}
+            src={productImage}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           />
@@ -140,7 +152,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
               </button>
               <Button
                 onClick={handleAddToCart}
-                disabled={product.stock === 0}
+                disabled={product.stock === 0 || isAdding}
                 className="px-6 bg-[#FF6B8B] hover:bg-[#E64A6B]"
               >
                 <Plus className="w-4 h-4 mr-2" /> Add to Cart
@@ -157,7 +169,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
       <div className="relative aspect-[1/1] overflow-hidden bg-gray-50 m-2 rounded-2xl">
         <Link to={`/product/${product.slug}`}>
           <img
-            src={product.image}
+            src={productImage}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           />
@@ -176,7 +188,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
         {/* Quick Add Button */}
         <button
           onClick={handleAddToCart}
-          disabled={product.stock === 0}
+          disabled={product.stock === 0 || isAdding}
           className="absolute bottom-3 right-3 w-12 h-12 bg-white text-gray-900 rounded-full shadow-lg flex items-center justify-center hover:bg-[#FF6B8B] hover:text-white transition-all transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300 z-10 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-6 h-6" />

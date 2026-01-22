@@ -28,7 +28,7 @@ export class CartGrpcClient implements OnModuleInit {
     image: string;
     sku: string;
     quantity: number;
-    unit_price: { amount: number; currency: string };
+    unit_price: { amount_cents: number; currency: string };
   }): Promise<any> {
     return this.client.call('AddToCart', data);
   }

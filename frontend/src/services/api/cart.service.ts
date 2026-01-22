@@ -30,6 +30,11 @@ export interface AddToCartData {
   productId: string;
   variantId?: string;
   quantity: number;
+  name: string;
+  image: string;
+  sku?: string;
+  price: number;
+  currency?: string;
 }
 
 export interface UpdateCartItemData {

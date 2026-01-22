@@ -88,3 +88,10 @@ type PaginatedProducts struct {
 	Limit      int32
 	TotalPages int32
 }
+
+type PriceRange struct {
+	MinPrice     int64
+	MaxPrice     int64
+	AvgPrice     float64
+	ProductCount int32
+}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { 
   Filter, Grid, List, ChevronDown, Star, ShoppingCart, Heart, 
@@ -7,6 +7,7 @@ import {
 import { ProductCard } from '@/components/product/ProductCard';
 import { useProducts, useCategories } from '@/hooks';
 import { useCartStore } from '@/stores/cartStore';
+import { productService } from '@/services/api/product.service';
 
 type ViewMode = 'grid' | 'list';
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'newest';
@@ -16,11 +17,39 @@ export const ShopPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 200]);
+  const [maxPriceLimit, setMaxPriceLimit] = useState<number>(200);
   const [selectedRating, setSelectedRating] = useState<number>(0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { addItem } = useCartStore();
   
   const { categories = [] } = useCategories();
+  
+  // Fetch dynamic price range when component mounts or category changes
+  useEffect(() => {
+    const fetchPriceRange = async () => {
+      try {
+        const categoryId = selectedCategory !== 'all' ? selectedCategory : undefined;
+        const range = await productService.getPriceRange(categoryId);
+        
+        // Round up to nearest 10 for better UX
+        const maxPrice = Math.ceil(range.maxPrice / 10) * 10;
+        setMaxPriceLimit(maxPrice);
+        
+        // Reset price range to new limits if current range exceeds them
+        setPriceRange((current) => {
+          const newMax = Math.min(current[1], maxPrice);
+          return [0, newMax];
+        });
+      } catch (error) {
+        console.error('Failed to fetch price range:', error);
+        // Fallback to default if API fails
+        setMaxPriceLimit(200);
+      }
+    };
+
+    fetchPriceRange();
+  }, [selectedCategory]);
+  
   const { products = [], isLoading } = useProducts({
     category: selectedCategory !== 'all' ? selectedCategory : undefined,
     minPrice: priceRange[0],
@@ -165,7 +194,7 @@ export const ShopPage: React.FC = () => {
                       <input
                         type="range"
                         min="0"
-                        max="200"
+                        max={maxPriceLimit}
                         value={priceRange[1]}
                         onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
                         className="w-full accent-[#FF6B8B]"
@@ -211,7 +240,7 @@ export const ShopPage: React.FC = () => {
                   <button
                     onClick={() => {
                       setSelectedCategory('all');
-                      setPriceRange([0, 200]);
+                      setPriceRange([0, maxPriceLimit]);
                       setSelectedRating(0);
                       setIsFilterOpen(false);
                     }}
@@ -253,7 +282,7 @@ export const ShopPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setSelectedCategory('all');
-                    setPriceRange([0, 200]);
+                    setPriceRange([0, maxPriceLimit]);
                     setSelectedRating(0);
                   }}
                   className="px-6 py-3 bg-[#FF6B8B] text-white rounded-xl font-bold hover:bg-[#E64A6B] transition-colors"

@@ -1,72 +1,114 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Mail, Lock, Eye, EyeOff, User, Chrome, Facebook, Check } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
+import { useCartStore } from '@/stores/cartStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { getAuthService } from '@/services';
+
+const PASSWORD_MIN_LENGTH = 8;
+const BENEFITS = [
+  'Exclusive member discounts',
+  'Early access to new products',
+  'Free shipping on orders over $50',
+  'Birthday rewards and special offers',
+] as const;
+
+// Zod schema for form validation
+const registerSchema = z.object({
+  name: z.string()
+    .min(1, 'Name is required')
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name must be less than 50 characters')
+    .trim(),
+  email: z.string()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address')
+    .toLowerCase()
+    .trim(),
+  password: z.string()
+    .min(PASSWORD_MIN_LENGTH, `Password must be at least ${PASSWORD_MIN_LENGTH} characters long`)
+    .max(100, 'Password must be less than 100 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
+  agreeToTerms: z.boolean().refine((val) => val === true, {
+    message: 'You must agree to the terms and conditions',
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const { setUser } = useAuthStore();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const { fetchCart } = useCartStore();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const authService = useMemo(() => getAuthService(), []);
 
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    mode: 'onBlur', // Validate on blur for better UX
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      agreeToTerms: false,
+    },
+  });
 
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      return;
-    }
-
-    if (!agreeToTerms) {
-      setError('Please agree to the terms and conditions');
-      return;
-    }
-
-    setIsLoading(true);
+  const onSubmit = useCallback(async (data: RegisterFormData) => {
+    setApiError('');
 
     try {
-      // Mock registration - in real app, call API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await authService.register({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+      });
 
-      // Create user object
-      const newUser = {
-        id: Math.random().toString(36).substr(2, 9),
-        name: formData.name,
-        email: formData.email,
-        role: 'customer' as const,
-      };
-
-      setUser(newUser);
+      setUser(response.user);
+      await fetchCart();
       navigate({ to: '/dashboard' });
     } catch (err) {
-      setError('Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      console.error('Registration error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed. Please try again.';
+      setApiError(errorMessage);
     }
-  };
+  }, [authService, setUser, fetchCart, navigate]);
 
-  const handleChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
-  };
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword(prev => !prev);
+  }, []);
+
+  const toggleConfirmPasswordVisibility = useCallback(() => {
+    setShowConfirmPassword(prev => !prev);
+  }, []);
+
+  // Get the first error to display (priority: API error, then form errors)
+  const displayError = apiError || 
+    errors.name?.message || 
+    errors.email?.message || 
+    errors.password?.message || 
+    errors.confirmPassword?.message || 
+    errors.agreeToTerms?.message;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] to-[#E6FFFA] pt-24 pb-20">
@@ -108,10 +150,10 @@ export const RegisterPage: React.FC = () => {
           </div>
 
           {/* Register Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {displayError && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 font-medium">
-                {error}
+                {displayError}
               </div>
             )}
 
@@ -124,11 +166,13 @@ export const RegisterPage: React.FC = () => {
                 <Input
                   id="name"
                   type="text"
-                  required
+                  autoComplete="name"
                   placeholder="John Doe"
-                  value={formData.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
-                  className="pl-12 h-12 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-[#4ECDC4] focus:bg-white"
+                  {...register('name')}
+                  disabled={isSubmitting}
+                  className={`pl-12 h-12 bg-gray-50 border-2 rounded-xl focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed ${
+                    errors.name ? 'border-red-300 focus:border-red-500' : 'border-gray-100 focus:border-[#4ECDC4]'
+                  }`}
                 />
               </div>
             </div>
@@ -142,11 +186,13 @@ export const RegisterPage: React.FC = () => {
                 <Input
                   id="email"
                   type="email"
-                  required
+                  autoComplete="email"
                   placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
-                  className="pl-12 h-12 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-[#4ECDC4] focus:bg-white"
+                  {...register('email')}
+                  disabled={isSubmitting}
+                  className={`pl-12 h-12 bg-gray-50 border-2 rounded-xl focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed ${
+                    errors.email ? 'border-red-300 focus:border-red-500' : 'border-gray-100 focus:border-[#4ECDC4]'
+                  }`}
                 />
               </div>
             </div>
@@ -160,22 +206,25 @@ export const RegisterPage: React.FC = () => {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  required
+                  autoComplete="new-password"
                   placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => handleChange('password', e.target.value)}
-                  className="pl-12 pr-12 h-12 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-[#4ECDC4] focus:bg-white"
+                  {...register('password')}
+                  disabled={isSubmitting}
+                  className={`pl-12 pr-12 h-12 bg-gray-50 border-2 rounded-xl focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed ${
+                    errors.password ? 'border-red-300 focus:border-red-500' : 'border-gray-100 focus:border-[#4ECDC4]'
+                  }`}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={togglePasswordVisibility}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               <p className="mt-1 text-xs text-gray-500">
-                Must be at least 8 characters long
+                Must include uppercase, lowercase, and number
               </p>
             </div>
 
@@ -188,16 +237,19 @@ export const RegisterPage: React.FC = () => {
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
-                  required
+                  autoComplete="new-password"
                   placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                  className="pl-12 pr-12 h-12 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-[#4ECDC4] focus:bg-white"
+                  {...register('confirmPassword')}
+                  disabled={isSubmitting}
+                  className={`pl-12 pr-12 h-12 bg-gray-50 border-2 rounded-xl focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed ${
+                    errors.confirmPassword ? 'border-red-300 focus:border-red-500' : 'border-gray-100 focus:border-[#4ECDC4]'
+                  }`}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  onClick={toggleConfirmPasswordVisibility}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -209,9 +261,13 @@ export const RegisterPage: React.FC = () => {
                 <input
                   id="terms"
                   type="checkbox"
-                  checked={agreeToTerms}
-                  onChange={(e) => setAgreeToTerms(e.target.checked)}
-                  className="w-4 h-4 text-[#4ECDC4] border-gray-300 rounded focus:ring-[#4ECDC4]"
+                  {...register('agreeToTerms')}
+                  disabled={isSubmitting}
+                  className={`w-4 h-4 border-gray-300 rounded focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    errors.agreeToTerms 
+                      ? 'border-red-300 text-red-500 focus:ring-red-500' 
+                      : 'text-[#4ECDC4] focus:ring-[#4ECDC4]'
+                  }`}
                 />
               </div>
               <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
@@ -228,10 +284,10 @@ export const RegisterPage: React.FC = () => {
 
             <Button
               type="submit"
-              disabled={isLoading}
-              className="w-full h-14 bg-gradient-to-r from-[#4ECDC4] to-[#44A3A0] hover:from-[#3DBEB6] hover:to-[#3A8F8C] text-white font-bold text-lg rounded-xl shadow-lg hover:-translate-y-1 transition-all"
+              disabled={isSubmitting}
+              className="w-full h-14 bg-gradient-to-r from-[#4ECDC4] to-[#44A3A0] hover:from-[#3DBEB6] hover:to-[#3A8F8C] text-white font-bold text-lg rounded-xl shadow-lg hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isLoading ? 'Creating Account...' : 'Create Account'}
+              {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>
 
@@ -253,13 +309,8 @@ export const RegisterPage: React.FC = () => {
         <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-6">
           <h3 className="font-bold text-gray-900 mb-4">Why join us?</h3>
           <ul className="space-y-3">
-            {[
-              'Exclusive member discounts',
-              'Early access to new products',
-              'Free shipping on orders over $50',
-              'Birthday rewards and special offers',
-            ].map((benefit, index) => (
-              <li key={index} className="flex items-center gap-3 text-sm text-gray-600">
+            {BENEFITS.map((benefit, index) => (
+              <li key={benefit} className="flex items-center gap-3 text-sm text-gray-600">
                 <div className="flex-shrink-0 w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
                   <Check className="w-3 h-3 text-green-600" />
                 </div>

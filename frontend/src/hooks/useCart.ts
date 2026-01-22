@@ -7,7 +7,7 @@ import { useCartStore } from '@/stores/cartStore';
 export const useCart = () => {
   const { items, updateQuantity, removeItem, getTotal, getItemCount, clearCart } = useCartStore();
 
-  const subtotal = getTotal();
+  const subtotal = Number(getTotal()) || 0;
   const shipping = subtotal > 50 ? 0 : 5.99;
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shipping + tax;

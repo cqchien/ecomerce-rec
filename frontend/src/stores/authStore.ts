@@ -17,14 +17,35 @@ interface AuthStore {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
+  checkAuth: () => void;
 }
+
+// Helper to check if user is authenticated from localStorage
+const getInitialAuthState = () => {
+  const token = localStorage.getItem('access_token');
+  const userStr = localStorage.getItem('user');
+  
+  if (token && userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      return { isAuthenticated: true, token, user };
+    } catch {
+      return { isAuthenticated: false, token: null, user: null };
+    }
+  }
+  
+  return { isAuthenticated: false, token: null, user: null };
+};
 
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
-      user: null,
-      isAuthenticated: false,
-      token: null,
+      ...getInitialAuthState(),
+
+      checkAuth: () => {
+        const authState = getInitialAuthState();
+        set(authState);
+      },
 
       login: async (email: string, password: string) => {
         const authService = getAuthService();

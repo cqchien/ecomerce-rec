@@ -15,7 +15,7 @@ import {
   CreditCard,
   RotateCcw,
 } from 'lucide-react';
-import { useProduct } from '@/hooks';
+import { useProduct, useRelatedProducts } from '@/hooks';
 import { useCartStore } from '@/stores/cartStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +25,7 @@ type TabType = 'description' | 'specifications' | 'reviews';
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams({ from: '/product/$slug' });
   const { product, isLoading } = useProduct(undefined, slug);
+  const { products: relatedProducts } = useRelatedProducts(product?.id, 6);
   const { addItem } = useCartStore();
 
   const [activeImage, setActiveImage] = useState(0);
@@ -71,8 +72,31 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddBundle = () => {
-    // Bundle functionality would need related products from API
-    handleAddToCart();
+    if (!relatedProducts || relatedProducts.length === 0) {
+      handleAddToCart();
+      return;
+    }
+    
+    const bundleProduct = relatedProducts[0];
+    // Add current product
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: images[0],
+      category: product.categoryName || product.categoryId,
+      stock: product.stock,
+    }, quantity);
+    
+    // Add bundle product
+    addItem({
+      id: bundleProduct.id,
+      name: bundleProduct.name,
+      price: bundleProduct.price,
+      image: bundleProduct.images?.[0] || '',
+      category: bundleProduct.categoryName || bundleProduct.categoryId,
+      stock: bundleProduct.stock,
+    }, 1);
   };
 
   return (
@@ -180,7 +204,7 @@ export const ProductDetailPage: React.FC = () => {
             {/* Price */}
             <div className="py-6 border-y border-gray-100">
               <div className="flex items-baseline gap-3 mb-2">
-                <span className="text-4xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                <span className="text-4xl font-bold text-gray-900">${(product.price || 0).toFixed(2)}</span>
                 {product.originalPrice && (
                   <>
                     <span className="text-xl text-gray-400 line-through">
@@ -267,8 +291,8 @@ export const ProductDetailPage: React.FC = () => {
                   </button>
                   <span className="w-12 text-center font-bold text-gray-900">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                    disabled={quantity >= product.stock}
+                    onClick={() => setQuantity(quantity + 1)}
+                    disabled={product.stock != null && quantity >= product.stock}
                     className="w-10 h-10 flex items-center justify-center hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50"
                   >
                     <Plus className="w-4 h-4" />
@@ -334,50 +358,52 @@ export const ProductDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Bundle Section */}
-        <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 mb-16 border border-gray-100">
-          <h3 className="text-xl font-bold text-gray-900 mb-6 font-display">
-            Frequently Bought Together
-          </h3>
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="relative">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-24 h-24 object-cover rounded-lg border border-gray-200"
-                />
-                <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-gray-100">
-                  <Check className="w-3 h-3 text-[#4ECDC4]" />
+        {/* Bundle Section - Frequently Bought Together */}
+        {relatedProducts && relatedProducts.length > 0 && (
+          <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 mb-16 border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-900 mb-6 font-display">
+              Frequently Bought Together
+            </h3>
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="relative">
+                  <img
+                    src={images[0]}
+                    alt={product.name}
+                    className="w-24 h-24 object-cover rounded-lg border border-gray-200"
+                  />
+                  <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-gray-100">
+                    <Check className="w-3 h-3 text-[#4ECDC4]" />
+                  </div>
+                </div>
+                <Plus className="w-6 h-6 text-gray-400" />
+                <div className="relative">
+                  <img
+                    src={relatedProducts[0].images?.[0] || relatedProducts[0].image || ''}
+                    alt={relatedProducts[0].name}
+                    className="w-24 h-24 object-cover rounded-lg border border-gray-200"
+                  />
+                  <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-gray-100">
+                    <Check className="w-3 h-3 text-[#4ECDC4]" />
+                  </div>
                 </div>
               </div>
-              <Plus className="w-6 h-6 text-gray-400" />
-              <div className="relative">
-                <img
-                  src={bundleProduct.image}
-                  alt={bundleProduct.name}
-                  className="w-24 h-24 object-cover rounded-lg border border-gray-200"
-                />
-                <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-gray-100">
-                  <Check className="w-3 h-3 text-[#4ECDC4]" />
-                </div>
-              </div>
-            </div>
 
-            <div className="flex flex-col md:items-end text-center md:text-right min-w-[200px]">
-              <div className="text-gray-500 text-sm mb-1">Total Price:</div>
-              <div className="text-2xl font-bold text-gray-900 mb-4">
-                ${(product.price + bundleProduct.price).toFixed(2)}
+              <div className="flex flex-col md:items-end text-center md:text-right min-w-[200px]">
+                <div className="text-gray-500 text-sm mb-1">Total Price:</div>
+                <div className="text-2xl font-bold text-gray-900 mb-4">
+                  ${(((product.price || 0) + (relatedProducts[0].price || 0)) * quantity).toFixed(2)}
+                </div>
+                <Button
+                  onClick={handleAddBundle}
+                  className="px-6 py-3 bg-[#FF6B8B] hover:bg-[#E64A6B] text-white rounded-xl font-bold shadow-lg hover:-translate-y-1 transition-all"
+                >
+                  Add Both to Cart
+                </Button>
               </div>
-              <Button
-                onClick={handleAddBundle}
-                className="px-6 py-3 bg-[#FF6B8B] hover:bg-[#E64A6B] text-white rounded-xl font-bold shadow-lg hover:-translate-y-1 transition-all"
-              >
-                Add Both to Cart
-              </Button>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Tabs Section */}
         <div className="mb-16">
@@ -539,7 +565,7 @@ export const ProductDetailPage: React.FC = () => {
                     {p.name}
                   </h3>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="font-bold text-[#FF6B8B]">${p.price.toFixed(2)}</span>
+                    <span className="font-bold text-[#FF6B8B]">${(p.price || 0).toFixed(2)}</span>
                     <div className="flex items-center text-xs text-yellow-500">
                       <Star className="w-3 h-3 fill-current" />
                       <span className="ml-1 text-gray-500">{p.rating}</span>

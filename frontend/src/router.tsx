@@ -17,8 +17,13 @@ import { useCartStore } from '@/stores/cartStore';
 
 // Root Layout Component with Cart Initialization
 const RootLayout = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, checkAuth } = useAuthStore();
   const { fetchCart } = useCartStore();
+
+  // Check authentication state on mount
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   useEffect(() => {
     // Fetch cart when user is authenticated

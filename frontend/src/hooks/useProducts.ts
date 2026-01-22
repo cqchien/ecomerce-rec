@@ -203,3 +203,37 @@ export const useRecommendedProducts = (limit = 10) => {
 
   return { products, isLoading, error };
 };
+
+export const useRelatedProducts = (productId?: string, limit = 6) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const productService = getProductService();
+
+  useEffect(() => {
+    if (!productId) {
+      setProducts([]);
+      return;
+    }
+
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await (productService as any).getRelatedProducts(productId, limit);
+        setProducts(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setError(err as Error);
+        console.error('Failed to fetch related products:', err);
+        setProducts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [productId, limit]);
+
+  return { products, isLoading, error };
+};

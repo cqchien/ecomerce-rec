@@ -42,6 +42,7 @@ export const API_ENDPOINTS = {
     reviews: (id: string) => `/products/${id}/reviews`,
     addReview: (id: string) => `/products/${id}/reviews`,
     trackView: (id: string) => `/products/${id}/view`,
+    priceRange: '/products/price-range',
   },
 
   // Cart

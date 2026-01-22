@@ -7,6 +7,7 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { ProductGrpcClient } from '../grpc-clients/product-grpc.client';
 import { RecommendationGrpcClient } from '../grpc-clients/recommendation.grpc-client';
@@ -81,6 +82,26 @@ export class ProductController {
   }
 
   /**
+   * Get price range for products
+   */
+  @Get('price-range')
+  @Public()
+  async getPriceRange(@Query('category') category?: string) {
+    const result = await this.productGrpcClient.getPriceRange(category);
+    
+    // Convert from cents to dollars and wrap in standard response format
+    return {
+      success: true,
+      data: {
+        minPrice: result.min_price_cents / 100,
+        maxPrice: result.max_price_cents / 100,
+        avgPrice: result.avg_price_cents / 100,
+        productCount: result.product_count,
+      },
+    };
+  }
+
+  /**
    * Get recommended products (placeholder - would call recommendation service)
    */
   @Get('recommended')
@@ -152,6 +173,19 @@ export class ProductController {
       });
       return new ProductListResponseDto(result.products || [], result);
     }
+  }
+
+  /**
+   * Get product by slug
+   */
+  @Get('slug/:slug')
+  @Public()
+  async getProductBySlug(@Param('slug') slug: string) {
+    const result = await this.productGrpcClient.getProductBySlug(slug);
+    if (!result.product) {
+      throw new NotFoundException(`Product with slug "${slug}" not found`);
+    }
+    return new SingleProductResponseDto(result.product);
   }
 
   /**

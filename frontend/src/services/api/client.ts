@@ -52,8 +52,12 @@ apiClient.interceptors.response.use(
   async (error: AxiosError<ApiResponse>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Handle 401 Unauthorized - Token expired
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't retry for auth endpoints (login, register) - let them handle their own errors
+    const isAuthEndpoint = originalRequest.url?.includes('/auth/login') || 
+                          originalRequest.url?.includes('/auth/register');
+
+    // Handle 401 Unauthorized - Token expired (but not for auth endpoints)
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
 
       const refreshToken = localStorage.getItem('refresh_token');
@@ -72,6 +76,12 @@ apiClient.interceptors.response.use(
             if (data.data.refreshToken) {
               localStorage.setItem('refresh_token', data.data.refreshToken);
             }
+            
+            // Update auth store to prevent redirect after refresh
+            // Note: We import dynamically to avoid circular dependency
+            import('@/stores/authStore').then(({ useAuthStore }) => {
+              useAuthStore.getState().checkAuth();
+            });
 
             // Retry the original request with new token
             if (originalRequest.headers) {
